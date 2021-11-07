@@ -1,0 +1,48 @@
+{
+  "name": "BulkyURLs",
+  "description": "BulkyURLs is a Chrome WebExtension that allows users to manage a large number of URLs without having to leave the browser.",
+  "version": "0.1",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "clipboardWrite"
+  ],
+  "optional_permissions": [
+    "bookmarks",
+    "tabs"
+  ],
+  "host_permissions": [
+  ],
+  "action": {
+    "default_icon": {
+      "16": "/img/bulkyurls-icon-16x16.png",
+      "32": "/img/bulkyurls-icon-32x32.png",
+      "48": "/img/bulkyurls-icon-48x48.png",
+      "128": "/img/bulkyurls-icon-128x128.png"
+    },
+    "default_popup": "bulky-urls.html",
+    "default_title": "BulkyURLs v0.1"
+  },
+  "icons": {
+    "16": "/img/bulkyurls-icon-16x16.png",
+    "32": "/img/bulkyurls-icon-32x32.png",
+    "48": "/img/bulkyurls-icon-48x48.png",
+    "128": "/img/bulkyurls-icon-128x128.png"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["bulkyurls.js"]
+    }
+  ],
+  "content_security_policy": "default-src 'self'; frame-ancestors 'none';",
+  "commands": {
+
+  }
+}
