@@ -1,26 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>BulkyURLs Options</title>
+  <link rel="stylesheet" href="bulkyurls.css">
 </head>
 <body>
-Favorite color:
-<select id="color">
-    <option value="red">red</option>
-    <option value="green">green</option>
-    <option value="blue">blue</option>
-    <option value="yellow">yellow</option>
-</select>
-
 <label>
-    <input type="checkbox" id="like">
-    I like colors.
+  <span>Select Elements when I hold down</span>
+  <select id="ActivateModifiers" title="The modifier keys to hold down while using the mouse button to activate selecting elements.">
+    <option value="0">No Modifier</option>
+    <option value="1">Control</option>
+    <option value="2">Alt</option>
+    <option value="3">Control & Alt</option>
+    <option value="4">Shift</option>
+    <option value="5">Control & Shift</option>
+    <option value="6">Alt & Shift</option>
+    <option value="7">Control, Alt & Shift</option>
+  </select>
+  <span>and I </span>
+  <select id="ActivateMouseButton" title="The mouse button to hold down and drag to select elements.">
+    <option value="1">Left Click</option>
+    <option value="4">Middle Click</option>
+    <option value="2">Right Click</option>
+    <option value="8">Button 4</option>
+    <option value="16">Button 5</option>
+  </select>
+  <span>and Drag for <input type="text" size="2" id="Activation_Min"> pixels</span>
 </label>
 
-<div id="status"></div>
-<button id="save">Save</button>
+<label>
+  <span>Default Action</span>
+  <select id="DefaultAction" title="Select the default action.">
+    <option value="1">Open Links</option>
+    <option value="2">Copy Links to clipboard</option>
+  </select>
+  <span>press CTRL after selection to modify default action</span>
+</label>
 
-<script src="options.js"></script>
+<label>
+  Open Tabs
+  <select id="OpenTabs">
+    <option title="Always open tabs at the end of the tab bar."
+            value="OpenTabsAtEnd">at End of Tab Bar
+    </option>
+    <option title="Always open each tab to the right of the current tab."
+            value="OpenTabsToRight">to the Right of Active Tab
+    </option>
+    <option title="This means tabs open to the right of the current tab or last opened tab until you switch tabs."
+            value="OpenTabsNaturally">the same way middle-clicking a link does
+    </option>
+  </select>
+</label>
+
+<div class="flex-list" style="height: 64px;">
+  
+  <label title="Switch focus to the closest new tab when opening tabs.">
+    <input id="SwitchFocusToNewTab" type="checkbox"> Switch focus to new tab
+  </label>
+  
+  <label title="Show the number of selected unique links as a label while selecting.">
+    <input id="ShowNumberOfLinks" type="checkbox"> Show the number of selected links
+  </label>
+  
+  <label title="Show a notification when an update has occurred.">
+    <input id="ShowUpdateNotification" type="checkbox"> Notify me when updates happen
+  </label>
+</div>
+
+<details id="UI_AdvancedOptions_Section">
+  <summary>Advanced Settings</summary>
+  
+  <label title="Ignore font weight of elements when filtering.
+  &bull;  Holding alt while selecting disables filtering as well.">
+    <input id="DisableFontWeightFiltering" type="checkbox"> Disable link filtering by font weight
+    <img class="Info" alt="Additional Info" src="../../res/Info16.png" title="Holding alt while selecting disables filtering as well."/>
+  </label>
+  
+  <label browsers="FireFox" title="This sets the opening tab id on newly opened tabs to maintain parent/child relationships between tabs.">
+    <input id="SetOwnershipTabID_FF" type="checkbox"> Set opening tab property for new tabs
+    <img class="Info" alt="Additional Info" src="../../res/Info16.png" title="This affects tab closing behavior, compatibility with TreeStyleTabs."/>
+    <img class="Info" alt="Firefox Only" src="../../res/FireFox16.png" title="This only works in FireFox."/>
+  </label>
+  
+  <label title="Wait this many milliseconds between each new tab that is opened.">
+    Delay between new tabs: <input type="text" size="2" id="NewTabDelayMS"> ms
+  </label>
+  
+  <label title="Wait this many milliseconds between each element being clicked.">
+    Delay between clicks on elements: <input type="text" size="2" id="ClickDelayMS"> ms
+  </label>
+  
+  <select id="StorageAPI" title="Syncronize your settings across all Firefox browsers or use Local Storage?">
+    <option value="sync">Sync storage</option>
+    <option value="local">Local storage</option>
+  </select>
+  
+  <details id="UI_DevOptions_Section">
+    <summary>Developer Options</summary>
+    
+    <label title="Enable development mode features, usually for debugging issues.">
+      <input id="DevMode" type="checkbox"> Enable Dev Mode
+    </label>
+    
+    <fieldset id="DevMode_Options">
+      <legend>Developer Mode Options</legend>
+      <label title="Log details about actions to console.">
+        <input id="Dev_Log_ActionMessages" type="checkbox"> Log Action Messages
+      </label>
+      
+      <label title="Logs elements whos coordinates are outside documents boundaries which are skipped during indexing.">
+        <input id="Debug_Log_OutOfBoundElements" type="checkbox"> Log Out of Bound Elements
+      </label>
+      
+      <label title="Skip all actions upon activation, this disables all actions from operating.">
+        <input id="Dev_Skip_AllActions" type="checkbox"> Skip Activation Actions
+      </label>
+      
+      <label title="Measure and report element indexing speed to console log (slows operation slightly).">
+        <input id="Debug_Measure_IndexingSpeed" type="checkbox"> Measure Indexing Speed
+      </label>
+      
+      <label title="Measure and report index search speed to console log (slows operation slightly).">
+        <input id="Debug_Measure_SearchSpeed" type="checkbox"> Measure Search Speed
+      </label>
+      
+      <label title="Visually shows index boundaries on document while selecting.">
+        <input id="Debug_Show_IndexBoundaryMarkers" type="checkbox"> Show Index Boundary Markers
+      </label>
+      
+      <label title="Shows markers indicating the element index buckets">
+        <input id="Debug_Show_ObscuredMarks" type="checkbox"> Show Obscured Element Marks
+      </label>
+    
+    </fieldset>
+  </details>
+</details>
 </body>
 </html>

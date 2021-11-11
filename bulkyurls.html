@@ -6,20 +6,14 @@
   <link rel="stylesheet" href="bulkyurls.css">
 </head>
 <body>
-<h1>The textarea form attribute</h1>
-
-<form action="" id="usrform">
-  Name: <input type="text" name="usrname">
-  <input type="submit">
-  </form>
-  <br>
-  <textarea rows="4" cols="50" name="comment" form="usrform">
-  Enter text here...</textarea>
-  <p>The text area above is outside the form element, but should still be a part of the form.</p>
-  <button id="sampleSecond" value="0.1">Sample Second</button>
-  <button id="min15" value="15">15 Minutes</button>
-  <button id="min30" value="30">30 Minutes</button>
-  <button id="cancelAlarm">Cancel Alarm</button>
-  <script src="script.js"></script>
+<h1><img src="img/bulkyurls-icon-32x32.png"> BulkyURLs</h1>
+  <textarea name="somethingInput" rows="4" cols="50" id="userInput" placeholder="Enter text here..."></textarea>
+  <button id="extractURLsFromText">URLs From Text</button>
+  <button id="extractURLsFromTabs">URLs From Tabs</button>
+  <button id="openURLsInTabs">Open URLs in New Tabs</button>
+  <br/><br/>
+  <button id="clear">Clear</button>
+<p>A free Chrome browser extension by SEO Soul. Email dev@seosoul.ca for feature suggestions, or to report a bug.</p>
+<script src="bulkyurls.js"></script>
 </body>
 </html>
