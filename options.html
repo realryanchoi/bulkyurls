@@ -3,138 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <title>BulkyURLs Options</title>
-  <link rel="stylesheet" href="bulkyurls.css">
+  <script type="text/javascript" src="js/vendor/jquery-1.8.2.min.js"></script>
+  <script type="text/javascript" src="js/vendor/colorpicker/jquery.colorpicker.js"></script>
+  <link rel="stylesheet" href="css/options.css">
+  <link rel="stylesheet" href="js/vendor/colorpicker/jquery.colorpicker.css" type="text/css" media="screen"/>
 </head>
 <body>
-<label>
-  <span>Select Elements when I hold down</span>
-  <select id="ActivateModifiers" title="The modifier keys to hold down while using the mouse button to activate selecting elements.">
-    <option value="0">No Modifier</option>
-    <option value="1">Control</option>
-    <option value="2">Alt</option>
-    <option value="3">Control & Alt</option>
-    <option value="4">Shift</option>
-    <option value="5">Control & Shift</option>
-    <option value="6">Alt & Shift</option>
-    <option value="7">Control, Alt & Shift</option>
-  </select>
-  <span>and I </span>
-  <select id="ActivateMouseButton" title="The mouse button to hold down and drag to select elements.">
-    <option value="1">Left Click</option>
-    <option value="4">Middle Click</option>
-    <option value="2">Right Click</option>
-    <option value="8">Button 4</option>
-    <option value="16">Button 5</option>
-  </select>
-  <span>and Drag for <input type="text" size="2" id="Activation_Min"> pixels</span>
-</label>
-
-<label>
-  <span>Default Action</span>
-  <select id="DefaultAction" title="Select the default action.">
-    <option value="1">Open Links</option>
-    <option value="2">Copy Links to clipboard</option>
-  </select>
-  <span>press CTRL after selection to modify default action</span>
-</label>
-
-<label>
-  Open Tabs
-  <select id="OpenTabs">
-    <option title="Always open tabs at the end of the tab bar."
-            value="OpenTabsAtEnd">at End of Tab Bar
-    </option>
-    <option title="Always open each tab to the right of the current tab."
-            value="OpenTabsToRight">to the Right of Active Tab
-    </option>
-    <option title="This means tabs open to the right of the current tab or last opened tab until you switch tabs."
-            value="OpenTabsNaturally">the same way middle-clicking a link does
-    </option>
-  </select>
-</label>
-
-<div class="flex-list" style="height: 64px;">
-  
-  <label title="Switch focus to the closest new tab when opening tabs.">
-    <input id="SwitchFocusToNewTab" type="checkbox"> Switch focus to new tab
-  </label>
-  
-  <label title="Show the number of selected unique links as a label while selecting.">
-    <input id="ShowNumberOfLinks" type="checkbox"> Show the number of selected links
-  </label>
-  
-  <label title="Show a notification when an update has occurred.">
-    <input id="ShowUpdateNotification" type="checkbox"> Notify me when updates happen
-  </label>
+<div id="page1" class="page">
+  <div class="info-box">
+    <p>Welcome and thank you for trying out linkclump. To use linkclump you should press and hold <span id="key_name"></span> the <b><span id="mouse_name"></span></b> mouse button, then drag the selection box around the links you want to open. When you release the mouse button all the links will be <b><span id="action_name"></span></b>. You are now ready to go!</p>
+    
+    <div id="test">
+      <p>Use the test area below to try out linkclump or click the option button at the bottom of the page to explore the many options available.</p>
+      <br />
+      <iframe id="test_area" src="test_area.html" height="300"></iframe>
+    </div>
+    <br /><br /><a href="#" id="guide2" class="button">Options</a>
+  </div>
 </div>
 
-<details id="UI_AdvancedOptions_Section">
-  <summary>Advanced Settings</summary>
+
+<div id="page2" class="page">
   
-  <label title="Ignore font weight of elements when filtering.
-  &bull;  Holding alt while selecting disables filtering as well.">
-    <input id="DisableFontWeightFiltering" type="checkbox"> Disable link filtering by font weight
-    <img class="Info" alt="Additional Info" src="../../res/Info16.png" title="Holding alt while selecting disables filtering as well."/>
-  </label>
+  <div id="welcome" class="info-box">
+    <img src="../images/linkclump.png" />
+    <p>Welcome to the options page, where you can change the default behaviour and add new actions.</p>
+    <a href="#" id="guide1" class="button">How does it work?</a>
+    <p>Do you love linkclump? Then please leave a rating, thank you :-)</p>
+    <a href="https://chrome.google.com/webstore/detail/linkclump/lfpjkncokllnfokkgpkobnkbkmelfefj/reviews" class="button" target="_blank">Rate</a>
+  </div>
   
-  <label browsers="FireFox" title="This sets the opening tab id on newly opened tabs to maintain parent/child relationships between tabs.">
-    <input id="SetOwnershipTabID_FF" type="checkbox"> Set opening tab property for new tabs
-    <img class="Info" alt="Additional Info" src="../../res/Info16.png" title="This affects tab closing behavior, compatibility with TreeStyleTabs."/>
-    <img class="Info" alt="Firefox Only" src="../../res/FireFox16.png" title="This only works in FireFox."/>
-  </label>
+  <div id="actions" class="info-box">
+    <h2>Actions</h2>
+    <div id="settings">
+    </div>
+    <a href="#" id="add" class="button">Add Action</a>
+  </div>
   
-  <label title="Wait this many milliseconds between each new tab that is opened.">
-    Delay between new tabs: <input type="text" size="2" id="NewTabDelayMS"> ms
-  </label>
+  <div class="info-box">
+    <h2>FAQ</h2>
+    <br />
+    <ul>
+      <li><b>To use on local pages (i.e. file:// URLs)</b> you need to go to the extensions page (chrome://extensions) and tick the option "Allow access to file URLs" for the Linkclump extension.</li>
+      <li><b>Double tabs?</b> Make sure you don't have a similar extension installed. If you also have "Snap Links Lite" installed it might appear that you are only using Linkclump, but actually these extensions are also working in the background and will try to open tabs also.</li>
+      <li><b>Mandatory key?</b> If you want to use the right mouse button on the Linux/Mac operating systems then you have to select a key. This is due to the way Chrome is designed on these systems and is necessary to make Linkclump work. Left and middle mouse buttons are not affected.</li>
+      <li><b>Not working?</b> Make sure you are pressing the correct mouse button and key combination. Please note that chrome automatically disables in-browser extensions on the chrome webstore/extension web pages for security purposes.</li>
+      <li><b>Does not do what you want it to do?</b> There are a hand full of extension/add ons for different browsers that allow you to open multiple links and therefore there are going to be differences with functionality. I've tried to create this extension so that it is fast and versatile. You are very welcome and encouraged to contribute new features and code improvements to the Linkclump project.</li>
+      <li><b>Issues when zoomed out?</b> When zoomed out the scrolling functionality will be jerky and there isn't much that can be done about it.</li>
+      <li><b>Where is the source code?</b> You can find it on <a href="https://github.com/benblack86/linkclump" target="_blank">GitHub</a> and pull requests are welcome.</li>
+    </ul>
+    <br />
+  </div>
   
-  <label title="Wait this many milliseconds between each element being clicked.">
-    Delay between clicks on elements: <input type="text" size="2" id="ClickDelayMS"> ms
-  </label>
-  
-  <select id="StorageAPI" title="Syncronize your settings across all Firefox browsers or use Local Storage?">
-    <option value="sync">Sync storage</option>
-    <option value="local">Local storage</option>
-  </select>
-  
-  <details id="UI_DevOptions_Section">
-    <summary>Developer Options</summary>
+  <div id="block" class="info-box">
+    <h2>Blocklist</h2>
+    <p>To stop linkclump on certain sites, please list the URLs below (one per line).
+      
+      <textarea rows='6' cols='72' id="form_block"></textarea></p>
+  </div>
+</div>
+
+
+<div id="form-background">
+  <div class="form">
+    <h2>Activation</h2>
+    <p>To activate the selection box you should press and hold...</p>
+    <div class="warning">WARNING: The selected mouse/key match another action already setup</div>
+    <p><label for="form_mouse">Mouse button</label><select id="form_mouse"></select></p>
+    <p><label for="form_key">+ key</label><select id="form_key"></select>
+    <div id="key_warning" class="warning2"></div>
+    </p>
+    <p><label for="form_color">Selection box color</label><select id='form_color'></select></p>
+    <input type="hidden" id="form_id" value="">
     
-    <label title="Enable development mode features, usually for debugging issues.">
-      <input id="DevMode" type="checkbox"> Enable Dev Mode
-    </label>
+    <h2>Action</h2>
+    <p>Selected links should be...</p>
+    <fieldset id="form_action"></fieldset>
     
-    <fieldset id="DevMode_Options">
-      <legend>Developer Mode Options</legend>
-      <label title="Log details about actions to console.">
-        <input id="Dev_Log_ActionMessages" type="checkbox"> Log Action Messages
-      </label>
-      
-      <label title="Logs elements whos coordinates are outside documents boundaries which are skipped during indexing.">
-        <input id="Debug_Log_OutOfBoundElements" type="checkbox"> Log Out of Bound Elements
-      </label>
-      
-      <label title="Skip all actions upon activation, this disables all actions from operating.">
-        <input id="Dev_Skip_AllActions" type="checkbox"> Skip Activation Actions
-      </label>
-      
-      <label title="Measure and report element indexing speed to console log (slows operation slightly).">
-        <input id="Debug_Measure_IndexingSpeed" type="checkbox"> Measure Indexing Speed
-      </label>
-      
-      <label title="Measure and report index search speed to console log (slows operation slightly).">
-        <input id="Debug_Measure_SearchSpeed" type="checkbox"> Measure Search Speed
-      </label>
-      
-      <label title="Visually shows index boundaries on document while selecting.">
-        <input id="Debug_Show_IndexBoundaryMarkers" type="checkbox"> Show Index Boundary Markers
-      </label>
-      
-      <label title="Shows markers indicating the element index buckets">
-        <input id="Debug_Show_ObscuredMarks" type="checkbox"> Show Obscured Element Marks
-      </label>
+    <h2>Advanced Options</h2>
+    <p>Available options for the action...</p>
+    <div id="form_options"></div>
+    <div id="form_extra"></div>
     
-    </fieldset>
-  </details>
-</details>
+    <br />
+    <a href="#" id="cancel" class="button cancel">Cancel</a>
+    <a href="#" id="save" class="button save">Save</a>
+  </div>
+</div>
+<script src="js/options.js"></script>
 </body>
 </html>

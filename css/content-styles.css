@@ -1,0 +1,22 @@
+BODY { }
+LABEL { display: block; margin: 6px 4px 8px 0px; }
+INPUT[type=checkbox] { margin: 0px 2px; vertical-align: -2px; }
+INPUT[type=checkbox]:enabled { cursor: pointer; }
+INPUT[type=text] { padding: 0px 2px; height: 20px; min-height: 0.5em;}
+LABEL[title],
+SELECT[title] { cursor: help;}
+/*noinspection CssUnusedSymbol*/
+*.disabled { color: grey;}
+SUMMARY { font-weight: bold; cursor: pointer; }
+DETAILS { margin: 12px 0px; }
+FIELDSET { width: fit-content; width: -moz-fit-content; padding-right: 15px; }
+FIELDSET:disabled { color: grey; }
+FIELDSET:disabled INPUT { cursor: not-allowed; }
+IMG { vertical-align: text-top; }
+IMG.Info { cursor: help; margin-left: 5px; }
+DIV > LABEL { display: inline-block; width: auto; }
+
+DIV.flex-list {
+  display:   flex;
+  flex-flow: column wrap;
+}
