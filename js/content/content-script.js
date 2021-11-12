@@ -29,10 +29,10 @@ chrome.runtime.sendMessage({
   message: "init"
 }, function(response) {
   if (response === null) {
-    console.log("Unable to load linkclump due to null response");
+    console.log("Unable to load bulkyurls due to null response");
   } else {
     if (response.hasOwnProperty("error")) {
-      console.log("Unable to properly load linkclump, returning to default settings: " + JSON.stringify(response));
+      console.log("Unable to properly load bulkyurls, returning to default settings: " + JSON.stringify(response));
     }
     
     settings = response.actions;
@@ -44,7 +44,7 @@ chrome.runtime.sendMessage({
       
       if (re.test(window.location.href)) {
         allowed = false;
-        console.log("Linkclump is blocked on this site: " + response.blocked[i] + "~" + window.location.href);
+        console.log("bulkyurls is blocked on this site: " + response.blocked[i] + "~" + window.location.href);
       }
     }
     
@@ -461,7 +461,7 @@ function detech(x, y, open) {
       
       if (this.links[i].box === null) {
         var link_box = document.createElement("span");
-        link_box.style.id = "linkclump-link";
+        link_box.style.id = "bulkyurls-link";
         link_box.style.margin = "0px auto";
         link_box.style.border = "1px solid red";
         link_box.style.position = "absolute";
@@ -564,3 +564,4 @@ function contextmenu(event) {
     event.preventDefault();
   }
 }
+

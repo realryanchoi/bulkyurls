@@ -12,7 +12,7 @@ var config = {
       "name": "smart select",
       "type": "selection",
       "data": ["on", "off"],
-      "extra": "with smart select turned on linkclump tries to select only the important links"
+      "extra": "with smart select turned on bulkyurls tries to select only the important links"
     },
     "ignore": {
       "name": "filter links",
@@ -519,13 +519,10 @@ function save_block() {
 }
 
 $(function() {
-  var isFirstTime = window.location.href.indexOf("init=true") > -1;
-  
   // temp check to not load if in test mode
   if (document.getElementById("guide2") === null) {
     return
   }
-  
   
   document.getElementById("guide2").addEventListener("click", tour2);
   document.getElementById("guide1").addEventListener("click", tour1);
@@ -548,11 +545,5 @@ $(function() {
     setup_text(keys);
     
     $("#form_block").val(params.blocked.join("\n"));
-    
-    if(isFirstTime) {
-      tour1();
-    } else {
-      tour2();
-    }
   });
 });
