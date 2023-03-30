@@ -1,32 +1,34 @@
-function updateCount(tabId, isOnRemoved) {
-  chrome.tabs.query({})
-      .then((tabs) => {
-        let length = tabs.length;
+// function updateCount(tabId, isOnRemoved) {
+//   chrome.tabs.query({})
+//       .then((tabs) => {
+//         let length = tabs.length;
         
-        // onRemoved fires too early and the count is one too many.
-        // see https://bugzilla.mozilla.org/show_bug.cgi?id=1396758
-        if (isOnRemoved && tabId && tabs.map((t) => { return t.id; }).includes(tabId)) {
-          length--;
-        }
+//         // onRemoved fires too early and the count is one too many.
+//         // see https://bugzilla.mozilla.org/show_bug.cgi?id=1396758
+//         if (isOnRemoved && tabId && tabs.map((t) => { return t.id; }).includes(tabId)) {
+//           length--;
+//         }
         
-        chrome.action.setBadgeText({text: length.toString()});
-        if (length > 0) {
-          chrome.action.setBadgeBackgroundColor({'color': 'green'});
-        }
-      });
-}
+//         chrome.action.setBadgeText({text: length.toString()});
+//         if (length > 0) {
+//           chrome.action.setBadgeBackgroundColor({'color': 'green'});
+//         }
+//       });
+// }
 
-chrome.tabs.onRemoved.addListener(
-    (tabId) => { updateCount(tabId, true);
-    });
-chrome.tabs.onCreated.addListener(
-    (tabId) => { updateCount(tabId, false);
-    });
-updateCount();
+// chrome.tabs.onRemoved.addListener(
+//     (tabId) => { updateCount(tabId, true);
+//     });
+// chrome.tabs.onCreated.addListener(
+//     (tabId) => { updateCount(tabId, false);
+//     });
+// updateCount();
 
 // SettingsManager
 
 var CURRENT_VERSION = "5";
+var temp_urls = [];
+
 
 function SettingsManager() {}
 
@@ -188,28 +190,103 @@ Array.prototype.unique = function() {
   return a;
 };
 
-function openTab(urls, delay, windowId, tabPosition, closeTime) {
-  var obj = {
-    windowId: windowId,
-    url: urls[0].shift(),
-    selected: false
-  };
+//Main allows to open links 
+// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+//   if (request.message === "detect") {
+//     const result = detect();
+//     sendResponse(result);
+//   }
+// });
+
+// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+//   if (request.action === 'openLinks') {
+//     request.urls.forEach(function(url) {
+//       console.log(url)
+//       chrome.tabs.create({url: url.link}, function(tab) {
+//         console.log('Opened tab with ID: ' + tab.id);
+//       });
+//     });
+//     sendResponse({message: `Opening links...`});
+//   }
+// });
+
+// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+//   if (request.message === 'getURLs') {
+//     // Get the URLs from the request
+//     temp_urls = request.urls;
+//     console.log('Receiveedd')
+
+//     // Send the URLs back to the popup script
+//     sendResponse({ message: 'Received URLs', urls: temp_urls, });
+//   }
+// });
+
+//WORKING EXP
+// let popupPort = null;
+// chrome.runtime.onConnect.addListener((port) => {
+//   if (port.name === "myConnection") {
+//     console.log("Connected to content script!");
+//     port.onMessage.addListener((message) => {
+//       console.log("Received message from content script: " + message.data);
+//       if (popupPort !== null) {
+//         popupPort.postMessage(message);
+//       }
+//     });
+//   }
+// });
+
+// let popupPort = null;
+// chrome.runtime.onConnect.addListener((port) => {
+//   if (port.name === "myConnection") {
+//     console.log("Connected to content script!");
+//     popupPort = port; // Save reference to the popup port
+//     port.onMessage.addListener((message) => {
+//       console.log("Received message from content script: " + message);
+      // Send the array to the popup script
+      // popupPort.postMessage({type: "array", data: message.data});
+      // console.log("Sending array to popup script: " + message.data);
+      // if (chrome.runtime.lastError) {
+      //   setTimeout(ping, 1000);
+      //   console.log('fufuckjcjckck ')
+      // } else {
+      //   // Send the array to the popup
+      //   const popupPort = chrome.runtime.connect({ name: "popupConnection" });
+      //   popupPort.postMessage({ type: "array", data: message });
+      //   console.log("Sent array to popup:", message);
+      // }
+
+//     });
+
+//   }
+// });
+
+
+
+// function openTab(urls, delay, windowId, tabPosition, closeTime) {
+//   var obj = {
+//     windowId: windowId,
+//     url: urls[0].shift(),
+//     selected: false
+//   };
+
+//   console.log(urls)
   
-  if(tabPosition != null) {
-    obj.index = tabPosition;
-    tabPosition++;
-  }
+//   if(tabPosition != null) {
+//     obj.index = tabPosition;
+//     tabPosition++;
+//   }
   
-  chrome.tabs.create({}, function(tab) {
-    if(closeTime > 0) {
-      window.setTimeout(function() {
-        chrome.tabs.remove(tab.id);
-      }, closeTime*1000);
-    }
-  });
-  if(urls.length > 0) {
-    for (var i = 0; i <= urls.length; i++) {
-      openTab(obj.url[i], delay, windowId, tabPosition, closeTime);
-    }
-  }
-}
+//   chrome.tabs.create({}, function(tab) {
+//     if(closeTime > 0) {
+//       window.setTimeout(function() {
+//         chrome.tabs.remove(tab.id);
+//       }, closeTime*1000);
+//     }
+//   });
+//   if(urls.length > 0) {
+//     for (var i = 0; i <= urls.length; i++) {
+//       openTab(obj.url[i], delay, windowId, tabPosition, closeTime);
+//     }
+//   }
+// }
+

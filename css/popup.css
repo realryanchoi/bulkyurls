@@ -1,3 +1,83 @@
+:root { 
+  --font-family: sans-serif
+}
+
+body { 
+  background-color: #FAFDFF;
+  padding: 0.5rem;
+}
+
 #userInput {
   resize: vertical;
+  font-family: var(--font-family);
+  height: 7rem;
+  border: 1px solid #dbeafe; 
+  border-radius: 0.5rem;
+  outline: none;
+  font-size: 16px;
+  padding-left: 0.5rem;
+  padding-top: 0.3rem;
+}
+
+.button-group {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.button {
+  background-color: #fff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  box-shadow: rgba(213, 217, 217, .8) 0 1px 2px 0;
+  box-sizing: border-box;
+  color: #1e293b;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Amazon Ember",sans-serif;
+  font-size: 13px;
+  padding: 0 10px 0 11px;
+  margin: 0.2rem;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  width: 180px;
+}
+
+.button:hover {
+  background-color: #eff6ff;
+}
+
+.button:focus {
+  border-color: #008296;
+  box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+  outline: 0;
+}
+
+.button.clear { 
+  border: 1px solid #dc2626;
+  color: #dc2626
+}
+
+ .clear:hover {
+  background-color: #fee2e2;
+}
+
+
+.information-text__wrapper { 
+  justify-content: end;
+  display: block;
+  margin-left: 0.3rem;
+}
+
+.information-text__wrapper > p { 
+  color: #1e293b;
+}
+.information-text__header { 
+  font-size: 14px;
 }

@@ -1,3 +1,4 @@
+// the settings box 
 var config = {
   "triggers":
       [{"name": "Left"}, {"name": "Middle"}, {"name": "Right"}],
@@ -159,6 +160,8 @@ function load_action(id) {  // into form
   check_selection();
 }
 
+// delete settings card 
+
 function delete_action(id, div) {
   div.fadeOut("swing", function(){
     var del = $("<div class='undo'>Action has been deleted </div>");
@@ -188,7 +191,7 @@ function setup_action(param, id) {
   var setting = $("<div class='setting' id='action_"+id+"'>");
   
   setting.append("<h3>"+config.actions[param.action].name+"</h3>");
-  setting.append("Activate by "+config.triggers[param.mouse].name + " mouse button");
+  setting.append("<p style='background-color:red'>"+"Activate by "+config.triggers[param.mouse].name + " mouse button" + "</p>");
   if(param.key > 0) {
     setting.append(" and \""+keys[param.key]+"\" key ");
   }
@@ -352,6 +355,7 @@ function displayOptions(action) {
   var options = $("#form_options");
   options.empty();
   
+  //pop up options settings 
   for(var i in config.actions[action].options) {
     var op = config.options[config.actions[action].options[i]];
     var title = $("<label>"+op.name+"</label>");
@@ -502,7 +506,7 @@ function save_action(event) {
 }
 
 function save_params() {
-  chrome.extension.sendMessage({
+ ({
     message: "update",
     settings: params
   });
