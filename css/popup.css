@@ -47,6 +47,7 @@ body {
   touch-action: manipulation;
   vertical-align: middle;
   width: 180px;
+  height: 30px;
 }
 
 .button:hover {

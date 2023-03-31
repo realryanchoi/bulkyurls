@@ -491,25 +491,9 @@ function detech(x, y, open) {
 		console.log(open_tabs) 
 		send_message(open_tabs)
 	}
-	// if (open_tabs.length > 0) {
-	// 	chrome.runtime.onMessage.addListener(
-	// 		function(message, sender, sendResponse) {
-	// 			if(message.type === 'getURLs') { 
-	// 				sendResponse({urls: open_tabs});
-	// 			}
-	// 		}
-	// 	);
-	// }
+	
 	return true;
 }
-
-// Listen for incoming messages from the background script
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   console.log("Received message from background script: " + message);
-  
-//   // Send a response to the background script
-//   sendResponse("Response from content script!");
-// });
 
 function send_message(linkArray) {
 	chrome.runtime.onMessage.addListener(

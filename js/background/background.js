@@ -198,69 +198,6 @@ Array.prototype.unique = function() {
 //   }
 // });
 
-// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//   if (request.action === 'openLinks') {
-//     request.urls.forEach(function(url) {
-//       console.log(url)
-//       chrome.tabs.create({url: url.link}, function(tab) {
-//         console.log('Opened tab with ID: ' + tab.id);
-//       });
-//     });
-//     sendResponse({message: `Opening links...`});
-//   }
-// });
-
-// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-//   if (request.message === 'getURLs') {
-//     // Get the URLs from the request
-//     temp_urls = request.urls;
-//     console.log('Receiveedd')
-
-//     // Send the URLs back to the popup script
-//     sendResponse({ message: 'Received URLs', urls: temp_urls, });
-//   }
-// });
-
-//WORKING EXP
-// let popupPort = null;
-// chrome.runtime.onConnect.addListener((port) => {
-//   if (port.name === "myConnection") {
-//     console.log("Connected to content script!");
-//     port.onMessage.addListener((message) => {
-//       console.log("Received message from content script: " + message.data);
-//       if (popupPort !== null) {
-//         popupPort.postMessage(message);
-//       }
-//     });
-//   }
-// });
-
-// let popupPort = null;
-// chrome.runtime.onConnect.addListener((port) => {
-//   if (port.name === "myConnection") {
-//     console.log("Connected to content script!");
-//     popupPort = port; // Save reference to the popup port
-//     port.onMessage.addListener((message) => {
-//       console.log("Received message from content script: " + message);
-      // Send the array to the popup script
-      // popupPort.postMessage({type: "array", data: message.data});
-      // console.log("Sending array to popup script: " + message.data);
-      // if (chrome.runtime.lastError) {
-      //   setTimeout(ping, 1000);
-      //   console.log('fufuckjcjckck ')
-      // } else {
-      //   // Send the array to the popup
-      //   const popupPort = chrome.runtime.connect({ name: "popupConnection" });
-      //   popupPort.postMessage({ type: "array", data: message });
-      //   console.log("Sent array to popup:", message);
-      // }
-
-//     });
-
-//   }
-// });
-
-
 
 // function openTab(urls, delay, windowId, tabPosition, closeTime) {
 //   var obj = {
