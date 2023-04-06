@@ -37,7 +37,7 @@ chrome.runtime.sendMessage({
 	message: "init"
 }, function(response) {
 	if (response === null) {
-		console.log("Unable to load linkclump due to null response");
+		console.log("Unable to load BulkURLs due to null response");
 	} else {
 		if (response.hasOwnProperty("error")) {
 			// console.log("Unable to properly load linkclump, returning to default settings: " + JSON.stringify(response));
@@ -52,7 +52,7 @@ chrome.runtime.sendMessage({
 
 			if (re.test(window.location.href)) {
 				allowed = false;
-				console.log("Linkclump is blocked on this site: " + response.blocked[i] + "~" + window.location.href);
+				console.log("BulkURLs is blocked on this site: " + response.blocked[i] + "~" + window.location.href);
 			}
 		}
 

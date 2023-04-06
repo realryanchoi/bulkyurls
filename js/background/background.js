@@ -63,6 +63,8 @@ SettingsManager.prototype.isLatest = function() {
   return (chrome.storage.local["version"] === CURRENT_VERSION);
 };
 
+// SETTINGS for selctor
+
 SettingsManager.prototype.init = function() {
   // create default settings for first time user
   var settings = {
@@ -189,41 +191,4 @@ Array.prototype.unique = function() {
   }
   return a;
 };
-
-//Main allows to open links 
-// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//   if (request.message === "detect") {
-//     const result = detect();
-//     sendResponse(result);
-//   }
-// });
-
-
-// function openTab(urls, delay, windowId, tabPosition, closeTime) {
-//   var obj = {
-//     windowId: windowId,
-//     url: urls[0].shift(),
-//     selected: false
-//   };
-
-//   console.log(urls)
-  
-//   if(tabPosition != null) {
-//     obj.index = tabPosition;
-//     tabPosition++;
-//   }
-  
-//   chrome.tabs.create({}, function(tab) {
-//     if(closeTime > 0) {
-//       window.setTimeout(function() {
-//         chrome.tabs.remove(tab.id);
-//       }, closeTime*1000);
-//     }
-//   });
-//   if(urls.length > 0) {
-//     for (var i = 0; i <= urls.length; i++) {
-//       openTab(obj.url[i], delay, windowId, tabPosition, closeTime);
-//     }
-//   }
-// }
 
