@@ -1,32 +1,34 @@
-function updateCount(tabId, isOnRemoved) {
-  chrome.tabs.query({})
-      .then((tabs) => {
-        let length = tabs.length;
+// function updateCount(tabId, isOnRemoved) {
+//   chrome.tabs.query({})
+//       .then((tabs) => {
+//         let length = tabs.length;
         
-        // onRemoved fires too early and the count is one too many.
-        // see https://bugzilla.mozilla.org/show_bug.cgi?id=1396758
-        if (isOnRemoved && tabId && tabs.map((t) => { return t.id; }).includes(tabId)) {
-          length--;
-        }
+//         // onRemoved fires too early and the count is one too many.
+//         // see https://bugzilla.mozilla.org/show_bug.cgi?id=1396758
+//         if (isOnRemoved && tabId && tabs.map((t) => { return t.id; }).includes(tabId)) {
+//           length--;
+//         }
         
-        chrome.action.setBadgeText({text: length.toString()});
-        if (length > 0) {
-          chrome.action.setBadgeBackgroundColor({'color': 'green'});
-        }
-      });
-}
+//         chrome.action.setBadgeText({text: length.toString()});
+//         if (length > 0) {
+//           chrome.action.setBadgeBackgroundColor({'color': 'green'});
+//         }
+//       });
+// }
 
-chrome.tabs.onRemoved.addListener(
-    (tabId) => { updateCount(tabId, true);
-    });
-chrome.tabs.onCreated.addListener(
-    (tabId) => { updateCount(tabId, false);
-    });
-updateCount();
+// chrome.tabs.onRemoved.addListener(
+//     (tabId) => { updateCount(tabId, true);
+//     });
+// chrome.tabs.onCreated.addListener(
+//     (tabId) => { updateCount(tabId, false);
+//     });
+// updateCount();
 
 // SettingsManager
 
 var CURRENT_VERSION = "5";
+var temp_urls = [];
+
 
 function SettingsManager() {}
 
@@ -60,6 +62,8 @@ SettingsManager.prototype.isInit = function() {
 SettingsManager.prototype.isLatest = function() {
   return (chrome.storage.local["version"] === CURRENT_VERSION);
 };
+
+// SETTINGS for selctor
 
 SettingsManager.prototype.init = function() {
   // create default settings for first time user
@@ -188,28 +192,3 @@ Array.prototype.unique = function() {
   return a;
 };
 
-function openTab(urls, delay, windowId, tabPosition, closeTime) {
-  var obj = {
-    windowId: windowId,
-    url: urls[0].shift(),
-    selected: false
-  };
-  
-  if(tabPosition != null) {
-    obj.index = tabPosition;
-    tabPosition++;
-  }
-  
-  chrome.tabs.create({}, function(tab) {
-    if(closeTime > 0) {
-      window.setTimeout(function() {
-        chrome.tabs.remove(tab.id);
-      }, closeTime*1000);
-    }
-  });
-  if(urls.length > 0) {
-    for (var i = 0; i <= urls.length; i++) {
-      openTab(obj.url[i], delay, windowId, tabPosition, closeTime);
-    }
-  }
-}

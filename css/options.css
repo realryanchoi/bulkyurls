@@ -1,9 +1,57 @@
+:root { 
+  --font-family: sans-serif
+}
+
 body {
   font-family: Arial, sans-serif;
-  background-color: #F4F4F4;
-  background-position: 10% 0;
+  background-color: white;;
+  /* background-position: 10% 0; */
   overflow-y:scroll
 }
+
+.info-box-element {
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-child-element {
+  flex: 2;
+  border: 2px solid blueviolet;
+  margin: 10px;
+}
+
+/* .flex-child-element:first-child {
+  margin-right: 20px;
+} */
+
+.flex-container {
+  display: flex;
+}
+
+.flex-child {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+  margin-right: 10px;
+}  
+
+.flex-child:first-child {
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  margin-right: 10px;
+} 
+
+.flex-container p {
+  margin-left: 0.7rem;
+  font-size: 14px;
+}
+
+
+
+
+
 
 img {
   display: block;
@@ -12,31 +60,48 @@ img {
 }
 
 a.button {
-  color: #000;
-  border: solid 1px #000;
-  display: inline;
-  text-align: center ;
+  background-color: #fff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  box-shadow: rgba(213, 217, 217, .8) 0 1px 2px 0;
+  box-sizing: border-box;
+  color: #1e293b;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Amazon Ember",sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 29px;
+  padding: 0 10px 0 11px;
+  margin: 0.2rem;
+  position: relative;
+  text-align: center;
   text-decoration: none;
-  border-radius: 3px;
-  margin: 10px;
-  padding: 2px;
-  background: #D0D0D0;
-  cursor:pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  width: 180px;
 }
 
 a:hover.button {
-  background: #606060;
+  background-color: #eff6ff;
 }
 
+a:focus.button {
+  border-color: #93c5fd;
+  box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+  outline: 0;
+}
+
+
 .page {
-  width: 650px;
+  width: 700px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .info-box {
-  background-color: rgba(256, 256, 256, 0.95);
-  border: 1px solid #000;
   border-radius: 4px;
   padding: 0;
   margin: 5px;
@@ -54,35 +119,36 @@ a:hover.button {
 }
 
 .info-box h2 {
-  font-size: 25px;
-  font-weight: normal;
-  border-bottom: 3px solid #000;
+  font-size: 22px;
+  color: #0a1946;
+  font-weight: 550;
+  border-bottom: 2px solid #dbeafe;
   margin: 2px;
   padding: 5px;
-  background-color: #E6FAF0;
 }
 
 .info-box .setting {
   overflow: hidden;
-  background-color: #FBFBFB;
   margin: 10px 10px 20px;
-  padding: 5px 5px 5px 20px;
-  border-bottom: 1px solid #000;
-  border-top: 1px solid #000;
+  /* padding: 5px 5px 5px 20px; */
+  border: 1.5px solid #dbeafe;
+  border-radius: 0.5rem;
   position: relative;
 }
 
 .info-box .setting h3 {
   font-size: 20px;
   font-weight: normal;
-  margin: 0;
+  margin: 0.5rem 0 0.5rem 0.5rem;
   padding-bottom: 5px;
+  color: #1e293b;
 }
 
 .info-box .setting .color {
-  width: 40px;
-  height: 10px;
-  border: 1px solid #000;
+  width: 50px;
+  height: 50px;
+  border: 1px solid #d3d3d3;
+  border-radius: 3rem;
   float: right;
   margin-top: 2px;
   margin-right: 380px;
@@ -111,15 +177,15 @@ a:hover.button {
 }
 
 
-
 #test_area {
-  width: 95%;
+  width: 70%;
+  height: 100%;
   border: 2px solid black;
   display: block;
+  margin-top: 1rem;
   margin-left: auto;
   margin-right: auto;
 }
-
 
 
 #form_color {
@@ -142,8 +208,8 @@ a:hover.button {
   width: 600px;
   margin-left: auto;
   margin-right: auto;
-  background-color: #000;
-  border: 1px solid #000;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid #dbeafe;
   border-radius: 5px;
   padding: 10px;
   overflow: hidden;
@@ -152,7 +218,8 @@ a:hover.button {
 .form h2 {
   font-size: 25px;
   font-weight: normal;
-  border-bottom: 1px solid #FFF;
+  border-bottom: 1px solid #dbeafe;
+  color: #1e293b;
   margin-top: 5px;
   margin-bottom: 5px;
 }
@@ -168,10 +235,12 @@ a:hover.button {
 
 .form p {
   margin: 4px;
+  color: #1e293b;
 }
 
 .form input {
   margin-right: 10px;
+  color: #1e293b;
 }
 
 .form fieldset {
@@ -206,19 +275,38 @@ a:hover.button {
   display: none;
 }
 
+#form_block {
+  resize: vertical;
+  font-family: var(--font-family);
+  height: 7rem;
+  width: 35rem;
+  border: 1px solid #e4e3e3; 
+  border-radius: 0.5rem;
+  outline: none;
+  font-size: 16px;
+  padding-top: 0.3rem;
+}
+
 ul {
   font-size: 14px;
   margin: 0;
 }
 
 .warning {
-  background-color: #ED2E01;
+  background-color: #fee2e2;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  border-radius: 0.5rem;
   display: none;
   padding: 10px;
+  margin: 1rem 0 1rem 0;
 }
 
 .warning2 {
-  background-color: #ED2E01;
+  background-color: #fee2e2;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  border-radius: 0.5rem;
   display: none;
   padding: 10px;
 }
