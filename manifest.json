@@ -8,7 +8,8 @@
     "tabs",
     "storage",
     "bookmarks",
-    "nativeMessaging"
+    "nativeMessaging",
+    "contextMenus"
   ],
   "host_permissions": [
     "http://*/*",

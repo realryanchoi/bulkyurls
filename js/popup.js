@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 var selectorBtn = document.getElementById('openURLsFromSelector')
 
-selectorBtn.onclick = function() { 
+selectorBtn.onclick = function() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     chrome.tabs.sendMessage(tabs[0].id, { type: "getURLs" }, function (urls) {
       if (typeof urls === "undefined") {
@@ -53,7 +53,7 @@ selectorBtn.onclick = function() {
         if (length > 0) {
           // var s = '';
           for (let i = 0; i < length; i++) {
-            if(!s.includes(urls.urls[i].url)) { 
+            if(!s.includes(urls.urls[i].url)) {
               s += urls.urls[i].url;
               s = s + "\n";
               console.log(urls.urls[i].url)
@@ -70,7 +70,7 @@ selectorBtn.onclick = function() {
 
 // Data function
 
- 
+
 
 // Extract URLs from textarea
 function extractURLs(text) {
@@ -84,6 +84,9 @@ function extractURLs(text) {
   }
   return urls;
 }
+
+// Extract sub-domains and domains from textarea
+// /(?:http[s]?:\/\/)?(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/g
 
 //Bulk open tabs from list of URLs
 function loadSites(text) {

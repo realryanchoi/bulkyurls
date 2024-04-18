@@ -2,13 +2,13 @@
 //   chrome.tabs.query({})
 //       .then((tabs) => {
 //         let length = tabs.length;
-        
+
 //         // onRemoved fires too early and the count is one too many.
 //         // see https://bugzilla.mozilla.org/show_bug.cgi?id=1396758
 //         if (isOnRemoved && tabId && tabs.map((t) => { return t.id; }).includes(tabId)) {
 //           length--;
 //         }
-        
+
 //         chrome.action.setBadgeText({text: length.toString()});
 //         if (length > 0) {
 //           chrome.action.setBadgeBackgroundColor({'color': 'green'});
@@ -28,7 +28,6 @@
 
 var CURRENT_VERSION = "5";
 var temp_urls = [];
-
 
 function SettingsManager() {}
 
@@ -192,3 +191,54 @@ Array.prototype.unique = function() {
   return a;
 };
 
+chrome.runtime.onInstalled.addListener(function () {
+  // Create one test item for each context type.
+  let contexts = [
+    'page',
+    'selection',
+    'link',
+    'editable',
+    'image',
+    'video',
+    'audio'
+  ];
+  for (let i = 0; i < contexts.length; i++) {
+    let context = contexts[i];
+    let title = "Test '" + context + "' menu item";
+    chrome.contextMenus.create({
+      title: title,
+      contexts: [context],
+      id: context
+    });
+  }
+  
+  // Create a parent item and two children.
+  let parent = chrome.contextMenus.create({
+    title: 'Test parent item',
+    id: 'parent'
+  });
+  chrome.contextMenus.create({
+    title: 'Child 1',
+    parentId: parent,
+    id: 'child1'
+  });
+  chrome.contextMenus.create({
+    title: 'Child 2',
+    parentId: parent,
+    id: 'child2'
+  });
+  
+  // Create a radio item.
+  chrome.contextMenus.create({
+    title: 'radio',
+    type: 'radio',
+    id: 'radio'
+  });
+  
+  // Create a checkbox item.
+  chrome.contextMenus.create({
+    title: 'checkbox',
+    type: 'checkbox',
+    id: 'checkbox'
+  });
+});
