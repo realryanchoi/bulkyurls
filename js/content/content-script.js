@@ -483,6 +483,7 @@ function detech(x, y, open) {
 		}
 	}
 
+
 	// important links were found, but not anymore so redo
 
 	count_label.innerText = count_tabs.size;
@@ -496,6 +497,10 @@ function detech(x, y, open) {
 }
 
 function send_message(linkArray) {
+	chrome.runtime.sendMessage({
+		message: "links",
+		count: linkArray.length
+	});
 	chrome.runtime.onMessage.addListener(
 		function (message, sender, sendResponse) {
 			if (message.type === 'getURLs') {
@@ -567,3 +572,4 @@ function contextmenu(event) {
 		event.preventDefault();
 	}
 }
+
