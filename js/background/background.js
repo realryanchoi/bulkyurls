@@ -105,19 +105,27 @@ var settingsManager = new SettingsManager();
 
 function handleRequests(request, sender, callback){
   switch(request.message) {
+    case "links":
+      var numberOfLinks = request.count
+      chrome.action.setBadgeText({text: numberOfLinks.toString()}); 
+      chrome.action.setBadgeBackgroundColor({color: 'green'});
+      
+    break;
+
     case "activate":
       if(request.setting.options.block) {
         request.urls = request.urls.unique();
       }
-      
+    
       if(request.urls.length === 0) {
         return;
       }
-      
+
       if(request.setting.options.reverse) {
         request.urls.reverse();
       }
-      
+
+
       switch(request.setting.action) {
         case "win":
           chrome.windows.getCurrent(function(currentWindow){
@@ -242,3 +250,4 @@ chrome.runtime.onInstalled.addListener(function () {
     id: 'checkbox'
   });
 });
+
