@@ -8,11 +8,38 @@
 </head>
 
 <body>
+  <div class="info-box">
+    <h2>Extension Settings</h2>
+    <div class="flex-container">
+      <div class="flex-child">
+        <p>Use the test area below to try out bulkyurls or click the option button at the bottom of the page to explore the
+          many options available.</p>
+      </div>
+      <div class="flex-child">
+        <a href="#" id="guide2" class="button">Options</a>
+      </div>
+    </div>
+    </div>
 
   <div id="page2" class="page">
+    <p>
+      <label>
+        Enter custom shortcut:
+        <input type="text" id="hotkey" placeholder="e.g. ctrl+a">
+      </label>
+      <button id="save-button">Save Hotkey</button>
+      </p>
 
     <div id="actions" class="info-box">
-      <h2>Actions</h2>
+
+        <div class="flex-child">
+          <p>Options page, where you can change the default behaviour and add new actions</p>
+        </div>
+        
+        <div class="flex-child">
+
+        </div>
+        
       <div id="settings">
       </div>
       <a href="#" id="add" class="button">Add Action</a>
@@ -40,75 +67,32 @@
       <a href="#" id="save" class="button save">Save</a>
     </div>
   </div>
-  <script src="js/options.js"></script>
-</body>
 
-</html>
-
-
-<!-- <div id="page1" class="page">
-  <div class="info-box">
-    <h2> Welcome to Bulkyurls </h2>
-     </div>
-    <p>To use bulkyurls you should press and hold <span id="key_name"></span> the <b><span id="mouse_name"></span></b> mouse button, then drag the selection box around the links you want to open. When you release the mouse button all the links will be <b><span id="action_name"></span></b>. You are now ready to go!</p>
-    <div id="test">
-      <p>Use the test area below to try out bulkyurls or click the option button at the bottom of the page to explore the many options available.</p>
-      <br />
-      <iframe id="test_area" src="./js/content/content-script.js" height="300"></iframe>  // need to add iframe
-    </div>
-    <br /><br /><a href="#" id="guide2" class="button">Options</a>
-  </div>
-  <div class="flex-container">
-  
-    <div class="flex-child">
-      <p>Use the test area below to try out bulkyurls or click the option button at the bottom of the page to explore the
-        many options available.</p>
-    </div>
-  
-    <div class="flex-child">
-      <a href="#" id="guide2" class="button">Options</a>
-    </div>
-  
-  </div> -->
-
-    <!-- <div class="flex-container">
-
-    <div class="flex-child">
-      <p>Options page, where you can change the default behaviour and add new actions</p>
-    </div>
-    
-    <div class="flex-child">
-      <a href="#" id="guide1" class="button">How does it work?</a>
-    </div>
-    
-  </div>
-
-  <div class="flex-container">
-
-    <div class="flex-child">
-      <p>If you like bulkyurls, please leave a rating, thank you!</p>
-    </div>
-    
-    <div class="flex-child">
-      <a href="" class="button" target="_blank">Rate</a>
-    </div>
-    
-  </div> -->
-
-    <!-- <div id="block" class="info-box">
-    <h2>Blocklist</h2>
-    <p>Stop bulkyurls on certain sites, list the URLs below (one per line)
-      
-      <textarea rows='6' cols='60' id="form_block"></textarea></p>
-  </div> -->
-
-
-    
-    <!-- <h2>Action</h2>
+<div class="info-box">
+    <h3>Link Selection</h3>
     <p>Selected links should be...</p>
     <fieldset id="form_action"></fieldset>
-    
-    <h2>Advanced Options</h2>
-    <p>Available options for the action...</p>
+</div>
+
+<div id="block" class="info-box">
+    <h2>Blocklist</h2>
+    <p>Stop bulkyurls on certain sites, list the URLs below (one per line)
+    <textarea rows='6' cols='60' id="form_block"></textarea></p>
+</div>
     <div id="form_options"></div>
-    <div id="form_extra"></div> -->
+    <div id="form_extra"></div>
+    <div class="info-box">
+      <h2>Leave us a Review</h2>
+    <div class="flex-container">
+      <div class="flex-child"></div>
+        <p>If you like bulkyurls, please leave a rating, thank you!</p>
+      </div>
+      <div class="flex-child">
+        <a href="" class="button" target="_blank">Rate</a>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/options.js"></script>
+</body>
+</html>
