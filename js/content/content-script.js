@@ -243,10 +243,13 @@ function mouseup(event) {
 		// all the detection of the mouse to bounce
 		if (allow_selection() && timer === 0) {
 			timer = setTimeout(function() {
-				update_box(event.pageX, event.pageY);
-				detech(event.pageX, event.pageY, true);
-
-				stop();
+				try {
+					update_box(event.pageX, event.pageY);
+					detech(event.pageX, event.pageY, true);
+					stop();
+				} catch (e) {
+					// Extension context invalidated — content script orphaned, ignore
+				}
 				timer = 0;
 			}, 100);
 		}
@@ -509,9 +512,14 @@ function send_message(linkArray) {
 	// Update module-scope latestURLs so the getURLs listener can return them
 	latestURLs = linkArray;
 	// Write count to storage — background listens for this to update the badge.
-	// Using storage avoids chrome.runtime.sendMessage which can fail if the
-	// service worker is still waking up.
-	chrome.storage.local.set({ selection_count: linkArray.length });
+	// Wrapped in try-catch: if the extension was reloaded while this tab's
+	// content script was still alive, chrome.* calls throw "Extension context
+	// invalidated" and we should silently ignore them.
+	try {
+		chrome.storage.local.set({ selection_count: linkArray.length });
+	} catch (e) {
+		// Orphaned content script — nothing to do
+	}
 }
 
 
