@@ -28,6 +28,7 @@
         <input type="text" id="hotkey" placeholder="e.g. ctrl+a">
       </label>
       <button id="save-button">Save Hotkey</button>
+      <a href="#" id="guide1" class="button">Back</a>
       </p>
 
     <div id="actions" class="info-box">
@@ -35,11 +36,11 @@
         <div class="flex-child">
           <p>Options page, where you can change the default behaviour and add new actions</p>
         </div>
-        
+
         <div class="flex-child">
 
         </div>
-        
+
       <div id="settings">
       </div>
       <a href="#" id="add" class="button">Add Action</a>
@@ -62,25 +63,27 @@
       <p><label for="form_color">Selection box color</label><select id='form_color'></select></p>
       <input type="hidden" id="form_id" value="">
 
+      <div class="info-box">
+        <h3>Link Selection</h3>
+        <p>Selected links should be...</p>
+        <fieldset id="form_action"></fieldset>
+      </div>
+
+      <div id="form_options"></div>
+      <div id="form_extra"></div>
+
       <br />
       <a href="#" id="cancel" class="button cancel">Cancel</a>
       <a href="#" id="save" class="button save">Save</a>
     </div>
   </div>
 
-<div class="info-box">
-    <h3>Link Selection</h3>
-    <p>Selected links should be...</p>
-    <fieldset id="form_action"></fieldset>
-</div>
-
 <div id="block" class="info-box">
     <h2>Blocklist</h2>
     <p>Stop bulkyurls on certain sites, list the URLs below (one per line)
     <textarea rows='6' cols='60' id="form_block"></textarea></p>
 </div>
-    <div id="form_options"></div>
-    <div id="form_extra"></div>
+
     <div class="info-box">
       <h2>Leave us a Review</h2>
     <div class="flex-container">
@@ -92,7 +95,8 @@
       </div>
     </div>
   </div>
-  
+
+  <script src="js/lib/jquery.min.js"></script>
   <script src="js/options.js"></script>
 </body>
 </html>
