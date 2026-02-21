@@ -43,8 +43,7 @@
     }
   ],
   "content_security_policy": {
-    "default-src": "self",
-    "frame-ancestors": "none"
+    "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "background": {
     "service_worker": "js/background/background.js",
