@@ -1,58 +1,75 @@
 document.addEventListener('DOMContentLoaded', function() {
   var userInput = document.getElementById('userInput');
 
-  // Shared helper: build a newline-separated URL string from a getURLs response
-  function urlsToText(response) {
-    if (!response || !response.urls || response.urls.length === 0) return '';
-    var s = '';
-    for (var i = 0; i < response.urls.length; i++) {
-      var url = response.urls[i].url;
-      if (url && !s.includes(url)) {
-        s += url + "\n";
-      }
-    }
-    return s;
+  // ------- Badge sync -------
+
+  // Count how many URLs extractURLs finds in a block of text.
+  function countURLs(text) {
+    if (!text) return 0;
+    return extractURLs(text)
+      .split(/\r\n|\r|\n/)
+      .filter(function(u) { return u.trim() !== ''; })
+      .length;
   }
 
-  // Auto-populate the textarea with selection URLs when the popup opens
+  // Push the current textarea URL count to the extension badge.
+  function updateBadge() {
+    var count = countURLs(userInput.value);
+    if (count === 0) {
+      chrome.action.setBadgeText({ text: '' });
+    } else {
+      chrome.action.setBadgeText({ text: count.toString() });
+      chrome.action.setBadgeBackgroundColor({ color: 'green' });
+    }
+  }
+
+  // Wrapper for every programmatic textarea write — keeps the badge in sync.
+  function setTextarea(value) {
+    userInput.value = value;
+    updateBadge();
+  }
+
+  // Also sync the badge when the user types, pastes, or cuts directly in the textarea.
+  userInput.addEventListener('input', updateBadge);
+
+  // ------- Init -------
+
+  // Auto-populate the textarea with selection URLs when the popup opens.
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
     if (!tabs || !tabs[0]) return;
     chrome.tabs.sendMessage(tabs[0].id, { type: "getURLs" }, function(response) {
       if (chrome.runtime.lastError) return; // content script not present on this page
       var text = urlsToText(response);
       if (text) {
-        userInput.value = text;
+        setTextarea(text);
       }
     });
   });
 
+  // ------- Button handlers -------
+
   document.addEventListener("click", (userClick) => {
     switch(userClick.target.id) {
       case "extractURLsFromText":
-        var userInputValue = userInput.value;
-        var urls = extractURLs(userInputValue);
-        userInput.value = urls;
+        setTextarea(extractURLs(userInput.value));
         break;
       case "openURLsInTabs":
-        var userInputValue = userInput.value;
-        loadSites(userInputValue);
+        loadSites(userInput.value);
         break;
       case "extractURLsFromTabs":
         chrome.tabs.query({})
             .then((tabs) => {
-              let length = tabs.length;
-              if (length > 0) {
+              if (tabs.length > 0) {
                 var s = '';
-                for (var i = 0; i < length; i++) {
-                  s += tabs[i].url;
-                  s = s + "\n";
+                for (var i = 0; i < tabs.length; i++) {
+                  s += tabs[i].url + "\n";
                 }
-                userInput.value = s;
+                setTextarea(s);
               }
             });
         break;
       case "clear":
-        userInput.value = '';
+        setTextarea('');
         break;
       case "exportCSV":
         exportToCSV(userInput.value);
@@ -72,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
     reader.onload = function(e) {
       var text = importFromCSVText(e.target.result);
       if (text) {
-        userInput.value = text;
+        setTextarea(text);
       }
     };
     reader.readAsText(file);
@@ -81,22 +98,32 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // "Selection Tool URLs" button — manually refresh from the current selection
-  var selectorBtn = document.getElementById('openURLsFromSelector');
-
-  selectorBtn.onclick = function() {
+  document.getElementById('openURLsFromSelector').onclick = function() {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       if (!tabs || !tabs[0]) return;
       chrome.tabs.sendMessage(tabs[0].id, { type: "getURLs" }, function(response) {
         if (chrome.runtime.lastError) return;
         var text = urlsToText(response);
         if (text) {
-          userInput.value = text;
-        } else {
-          console.log("No selection URLs available.");
+          setTextarea(text);
         }
       });
     });
   };
+
+  // ------- Helpers scoped to DOMContentLoaded -------
+
+  function urlsToText(response) {
+    if (!response || !response.urls || response.urls.length === 0) return '';
+    var s = '';
+    for (var i = 0; i < response.urls.length; i++) {
+      var url = response.urls[i].url;
+      if (url && !s.includes(url)) {
+        s += url + "\n";
+      }
+    }
+    return s;
+  }
 });
 
 // ------- CSV Export -------

@@ -285,7 +285,9 @@ function getXY(element) {
 function start() {
 	// Reset badge and stale URL list for the new selection
 	latestURLs = [];
-	chrome.runtime.sendMessage({ message: "links", count: 0 });
+	chrome.runtime.sendMessage({ message: "links", count: 0 }, function() {
+		void chrome.runtime.lastError;
+	});
 
 	// stop user from selecting text/elements
 	document.body.style.khtmlUserSelect = "none";
@@ -507,6 +509,8 @@ function send_message(linkArray) {
 	chrome.runtime.sendMessage({
 		message: "links",
 		count: linkArray.length
+	}, function() {
+		void chrome.runtime.lastError;
 	});
 }
 
