@@ -97,7 +97,7 @@ function load_action(id) {
     displayOptions("tabs");
     $("#form_id").val("");
     $("#form_mouse").val(0);  // default to left mouse button
-    $("#form_key").val(90);   // and z key
+    $("#form_key").val(16);   // and shift key
     $("#form_color").val(colors[Math.floor(Math.random()*colors.length)]);
   } else {
     var param = params.actions[id];
@@ -435,7 +435,7 @@ function displayKeys(mouseButton) {
   }
 
   // set selected value to z
-  key.val(90);
+  key.val(16);
 
   return keys;
 }

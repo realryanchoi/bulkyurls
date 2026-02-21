@@ -29,7 +29,7 @@ SettingsManager.prototype.init = async function() {
     "actions": {
       "101": {
         "mouse": 0,  // left mouse button
-        "key": 90,   // z key
+        "key": 16,   // shift key
         "action": "tabs",
         "color": "#FFA500",
         "options": {
@@ -61,7 +61,9 @@ SettingsManager.prototype.ensureInit = async function() {
 };
 
 var settingsManager = new SettingsManager();
-settingsManager.ensureInit();
+settingsManager.ensureInit().catch(function(e) {
+  console.error("BulkyURLs: settings init failed", e);
+});
 
 function openTab(urls, delay, windowId, tabIndex, closeDelay) {
   if (urls.length === 0) return;
@@ -136,7 +138,8 @@ function handleRequests(request, sender, sendResponse) {
                   tab_index = activeTabs[0].index + 1;
                 }
                 openTab(request.urls, request.setting.options.delay, activeTabs[0].windowId, tab_index, request.setting.options.close);
-              });
+              })
+              .catch(function(e) { console.error("BulkyURLs: tab query failed", e); });
           break;
       }
 
@@ -157,16 +160,29 @@ function handleRequests(request, sender, sendResponse) {
               chrome.tabs.sendMessage(tab.id, {
                 message: "update",
                 settings: settings
-              }, null);
+              }, function() { void chrome.runtime.lastError; });
             });
           });
         });
-      });
+      }).catch(function(e) { console.error("BulkyURLs: settings update failed", e); });
       break;
   }
 }
 
 chrome.runtime.onMessage.addListener(handleRequests);
+
+// Badge update via storage — content script writes selection_count to avoid
+// chrome.runtime.sendMessage race conditions with the service worker.
+chrome.storage.onChanged.addListener(function(changes, area) {
+  if (area !== 'local' || changes.selection_count === undefined) return;
+  var count = changes.selection_count.newValue;
+  if (!count) {
+    chrome.action.setBadgeText({ text: '' });
+  } else {
+    chrome.action.setBadgeText({ text: count.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: 'green' });
+  }
+});
 
 Array.prototype.unique = function() {
   var a = [];
@@ -197,9 +213,10 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
+  var noop = function() { void chrome.runtime.lastError; };
   if (info.menuItemId === "open_selected") {
-    chrome.tabs.sendMessage(tab.id, { message: "open_selected" });
+    chrome.tabs.sendMessage(tab.id, { message: "open_selected" }, noop);
   } else if (info.menuItemId === "copy_page") {
-    chrome.tabs.sendMessage(tab.id, { message: "copy_page" });
+    chrome.tabs.sendMessage(tab.id, { message: "copy_page" }, noop);
   }
 });
