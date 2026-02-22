@@ -1,3 +1,17 @@
-.idea
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
 /Reference
-.vscode
+node_modules/
+*.zip
+*.crx
+*.pem
