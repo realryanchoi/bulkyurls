@@ -79,8 +79,7 @@ function close_form(event) {
 function tour1() {
   setup_text(keys);
   $("#page2").fadeOut(0);
-  $("#page1").fadeIn();
-  $("#test_area").focus();
+  $(".info-box").first().fadeIn();
 }
 
 function tour2() {
@@ -97,7 +96,7 @@ function load_action(id) {
     displayOptions("tabs");
     $("#form_id").val("");
     $("#form_mouse").val(0);  // default to left mouse button
-    $("#form_key").val(90);   // and z key
+    $("#form_key").val(16);   // and shift key
     $("#form_color").val(colors[Math.floor(Math.random()*colors.length)]);
   } else {
     var param = params.actions[id];
@@ -435,7 +434,7 @@ function displayKeys(mouseButton) {
   }
 
   // set selected value to z
-  key.val(90);
+  key.val(16);
 
   return keys;
 }
@@ -455,10 +454,6 @@ function save_action(event) {
   param.color = "#" + $("#form_color").val();
   param.action = $("input[name=action]:radio:checked").val();
   param.options = {};
-
-  console.log(param.mouse);
-  console.log(param.key);
-  console.log(param.color);
 
   for(var opt in config.actions[param.action].options) {
     var name = config.actions[param.action].options[opt];

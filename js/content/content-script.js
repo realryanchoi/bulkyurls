@@ -36,33 +36,38 @@ var timer = 0;
 chrome.runtime.sendMessage({
 	message: "init"
 }, function(response) {
-	if (response === null) {
-		console.log("Unable to load BulkURLs due to null response");
-	} else {
-		if (response.hasOwnProperty("error")) {
-			// console.log("Unable to properly load linkclump, returning to default settings: " + JSON.stringify(response));
+	if (chrome.runtime.lastError) {
+		console.log("BulkyURLs: init failed:", chrome.runtime.lastError.message);
+		return;
+	}
+	if (!response) {
+		console.log("Unable to load BulkyURLs due to empty response");
+		return;
+	}
+
+	if (response.hasOwnProperty("error")) {
+		// console.log("Unable to properly load linkclump, returning to default settings: " + JSON.stringify(response));
+	}
+
+	settings = response.actions;
+
+	var allowed = true;
+	for (var i in response.blocked) {
+		if (response.blocked[i] == "") continue;
+		var re = new RegExp(response.blocked[i], "i");
+
+		if (re.test(window.location.href)) {
+			allowed = false;
+			console.log("BulkURLs is blocked on this site: " + response.blocked[i] + "~" + window.location.href);
 		}
+	}
 
-		settings = response.actions;
-
-		var allowed = true;
-		for (var i in response.blocked) {
-			if (response.blocked[i] == "") continue;
-			var re = new RegExp(response.blocked[i], "i");
-
-			if (re.test(window.location.href)) {
-				allowed = false;
-				console.log("BulkURLs is blocked on this site: " + response.blocked[i] + "~" + window.location.href);
-			}
-		}
-
-		if (allowed) {
-			window.addEventListener("mousedown", mousedown, true);
-			window.addEventListener("keydown", keydown, true);
-			window.addEventListener("keyup", keyup, true);
-			window.addEventListener("blur", blur, true);
-			window.addEventListener("contextmenu", contextmenu, true);
-		}
+	if (allowed) {
+		window.addEventListener("mousedown", mousedown, true);
+		window.addEventListener("keydown", keydown, true);
+		window.addEventListener("keyup", keyup, true);
+		window.addEventListener("blur", blur, true);
+		window.addEventListener("contextmenu", contextmenu, true);
 	}
 });
 
@@ -238,10 +243,13 @@ function mouseup(event) {
 		// all the detection of the mouse to bounce
 		if (allow_selection() && timer === 0) {
 			timer = setTimeout(function() {
-				update_box(event.pageX, event.pageY);
-				detech(event.pageX, event.pageY, true);
-
-				stop();
+				try {
+					update_box(event.pageX, event.pageY);
+					detech(event.pageX, event.pageY, true);
+					stop();
+				} catch (e) {
+					// Extension context invalidated — content script orphaned, ignore
+				}
 				timer = 0;
 			}, 100);
 		}
@@ -267,7 +275,7 @@ function getXY(element) {
 
 	parent = element;
 	while (parent && parent !== document.body) {
-		if (parent.scrollleft) {
+		if (parent.scrollLeft) {
 			x -= parent.scrollLeft;
 		}
 		if (parent.scrollTop) {
@@ -283,11 +291,8 @@ function getXY(element) {
 }
 
 function start() {
-	// Reset badge and stale URL list for the new selection
+	// Clear stale URLs so the popup won't return results from the previous selection
 	latestURLs = [];
-	chrome.runtime.sendMessage({ message: "links", count: 0 }, function() {
-		void chrome.runtime.lastError;
-	});
 
 	// stop user from selecting text/elements
 	document.body.style.khtmlUserSelect = "none";
@@ -495,8 +500,8 @@ function detech(x, y, open) {
 
 	count_label.innerText = count_tabs.size;
 
-	if (open_tabs.length > 0) {
-		console.log(open_tabs);
+	// Always notify on mouseup (open=true), even with zero links — clears the badge.
+	if (open) {
 		send_message(open_tabs);
 	}
 
@@ -506,12 +511,15 @@ function detech(x, y, open) {
 function send_message(linkArray) {
 	// Update module-scope latestURLs so the getURLs listener can return them
 	latestURLs = linkArray;
-	chrome.runtime.sendMessage({
-		message: "links",
-		count: linkArray.length
-	}, function() {
-		void chrome.runtime.lastError;
-	});
+	// Write count to storage — background listens for this to update the badge.
+	// Wrapped in try-catch: if the extension was reloaded while this tab's
+	// content script was still alive, chrome.* calls throw "Extension context
+	// invalidated" and we should silently ignore them.
+	try {
+		chrome.storage.local.set({ selection_count: linkArray.length });
+	} catch (e) {
+		// Orphaned content script — nothing to do
+	}
 }
 
 
