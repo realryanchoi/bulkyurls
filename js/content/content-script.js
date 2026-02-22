@@ -275,7 +275,7 @@ function getXY(element) {
 
 	parent = element;
 	while (parent && parent !== document.body) {
-		if (parent.scrollleft) {
+		if (parent.scrollLeft) {
 			x -= parent.scrollLeft;
 		}
 		if (parent.scrollTop) {

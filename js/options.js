@@ -79,8 +79,7 @@ function close_form(event) {
 function tour1() {
   setup_text(keys);
   $("#page2").fadeOut(0);
-  $("#page1").fadeIn();
-  $("#test_area").focus();
+  $(".info-box").first().fadeIn();
 }
 
 function tour2() {
@@ -455,10 +454,6 @@ function save_action(event) {
   param.color = "#" + $("#form_color").val();
   param.action = $("input[name=action]:radio:checked").val();
   param.options = {};
-
-  console.log(param.mouse);
-  console.log(param.key);
-  console.log(param.color);
 
   for(var opt in config.actions[param.action].options) {
     var name = config.actions[param.action].options[opt];
