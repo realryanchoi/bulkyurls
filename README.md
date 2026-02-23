@@ -2,8 +2,6 @@
 
 BulkyURLs is a Chrome extension (Manifest V3) for managing large numbers of URLs without leaving the browser. Its headline feature is a drag-select tool that lets you rubber-band over links on any page and instantly collect, open, or copy them in bulk.
 
-Originally forked from [Linkclump](https://github.com/nicholasrhodes/linkclump) and rebuilt for MV3.
-
 ---
 
 ## Features
