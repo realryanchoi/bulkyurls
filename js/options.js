@@ -71,75 +71,71 @@ var keys = displayKeys(0);
 var os = ((navigator.appVersion.indexOf("Win") === -1) ? ((navigator.appVersion.indexOf("Mac") === -1) ? OS_LINUX : OS_MAC) : OS_WIN);
 
 function close_form(event) {
-  $("#form-background").fadeOut();
-
+  document.getElementById("form-background").style.display = "none";
   event.preventDefault();
 }
 
 function tour1() {
   setup_text(keys);
-  $("#page2").fadeOut(0);
-  $(".info-box").first().fadeIn();
+  document.getElementById("page2").style.display = "none";
+  document.querySelector(".info-box").style.display = "block";
 }
 
 function tour2() {
-  $("#page1").fadeOut(0);
-  $("#page2").fadeIn();
+  var p1 = document.getElementById("page1");
+  if (p1) p1.style.display = "none";
+  document.getElementById("page2").style.display = "block";
 }
 
- // into form
+// into form
 
 function load_action(id) {
 
-  if(id === null) {
+  if (id === null) {
     displayKeys(0);
     displayOptions("tabs");
-    $("#form_id").val("");
-    $("#form_mouse").val(0);  // default to left mouse button
-    $("#form_key").val(16);   // and shift key
-    $("#form_color").val(colors[Math.floor(Math.random()*colors.length)]);
+    document.getElementById("form_id").value = "";
+    document.getElementById("form_mouse").value = 0;
+    document.getElementById("form_key").value = 16;
+    document.getElementById("form_color").value = colors[Math.floor(Math.random() * colors.length)];
   } else {
     var param = params.actions[id];
-    $("#form_id").val(id);
+    document.getElementById("form_id").value = id;
 
-    $("#form_mouse").val(param.mouse);
+    document.getElementById("form_mouse").value = param.mouse;
     displayKeys(param.mouse);
-    $("#form_key").val(param.key);
+    document.getElementById("form_key").value = param.key;
 
-    $("#form_color").val(param.color.replace("#", ""));
+    document.getElementById("form_color").value = param.color.replace("#", "");
 
-    $("#form_"+param.action).attr("checked","checked");
+    document.getElementById("form_" + param.action).checked = true;
 
     displayOptions(param.action);
 
-    for(var i in param.options) {
-      switch(config.options[i].type) {
+    for (var i in param.options) {
+      switch (config.options[i].type) {
         case "selection":
-          $("#form_option_"+i).val(param.options[i]);
+          document.getElementById("form_option_" + i).value = param.options[i];
           break;
 
         case "textbox":
-          $("#form_option_"+i).val(param.options[i]);
+          document.getElementById("form_option_" + i).value = param.options[i];
           break;
 
         case "checkbox":
-          if(param.options[i]) {
-            $("#form_option_"+i).attr("checked", true);
-          } else {
-            $("#form_option_"+i).attr("checked", false);
-          }
+          document.getElementById("form_option_" + i).checked = !!param.options[i];
           break;
 
         case "selection-textbox":
-          if(param.options[i].length > 1) {
+          if (param.options[i].length > 1) {
             var selection = param.options[i][0];
             var text = "";
-            for(var k = 1; k < param.options[i].length; k++) {
-              text += param.options[i][k]+",";
+            for (var k = 1; k < param.options[i].length; k++) {
+              text += param.options[i][k] + ",";
             }
 
-            $("#form_option_selection_"+i).val(selection);
-            $("#form_option_text_"+i).val(text);
+            document.getElementById("form_option_selection_" + i).value = selection;
+            document.getElementById("form_option_text_" + i).value = text;
           }
 
           break;
@@ -149,14 +145,14 @@ function load_action(id) {
   }
 
   // hide warning and let it show later if required
-  $(".warning").hide();
+  document.querySelector(".warning").style.display = "none";
 
   // place the form at the top of the window+10
-  $(".form").css("margin-top", $(window).scrollTop()+10);
+  document.querySelector(".form").style.marginTop = (window.pageYOffset + 10) + "px";
 
-  // fade in the form and set the background to cover the whole page
-  $("#form-background").fadeIn();
-  $("#form-background").css("height", $(document).height());
+  // show the form and set the background to cover the whole page
+  document.getElementById("form-background").style.display = "block";
+  document.getElementById("form-background").style.height = document.documentElement.scrollHeight + "px";
 
   check_selection();
 }
@@ -164,28 +160,32 @@ function load_action(id) {
 // delete settings card
 
 function delete_action(id, div) {
-  div.fadeOut("swing", function(){
-    var del = $("<div class='undo'>Action has been deleted </div>");
-    var undo = $("<a>undo</a>").click({"i":id, "param":params.actions[id]},
-        function(event) {
-          div_history[event.data.i].replaceWith(setup_action(event.data.param, event.data.i));
-          params.actions[event.data.i] = event.data.param;
+  var savedParam = params.actions[id];
 
-          delete(div_history[event.data.i]);
+  var del = document.createElement("div");
+  del.className = "undo";
+  del.textContent = "Action has been deleted ";
 
-          save_params();
-          return false;
-        }
-    );
-    del.append(undo);
+  var undo = document.createElement("a");
+  undo.textContent = "undo";
+  undo.href = "#";
+  undo.addEventListener("click", function(event) {
+    var newCard = setup_action(savedParam, id);
+    div_history[id].parentNode.replaceChild(newCard, div_history[id]);
+    params.actions[id] = savedParam;
 
-    $(this).replaceWith(del).fadeIn("swing");
-
-    div_history[id] = del;
-    delete(params.actions[id]);
+    delete(div_history[id]);
 
     save_params();
+    event.preventDefault();
   });
+  del.appendChild(undo);
+
+  div.parentNode.replaceChild(del, div);
+  div_history[id] = del;
+  delete(params.actions[id]);
+
+  save_params();
 }
 
 
@@ -193,222 +193,239 @@ function delete_action(id, div) {
 
 
 function setup_action(param, id) {
-  var setting = $("<div class='setting' id='action_"+id+"'>");
+  var setting = document.createElement("div");
+  setting.className = "setting";
+  setting.id = "action_" + id;
 
-  setting.append("<h3>"+config.actions[param.action].name+"</h3>");
-  setting.append("<p style='background-color:red'>"+"Activate by "+config.triggers[param.mouse].name + " mouse button" + "</p>");
-  if(param.key > 0) {
-    setting.append(" and \""+keys[param.key]+"\" key ");
+  setting.insertAdjacentHTML("beforeend", "<h3>" + config.actions[param.action].name + "</h3>");
+  setting.insertAdjacentHTML("beforeend", "<p class='setting-trigger'>Activate by " + config.triggers[param.mouse].name + " mouse button</p>");
+  if (param.key > 0) {
+    setting.appendChild(document.createTextNode(" and \"" + keys[param.key] + "\" key "));
   }
 
-  var list = $("<ul>");
-  for(var j in param.options) {
+  var list = document.createElement("ul");
+  for (var j in param.options) {
     var op = config.options[j];
-    var text = op.name+": ";
-    switch(op.type) {
+    var text = op.name + ": ";
+    switch (op.type) {
       case "selection":
         text += op.data[param.options[j]];
         break;
       case "textbox":
         // TODO not sure if param.options[j] returns a string or int
-        if(param.options[j] === "" || param.options[j] == "0") {
+        if (param.options[j] === "" || Number(param.options[j]) === 0) {
           continue;
         }
         text += param.options[j];
         break;
       case "checkbox":
-        if(!param.options[j]) {
+        if (!param.options[j]) {
           continue;
         }
         text += param.options[j];
         break;
       case "selection-textbox":
-        if(param.options[j].length < 2) {
+        if (param.options[j].length < 2) {
           continue;
         }
         var selection = param.options[j][0];
         var words = "";
-        for(var i = 1; i < param.options[j].length; i++) {
+        for (var i = 1; i < param.options[j].length; i++) {
           words += param.options[j][i];
 
-          if(i < param.options[j].length-1) {
+          if (i < param.options[j].length - 1) {
             words += ", ";
           }
         }
-        text += op.data[selection]+"; "+words;
+        text += op.data[selection] + "; " + words;
         break;
     }
 
-    list.append("<li>"+text+"</li>");
+    list.insertAdjacentHTML("beforeend", "<li>" + text + "</li>");
   }
-  list.append("<li>selection box color: <div style='background-color: "+param.color+"' class='color'></div></li>");
+  list.insertAdjacentHTML("beforeend", "<li>selection box color: <div style='background-color: " + param.color + "' class='color'></div></li>");
 
-  setting.append(list);
+  setting.appendChild(list);
 
-  var edit = $("<a href='#' class='button edit'>Edit</a>").click({'i':id},
-      function(event) {
-        load_action(event.data.i);
-        return false;
-      }
-  );
+  var edit = document.createElement("a");
+  edit.href = "#";
+  edit.className = "button edit";
+  edit.textContent = "Edit";
+  edit.addEventListener("click", function(event) {
+    load_action(id);
+    event.preventDefault();
+  });
 
-  var del = $("<a href='#' class='button delete'>Delete</a>").click({"i":id},
-      function(event) {
-        delete_action(event.data.i, $(this).parent());
-        return false;
-      }
-  );
+  var del = document.createElement("a");
+  del.href = "#";
+  del.className = "button delete";
+  del.textContent = "Delete";
+  del.addEventListener("click", function(event) {
+    delete_action(id, this.parentElement);
+    event.preventDefault();
+  });
 
-  setting.append(del);
-  setting.append(edit);
+  setting.appendChild(del);
+  setting.appendChild(edit);
 
   return setting;
 }
 
 function setup_form() {
-  var mouse = $("#form_mouse");
-  for(var i = 0; i < config.triggers.length; i++) {
-    mouse.append('<option value="'+i+'">'+config.triggers[i].name+'</option>');
+  var mouse = document.getElementById("form_mouse");
+  for (var i = 0; i < config.triggers.length; i++) {
+    mouse.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + config.triggers[i].name + '</option>');
   }
 
-  mouse.change(function(event) {
-    displayKeys($(this)[0][$(this)[0].selectedIndex].value);
+  mouse.addEventListener("change", function(event) {
+    displayKeys(this.value);
     check_selection();
   });
 
-  var color = $("#form_color");
-  for(var i in colors) {
-    color.append("<option value='"+colors[i]+"'>"+colors[i]+"</option>");
+  var color = document.getElementById("form_color");
+  for (var i in colors) {
+    color.insertAdjacentHTML("beforeend", "<option value='" + colors[i] + "'>" + colors[i] + "</option>");
   }
 
   // No colorpicker plugin — the <select> element is used directly
 
-  var action = $("#form_action");
-  for(var i in config.actions) {
-    var act = $('<input type="radio" name="action" value="'+i+'" id="form_'+i+'"/>'+config.actions[i].name+'<br/>')
-
-
-    act.click(function(event) {
-          displayOptions(event.currentTarget.value)
-        }
-    );
-
-    action.append(act);
+  var action = document.getElementById("form_action");
+  for (var i in config.actions) {
+    var input = document.createElement("input");
+    input.type = "radio";
+    input.name = "action";
+    input.value = i;
+    input.id = "form_" + i;
+    input.addEventListener("click", function(event) {
+      displayOptions(this.value);
+    });
+    action.appendChild(input);
+    action.appendChild(document.createTextNode(config.actions[i].name));
+    action.insertAdjacentHTML("beforeend", "<br/>");
   }
 
-  $('input[value="tabs"]').attr("checked", "checked");
+  document.querySelector('input[value="tabs"]').checked = true;
 }
 
 function setup_text(keys) {
   var param;
-  for(var i in params.actions) {
+  for (var i in params.actions) {
     param = params.actions[i];
     break;
   }
-  if(param === undefined) {
+  if (param === undefined) {
     return;
   }
-  $("#mouse_name").text(config.triggers[param.mouse].name);
-  $("#action_name").text(config.actions[param.action].name);
-  if(param.key > 0) {
-    $("#key_name").html("the <b>"+keys[param.key]+"</b> key and");
-  } else {
-    $("#key_name").html("");
+  var mouseName = document.getElementById("mouse_name");
+  if (mouseName) mouseName.textContent = config.triggers[param.mouse].name;
+  var actionName = document.getElementById("action_name");
+  if (actionName) actionName.textContent = config.actions[param.action].name;
+  var keyName = document.getElementById("key_name");
+  if (keyName) {
+    if (param.key > 0) {
+      keyName.innerHTML = "the <b>" + keys[param.key] + "</b> key and";
+    } else {
+      keyName.innerHTML = "";
+    }
   }
 }
 
 function check_selection() {
-  var m = $("#form_mouse").val();
-  var k = $("#form_key").val();
-  var id = $("#form_id").val();
+  var m = document.getElementById("form_mouse").value;
+  var k = document.getElementById("form_key").value;
+  var id = document.getElementById("form_id").value;
 
-
-  var keyWarning = $('#key_warning');
-  keyWarning.empty();
+  var keyWarning = document.getElementById("key_warning");
+  keyWarning.innerHTML = "";
   if (k === "0") {
-    keyWarning.append("WARNING: Not using a key could cause unexpected behavior on some websites");
-    if($(".warning2").is(":hidden")) {
-      $(".warning2").fadeIn();
+    keyWarning.textContent = "WARNING: Not using a key could cause unexpected behavior on some websites";
+    if (getComputedStyle(document.querySelector(".warning2")).display === "none") {
+      document.querySelector(".warning2").style.display = "block";
     }
   } else {
-    if(!$(".warning2").is(":hidden")) {
-      $(".warning2").fadeOut();
+    if (getComputedStyle(document.querySelector(".warning2")).display !== "none") {
+      document.querySelector(".warning2").style.display = "none";
     }
   }
 
-  for(var i in params.actions) {
+  for (var i in params.actions) {
     // not sure if mouse/key are strings or ints
-    if(i != id && params.actions[i].mouse == m && params.actions[i].key == k) {
-      if($(".warning").is(":hidden")) {
-        $(".warning").fadeIn();
+    if (i !== id && params.actions[i].mouse === parseInt(m, 10) && params.actions[i].key === parseInt(k, 10)) {
+      if (getComputedStyle(document.querySelector(".warning")).display === "none") {
+        document.querySelector(".warning").style.display = "block";
       }
 
       return;
     }
   }
 
-  if(!$(".warning").is(":hidden")) {
-    $(".warning").fadeOut();
+  if (getComputedStyle(document.querySelector(".warning")).display !== "none") {
+    document.querySelector(".warning").style.display = "none";
   }
 }
 
 function displayOptions(action) {
-  var options = $("#form_options");
-  options.empty();
+  var options = document.getElementById("form_options");
+  options.innerHTML = "";
 
   //pop up options settings
-  for(var i in config.actions[action].options) {
+  for (var i in config.actions[action].options) {
     var op = config.options[config.actions[action].options[i]];
-    var title = $("<label>"+op.name+"</label>");
-    var p = $("<p />");
-    p.append(title);
+    var title = document.createElement("label");
+    title.textContent = op.name;
+    var p = document.createElement("p");
+    p.appendChild(title);
 
-    switch(op.type) {
+    switch (op.type) {
       case "selection":
-        var selector = $("<select id='form_option_"+config.actions[action].options[i]+"'>");
-        for(var j in op.data) {
-          selector.append('<option value="'+j+'">'+op.data[j]+'</option>');
+        var selector = document.createElement("select");
+        selector.id = "form_option_" + config.actions[action].options[i];
+        for (var j in op.data) {
+          selector.insertAdjacentHTML("beforeend", '<option value="' + j + '">' + op.data[j] + '</option>');
         }
-        p.append(selector);
+        p.appendChild(selector);
         break;
 
       case "textbox":
-        p.append('<input type="text" name="'+op.name+'" id="form_option_'+config.actions[action].options[i]+'"/>');
+        p.insertAdjacentHTML("beforeend", '<input type="text" name="' + op.name + '" id="form_option_' + config.actions[action].options[i] + '"/>');
         break;
 
       case "checkbox":
-        p.append('<input type="checkbox" name="'+op.name+'" id="form_option_'+config.actions[action].options[i]+'"/>');
+        p.insertAdjacentHTML("beforeend", '<input type="checkbox" name="' + op.name + '" id="form_option_' + config.actions[action].options[i] + '"/>');
         break;
 
       case "selection-textbox":
-        var selector = $("<select id='form_option_selection_"+config.actions[action].options[i]+"'>");
-        for(var j in op.data) {
-          selector.append('<option value="'+j+'">'+op.data[j]+'</option>');
+        var selector = document.createElement("select");
+        selector.id = "form_option_selection_" + config.actions[action].options[i];
+        for (var j in op.data) {
+          selector.insertAdjacentHTML("beforeend", '<option value="' + j + '">' + op.data[j] + '</option>');
         }
-        p.append(selector);
-        p.append('</p><label> </label><p>');
-        p.append('<input type="text" name="'+op.name+'" id="form_option_text_'+config.actions[action].options[i]+'"/>');
+        p.appendChild(selector);
+        p.insertAdjacentHTML("beforeend", "<label>&nbsp;</label>");
+        p.insertAdjacentHTML("beforeend", '<input type="text" name="' + op.name + '" id="form_option_text_' + config.actions[action].options[i] + '"/>');
         break;
     }
 
-    p.mouseover({"extra":op.extra}, function(event) {
-      var extra = $("#form_extra");
-      extra.html(event.data.extra);
-      extra.css("top", $(this).position().top);
-      extra.css("left", $(this).position().left+500);
-      extra.show();
-    }).mouseout(function() {
-      $("#form_extra").hide();
-    });
+    (function(extra, elem) {
+      elem.addEventListener("mouseover", function() {
+        var extraEl = document.getElementById("form_extra");
+        extraEl.innerHTML = extra;
+        extraEl.style.top = elem.offsetTop + "px";
+        extraEl.style.left = (elem.offsetLeft + 500) + "px";
+        extraEl.style.display = "block";
+      });
+      elem.addEventListener("mouseout", function() {
+        document.getElementById("form_extra").style.display = "none";
+      });
+    })(op.extra, p);
 
-    options.append(p);
+    options.appendChild(p);
 
   }
 }
 
 function displayKeys(mouseButton) {
-  var key = $("#form_key");
-  key.empty();
+  var key = document.getElementById("form_key");
   var keys = [];
 
   keys[16] = "shift";
@@ -420,21 +437,23 @@ function displayKeys(mouseButton) {
 
   // if not left or windows then allow no key
   // NOTE mouseButton is sometimes a string, sometimes an int
-  if(mouseButton != 2 || os === OS_WIN) {
+  if (parseInt(mouseButton, 10) !== 2 || os === OS_WIN) {
     keys[0] = '';
   }
 
   // add on alpha characters
   for (var i = 0; i < 26; i++) {
-    keys[65+i] = String.fromCharCode(97 + i);
+    keys[65 + i] = String.fromCharCode(97 + i);
   }
 
-  for(var i in keys) {
-    key.append('<option value="'+i+'">'+keys[i]+'</option>');
+  if (key) {
+    key.innerHTML = "";
+    for (var i in keys) {
+      key.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + keys[i] + '</option>');
+    }
+    // set selected value to shift
+    key.value = 16;
   }
-
-  // set selected value to z
-  key.val(16);
 
   return keys;
 }
@@ -445,60 +464,61 @@ function load_new_action(event) {
 }
 
 function save_action(event) {
-  var id = $("#form_id").val();
+  var id = document.getElementById("form_id").value;
 
   var param = {};
 
-  param.mouse = $("#form_mouse").val();
-  param.key = $("#form_key").val();
-  param.color = "#" + $("#form_color").val();
-  param.action = $("input[name=action]:radio:checked").val();
+  param.mouse = parseInt(document.getElementById("form_mouse").value, 10);
+  param.key = parseInt(document.getElementById("form_key").value, 10);
+  param.color = "#" + document.getElementById("form_color").value;
+  param.action = document.querySelector("input[name=action]:checked").value;
   param.options = {};
 
-  for(var opt in config.actions[param.action].options) {
+  for (var opt in config.actions[param.action].options) {
     var name = config.actions[param.action].options[opt];
     var type = config.options[name].type;
-    if(type === "checkbox") {
-      param.options[name] = $("#form_option_"+name).is(":checked");
+    if (type === "checkbox") {
+      param.options[name] = document.getElementById("form_option_" + name).checked;
     } else {
-      if(name === "ignore") {
-        var ignore = $("#form_option_text_"+name).val().replace(/^ */, "").replace(/, */g, ",").toLowerCase().split(",");
+      if (name === "ignore") {
+        var ignore = document.getElementById("form_option_text_" + name).value.replace(/^ */, "").replace(/, */g, ",").toLowerCase().split(",");
         // if the last entry is empty then just remove from array
-        if (ignore.length > 0 && ignore[ignore.length-1] === "") {
+        if (ignore.length > 0 && ignore[ignore.length - 1] === "") {
           ignore.pop();
         }
         // add selection to the start of the array
-        ignore.unshift(param.options[name] = $("#form_option_selection_"+name).val());
+        ignore.unshift(param.options[name] = document.getElementById("form_option_selection_" + name).value);
 
         param.options[name] = ignore;
-      } else if(name === "delay" || name === "close") {
+      } else if (name === "delay" || name === "close") {
         var delay;
         try {
-          delay = parseFloat($("#form_option_"+name).val());
-        } catch(err) {
+          delay = parseFloat(document.getElementById("form_option_" + name).value);
+        } catch (err) {
           delay = 0;
         }
-        if(isNaN(delay)) {
+        if (isNaN(delay)) {
           delay = 0;
         }
 
         param.options[name] = delay;
       } else {
-        param.options[name] = $("#form_option_"+name).val();
+        param.options[name] = document.getElementById("form_option_" + name).value;
       }
     }
   }
 
-  if(id === "" || params.actions[id] === null) {
+  if (id === "" || params.actions[id] === null) {
     var newDate = new Date;
     id = newDate.getTime();
 
     params.actions[id] = param;
-    $("#settings").append(setup_action(param, id));
+    document.getElementById("settings").appendChild(setup_action(param, id));
   } else {
     params.actions[id] = param;
     var update = setup_action(param, id);
-    $("#action_"+id).replaceWith(update);
+    var old = document.getElementById("action_" + id);
+    old.parentNode.replaceChild(update, old);
   }
 
   save_params();
@@ -514,7 +534,7 @@ function save_params() {
 
 function save_block() {
   // replace any whitespace at end to stop empty site listings
-  var sites = $("#form_block").val().replace(/^\s+|\s+$/g, "").split("\n");
+  var sites = document.getElementById("form_block").value.replace(/^\s+|\s+$/g, "").split("\n");
 
   if (Array.isArray(sites)) {
     params.blocked = sites;
@@ -522,7 +542,7 @@ function save_block() {
   }
 }
 
-$(function() {
+document.addEventListener("DOMContentLoaded", function() {
   // temp check to not load if in test mode
   if (document.getElementById("guide2") === null) {
     return;
@@ -543,14 +563,14 @@ $(function() {
 
   chrome.runtime.sendMessage({
     message: "init"
-  }, function(response){
+  }, function(response) {
     params = response;
 
-    for(var i in params.actions) {
-      $("#settings").append(setup_action(params.actions[i], i));
+    for (var i in params.actions) {
+      document.getElementById("settings").appendChild(setup_action(params.actions[i], i));
     }
     setup_text(keys);
 
-    $("#form_block").val(params.blocked.join("\n"));
+    document.getElementById("form_block").value = params.blocked.join("\n");
   });
 });
