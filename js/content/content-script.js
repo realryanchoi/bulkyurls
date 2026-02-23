@@ -53,7 +53,7 @@ chrome.runtime.sendMessage({
 
 	var allowed = true;
 	for (var i in response.blocked) {
-		if (response.blocked[i] == "") continue;
+		if (response.blocked[i] === "") continue;
 		var re = new RegExp(response.blocked[i], "i");
 
 		if (re.test(window.location.href)) {
@@ -156,22 +156,28 @@ function mousedown(event) {
 			if (box === null) {
 				box = document.createElement("span");
 				box.style.margin = "0px auto";
-				box.style.border = "2px dotted" + settings[setting].color;
+				box.style.border = "2px dashed " + settings[setting].color;
+				box.style.backgroundColor = settings[setting].color + "1A";
+				box.style.borderRadius = "4px";
 				box.style.position = "absolute";
 				box.style.zIndex = Z_INDEX;
+				box.style.pointerEvents = "none";
 				box.style.visibility = "hidden";
 
 				count_label = document.createElement("span");
 				count_label.style.zIndex = Z_INDEX;
 				count_label.style.position = "absolute";
 				count_label.style.visibility = "hidden";
-				count_label.style.left = "10px";
-				count_label.style.width = "50px";
-				count_label.style.top = "10px";
-				count_label.style.height = "20px";
-				count_label.style.fontSize = "10px";
-				count_label.style.font = "Arial, sans-serif";
-				count_label.style.color = "black";
+				count_label.style.padding = "2px 8px";
+				count_label.style.fontSize = "11px";
+				count_label.style.fontFamily = "system-ui, sans-serif";
+				count_label.style.fontWeight = "600";
+				count_label.style.color = "#1e293b";
+				count_label.style.backgroundColor = "#fff";
+				count_label.style.border = "1px solid #dbeafe";
+				count_label.style.borderRadius = "10px";
+				count_label.style.boxShadow = "0 1px 3px rgba(0,0,0,.12)";
+				count_label.style.pointerEvents = "none";
 
 				document.body.appendChild(box);
 				document.body.appendChild(count_label);
@@ -268,7 +274,7 @@ function getXY(element) {
 	var matrix;
 	do {
 		style = window.getComputedStyle(parent);
-		matrix = new WebKitCSSMatrix(style.webkitTransform);
+		matrix = new DOMMatrix(style.transform || style.webkitTransform);
 		x += parent.offsetLeft + matrix.m41;
 		y += parent.offsetTop + matrix.m42;
 	} while (parent = parent.offsetParent);
@@ -323,17 +329,17 @@ function start() {
 		// include/exclude links
 		if (settings[setting].options.ignore.length > 1) {
 			if (re2.test(page_links[i].href) || re2.test(page_links[i].innerHTML)) {
-				if (settings[setting].options.ignore[0] == EXCLUDE_LINKS) {
+				if (Number(settings[setting].options.ignore[0]) === EXCLUDE_LINKS) {
 					continue;
 				}
-			} else if (settings[setting].options.ignore[0] == INCLUDE_LINKS) {
+			} else if (Number(settings[setting].options.ignore[0]) === INCLUDE_LINKS) {
 				continue;
 			}
 		}
 
 		// attempt to ignore invisible links (can't ignore overflow)
 		var comp = window.getComputedStyle(page_links[i], null);
-		if (comp.visibility == "hidden" || comp.display == "none") {
+		if (comp.visibility === "hidden" || comp.display === "none") {
 			continue;
 		}
 
@@ -343,7 +349,7 @@ function start() {
 
 		// attempt to get the actual size of the link
 		for (var k = 0; k < page_links[i].childNodes.length; k++) {
-			if (page_links[i].childNodes[k].nodeName == "IMG") {
+			if (page_links[i].childNodes[k].nodeName === "IMG") {
 				const pos2 = getXY(page_links[i].childNodes[k]);
 				if (pos.y >= pos2.y) {
 					pos.y = pos2.y;
@@ -361,7 +367,7 @@ function start() {
 		page_links[i].height = height;
 		page_links[i].width = width;
 		page_links[i].box = null;
-		page_links[i].important = settings[setting].options.smart == 0 && page_links[i].parentNode != null && re3.test(page_links[i].parentNode.nodeName);
+		page_links[i].important = Number(settings[setting].options.smart) === 0 && page_links[i].parentNode != null && re3.test(page_links[i].parentNode.nodeName);
 
 		links.push(page_links[i]);
 	}
@@ -389,7 +395,7 @@ function stop() {
 	}
 
 	// turn on menu for linux
-	if (os === OS_LINUX && settings[setting].key != key_pressed) {
+	if (os === OS_LINUX && Number(settings[setting].key) !== key_pressed) {
 		stop_menu = false;
 	}
 }
@@ -474,15 +480,18 @@ function detech(x, y, open) {
 
 			if (links[i].box === null) {
 				var link_box = document.createElement("span");
-				link_box.style.id = "linkclump-link";
+				link_box.id = "linkclump-link";
 				link_box.style.margin = "0px auto";
-				link_box.style.border = "1px solid red";
+				link_box.style.border = "1px solid " + settings[setting].color;
+				link_box.style.backgroundColor = settings[setting].color + "1A";
+				link_box.style.borderRadius = "3px";
 				link_box.style.position = "absolute";
 				link_box.style.width = links[i].width + "px";
 				link_box.style.height = links[i].height + "px";
 				link_box.style.top = links[i].y1 + "px";
 				link_box.style.left = links[i].x1 + "px";
 				link_box.style.zIndex = Z_INDEX;
+				link_box.style.pointerEvents = "none";
 
 				document.body.appendChild(link_box);
 				links[i].box = link_box;
@@ -525,7 +534,7 @@ function send_message(linkArray) {
 
 function allow_key(keyCode) {
 	for (var i in settings) {
-		if (settings[i].key == keyCode) {
+		if (Number(settings[i].key) === keyCode) {
 			return true;
 		}
 	}
@@ -567,10 +576,11 @@ function remove_key() {
 function allow_selection() {
 	for (var i in settings) {
 		// need to check if key is 0 as key_pressed might not be accurate
-		if (settings[i].mouse == mouse_button && settings[i].key == key_pressed) {
+		if (Number(settings[i].mouse) === mouse_button && Number(settings[i].key) === key_pressed) {
 			setting = i;
 			if (box !== null) {
-				box.style.border = "2px dotted " + settings[i].color;
+				box.style.border = "2px dashed " + settings[i].color;
+			box.style.backgroundColor = settings[i].color + "1A";
 			}
 			return true;
 		}
