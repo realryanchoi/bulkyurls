@@ -1,10 +1,58 @@
-:root { 
-  --font-family: sans-serif
+:root {
+  /* Colors — surfaces */
+  --color-bg: #fafdff;
+  --color-surface: #fff;
+  --color-hover: #eff6ff;
+
+  /* Colors — blue palette */
+  --color-border: #dbeafe;
+  --color-focus: #93c5fd;
+  --color-info-bg: #eff6ff;
+
+  /* Colors — text */
+  --color-text: #1e293b;
+  --color-text-muted: #475569;
+
+  /* Colors — danger */
+  --color-danger: #dc2626;
+  --color-danger-bg: #fee2e2;
+
+  /* Colors — success */
+  --color-success: #16a34a;
+
+  /* Typography */
+  --font-family: "Segoe UI", system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+
+  /* Shadows */
+  --shadow-sm: rgba(213, 217, 217, .8) 0 1px 2px 0;
+  --shadow-md: rgba(213, 217, 217, .5) 0 2px 5px 0;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 0.5rem;
+
+  /* Spacing */
+  --space-xs: 0.2rem;
+  --space-sm: 0.3rem;
+  --space-md: 0.5rem;
+  --space-lg: 1rem;
+
+  /* Buttons */
+  --btn-width: 180px;
+  --btn-height: 30px;
+
+  /* Transitions */
+  --transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 body {
-  background-color: #FAFDFF;
-  padding: 0.5rem;
+  background-color: var(--color-bg);
+  padding: var(--space-md);
   width: 400px;
 }
 
@@ -12,14 +60,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-bottom: 0.3rem;
+  margin-bottom: var(--space-sm);
 }
 
 .textarea-wrapper #clear {
   width: auto;
   padding: 0 14px;
   height: 24px;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   margin: 0 0 0.25rem 0;
 }
 
@@ -32,12 +80,17 @@ body {
   resize: vertical;
   font-family: var(--font-family);
   height: 7rem;
-  border: 1px solid #dbeafe; 
-  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   outline: none;
-  font-size: 16px;
-  padding-left: 0.5rem;
-  padding-top: 0.3rem;
+  font-size: var(--font-size-lg);
+  padding-left: var(--space-md);
+  padding-top: var(--space-sm);
+}
+
+#userInput:focus {
+  border-color: var(--color-focus);
+  box-shadow: var(--shadow-md);
 }
 
 .button-group {
@@ -48,18 +101,18 @@ body {
 }
 
 .button {
-  background-color: #fff;
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
-  box-shadow: rgba(213, 217, 217, .8) 0 1px 2px 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   box-sizing: border-box;
-  color: #1e293b;
+  color: var(--color-text);
   cursor: pointer;
   display: inline-block;
-  font-family: "Amazon Ember",sans-serif;
-  font-size: 13px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
   padding: 0 10px 0 11px;
-  margin: 0.2rem;
+  margin: var(--space-xs);
   position: relative;
   text-align: center;
   text-decoration: none;
@@ -67,39 +120,109 @@ body {
   -webkit-user-select: none;
   touch-action: manipulation;
   vertical-align: middle;
-  width: 180px;
-  height: 30px;
+  width: var(--btn-width);
+  height: var(--btn-height);
+  transition: var(--transition);
 }
 
 .button:hover {
-  background-color: #eff6ff;
+  background-color: var(--color-hover);
 }
 
 .button:focus {
-  border-color: #008296;
-  box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+  border-color: var(--color-focus);
+  box-shadow: var(--shadow-md);
   outline: 0;
 }
 
-.button.clear { 
-  border: 1px solid #dc2626;
-  color: #dc2626
+.button.clear {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
 }
 
- .clear:hover {
-  background-color: #fee2e2;
+.clear:hover {
+  background-color: var(--color-danger-bg);
 }
 
-
-.information-text__wrapper { 
+.information-text__wrapper {
   justify-content: end;
   display: block;
-  margin-left: 0.3rem;
+  margin-left: var(--space-sm);
 }
 
-.information-text__wrapper > p { 
-  color: #1e293b;
+.information-text__wrapper > p {
+  color: var(--color-text);
 }
-.information-text__header { 
-  font-size: 14px;
+
+.information-text__header {
+  font-size: var(--font-size-base);
+}
+
+/* CSV dialog styles (used by csv.html) */
+
+.csv-body {
+  min-width: 380px;
+}
+
+.csv-heading {
+  font-family: var(--font-family);
+  font-size: 1rem;
+  margin: 0.4rem 0 0.2rem;
+  color: var(--color-text);
+}
+
+.csv-desc {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0.2rem 0 0.5rem;
+}
+
+#csv-preview {
+  width: 100%;
+  height: 180px;
+  font-family: monospace;
+  font-size: var(--font-size-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0.3rem 0.5rem;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+#csv-preview:focus {
+  border-color: var(--color-focus);
+  box-shadow: var(--shadow-md);
+}
+
+#status {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  min-height: 1.4em;
+  margin: 0.5rem 0;
+}
+
+#status.error {
+  color: var(--color-danger);
+}
+
+#status.success {
+  color: var(--color-success);
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.actions .button {
+  width: auto;
+  flex: 1;
+}
+
+section {
+  display: none;
 }

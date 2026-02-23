@@ -1,28 +1,65 @@
-:root { 
-  --font-family: sans-serif
+:root {
+  /* Colors — surfaces */
+  --color-bg: #fafdff;
+  --color-surface: #fff;
+  --color-hover: #eff6ff;
+
+  /* Colors — blue palette */
+  --color-border: #dbeafe;
+  --color-focus: #93c5fd;
+  --color-info-bg: #eff6ff;
+
+  /* Colors — text */
+  --color-text: #1e293b;
+  --color-text-muted: #475569;
+
+  /* Colors — danger */
+  --color-danger: #dc2626;
+  --color-danger-bg: #fee2e2;
+
+  /* Colors — success */
+  --color-success: #16a34a;
+
+  /* Typography */
+  --font-family: "Segoe UI", system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+
+  /* Shadows */
+  --shadow-sm: rgba(213, 217, 217, .8) 0 1px 2px 0;
+  --shadow-md: rgba(213, 217, 217, .5) 0 2px 5px 0;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 0.5rem;
+
+  /* Spacing */
+  --space-xs: 0.2rem;
+  --space-sm: 0.3rem;
+  --space-md: 0.5rem;
+  --space-lg: 1rem;
+
+  /* Buttons */
+  --btn-width: 180px;
+  --btn-height: 30px;
+
+  /* Transitions */
+  --transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: white;;
-  /* background-position: 10% 0; */
-  overflow-y:scroll
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  overflow-y: scroll;
 }
 
 .info-box-element {
   display: flex;
   justify-content: space-between;
 }
-
-.flex-child-element {
-  flex: 2;
-  border: 2px solid blueviolet;
-  margin: 10px;
-}
-
-/* .flex-child-element:first-child {
-  margin-right: 20px;
-} */
 
 .flex-container {
   display: flex;
@@ -34,24 +71,19 @@ body {
   justify-content: flex-end;
   flex: 1;
   margin-right: 10px;
-}  
+}
 
 .flex-child:first-child {
   align-items: center;
   display: flex;
   justify-content: flex-start;
   margin-right: 10px;
-} 
+}
 
 .flex-container p {
   margin-left: 0.7rem;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
-
-
-
-
-
 
 img {
   display: block;
@@ -60,20 +92,20 @@ img {
 }
 
 a.button {
-  background-color: #fff;
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
-  box-shadow: rgba(213, 217, 217, .8) 0 1px 2px 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   box-sizing: border-box;
-  color: #1e293b;
+  color: var(--color-text);
   cursor: pointer;
   display: inline-block;
-  font-family: "Amazon Ember",sans-serif;
-  font-size: 13px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   line-height: 29px;
   padding: 0 10px 0 11px;
-  margin: 0.2rem;
+  margin: var(--space-xs);
   position: relative;
   text-align: center;
   text-decoration: none;
@@ -81,19 +113,19 @@ a.button {
   -webkit-user-select: none;
   touch-action: manipulation;
   vertical-align: middle;
-  width: 180px;
+  width: var(--btn-width);
+  transition: var(--transition);
 }
 
 a:hover.button {
-  background-color: #eff6ff;
+  background-color: var(--color-hover);
 }
 
 a:focus.button {
-  border-color: #93c5fd;
-  box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+  border-color: var(--color-focus);
+  box-shadow: var(--shadow-md);
   outline: 0;
 }
-
 
 .page {
   width: 700px;
@@ -102,7 +134,7 @@ a:focus.button {
 }
 
 .info-box {
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 0;
   margin: 5px;
 }
@@ -113,7 +145,7 @@ a:focus.button {
 
 .info-box .button {
   display: block;
-  width: 150px;
+  width: var(--btn-width);
   margin-left: auto;
   margin-right: auto;
 }
@@ -122,7 +154,7 @@ a:focus.button {
   font-size: 22px;
   color: #0a1946;
   font-weight: 550;
-  border-bottom: 2px solid #dbeafe;
+  border-bottom: 2px solid var(--color-border);
   margin: 2px;
   padding: 5px;
 }
@@ -130,9 +162,8 @@ a:focus.button {
 .info-box .setting {
   overflow: hidden;
   margin: 10px 10px 20px;
-  /* padding: 5px 5px 5px 20px; */
-  border: 1.5px solid #dbeafe;
-  border-radius: 0.5rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
   position: relative;
 }
 
@@ -141,7 +172,7 @@ a:focus.button {
   font-weight: normal;
   margin: 0.5rem 0 0.5rem 0.5rem;
   padding-bottom: 5px;
-  color: #1e293b;
+  color: var(--color-text);
 }
 
 .info-box .setting .color {
@@ -149,22 +180,33 @@ a:focus.button {
   height: 50px;
   border: 1px solid #d3d3d3;
   border-radius: 3rem;
-  float: right;
+  display: inline-block;
+  vertical-align: middle;
   margin-top: 2px;
-  margin-right: 380px;
+  margin-left: 10px;
 }
 
 .info-box .setting .button {
   display: inline-block;
   margin: 20px 5px 10px 5px;
   width: 80px;
-  
+}
+
+.setting-trigger {
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--color-text);
 }
 
 .info-box .undo {
   margin: 10px 10px 20px;
-  padding: 5px;
-  background-color: #DFF48B;
+  padding: 8px 12px;
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
 }
 
 .info-box .undo a {
@@ -173,20 +215,8 @@ a:focus.button {
 }
 
 .info-box .undo a:hover {
-  color: blue;
+  color: var(--color-focus);
 }
-
-
-#test_area {
-  width: 70%;
-  height: 100%;
-  border: 2px solid black;
-  display: block;
-  margin-top: 1rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 
 #form_color {
   visibility: hidden;
@@ -208,9 +238,9 @@ a:focus.button {
   width: 600px;
   margin-left: auto;
   margin-right: auto;
-  background-color: rgb(255, 255, 255);
-  border: 1px solid #dbeafe;
-  border-radius: 5px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 10px;
   overflow: hidden;
 }
@@ -218,29 +248,28 @@ a:focus.button {
 .form h2 {
   font-size: 25px;
   font-weight: normal;
-  border-bottom: 1px solid #dbeafe;
-  color: #1e293b;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
 .form label {
-  float: left;
+  display: inline-block;
   width: 280px;
   text-align: right;
-  clear: left;
   margin-bottom: 5px;
   margin-right: 15px;
 }
 
 .form p {
   margin: 4px;
-  color: #1e293b;
+  color: var(--color-text);
 }
 
 .form input {
   margin-right: 10px;
-  color: #1e293b;
+  color: var(--color-text);
 }
 
 .form fieldset {
@@ -264,13 +293,13 @@ a:focus.button {
 }
 
 .form #form_extra {
-  background-color: #FFF;
+  background-color: var(--color-surface);
   position: absolute;
   width: 180px;
-  color: #000;
-  font-size: 14px;
-  border: 1px solid #000;
-  border-radius: 4px;
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: 5px;
   display: none;
 }
@@ -280,33 +309,31 @@ a:focus.button {
   font-family: var(--font-family);
   height: 7rem;
   width: 35rem;
-  border: 1px solid #e4e3e3; 
-  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   outline: none;
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   padding-top: 0.3rem;
+  transition: var(--transition);
+}
+
+#form_block:focus {
+  border-color: var(--color-focus);
+  box-shadow: var(--shadow-md);
 }
 
 ul {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   margin: 0;
 }
 
-.warning {
-  background-color: #fee2e2;
-  border: 1px solid #dc2626;
-  color: #dc2626;
-  border-radius: 0.5rem;
-  display: none;
-  padding: 10px;
-  margin: 1rem 0 1rem 0;
-}
-
+.warning,
 .warning2 {
-  background-color: #fee2e2;
-  border: 1px solid #dc2626;
-  color: #dc2626;
-  border-radius: 0.5rem;
+  background-color: var(--color-danger-bg);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-lg);
   display: none;
   padding: 10px;
+  margin: var(--space-lg) 0;
 }
