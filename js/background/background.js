@@ -1,5 +1,7 @@
 // SettingsManager
 
+// Schema version for chrome.storage.local — increment when storage structure changes.
+// This is independent of the extension version in manifest.json.
 var CURRENT_VERSION = "5";
 var temp_urls = [];
 
@@ -92,6 +94,18 @@ function openTab(urls, delay, windowId, tabIndex, closeDelay) {
   });
 }
 
+function uniqueURLs(arr) {
+  var a = [];
+  var l = arr.length;
+  for (var i = 0; i < l; i++) {
+    for (var j = i + 1; j < l; j++) {
+      if (arr[i].url === arr[j].url) j = ++i;
+    }
+    a.push(arr[i]);
+  }
+  return a;
+}
+
 function handleRequests(request, sender, sendResponse) {
   switch(request.message) {
     case "links":
@@ -106,7 +120,7 @@ function handleRequests(request, sender, sendResponse) {
 
     case "activate":
       if(request.setting.options.block) {
-        request.urls = request.urls.unique();
+        request.urls = uniqueURLs(request.urls);
       }
 
       if(request.urls.length === 0) {
@@ -183,19 +197,6 @@ chrome.storage.onChanged.addListener(function(changes, area) {
     chrome.action.setBadgeBackgroundColor({ color: 'green' });
   }
 });
-
-Array.prototype.unique = function() {
-  var a = [];
-  var l = this.length;
-  for(var i=0; i<l; i++) {
-    for(var j=i+1; j<l; j++) {
-      if (this[i].url === this[j].url)
-        j = ++i;
-    }
-    a.push(this[i]);
-  }
-  return a;
-};
 
 chrome.runtime.onInstalled.addListener(function() {
   chrome.contextMenus.removeAll(function() {
