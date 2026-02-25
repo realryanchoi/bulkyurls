@@ -201,12 +201,12 @@ chrome.storage.onChanged.addListener(function(changes, area) {
 chrome.runtime.onInstalled.addListener(function() {
   chrome.contextMenus.removeAll(function() {
     chrome.contextMenus.create({
-      title: "Open selected links with BulkyURLs",
-      contexts: ["selection"],
-      id: "open_selected"
+      title: "Add link to BulkyURLs",
+      contexts: ["link"],
+      id: "add_link"
     });
     chrome.contextMenus.create({
-      title: "Copy page links to BulkyURLs",
+      title: "Copy visible page links to BulkyURLs",
       contexts: ["page"],
       id: "copy_page"
     });
@@ -215,8 +215,8 @@ chrome.runtime.onInstalled.addListener(function() {
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
   var noop = function() { void chrome.runtime.lastError; };
-  if (info.menuItemId === "open_selected") {
-    chrome.tabs.sendMessage(tab.id, { message: "open_selected" }, noop);
+  if (info.menuItemId === "add_link") {
+    chrome.tabs.sendMessage(tab.id, { message: "add_link", url: info.linkUrl }, noop);
   } else if (info.menuItemId === "copy_page") {
     chrome.tabs.sendMessage(tab.id, { message: "copy_page" }, noop);
   }

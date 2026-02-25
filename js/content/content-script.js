@@ -77,6 +77,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		settings = request.settings.actions;
 	} else if (request.type === "getURLs") {
 		callback({ urls: latestURLs });
+	} else if (request.message === "add_link") {
+		if (request.url && !latestURLs.some(function(u) { return u.url === request.url; })) {
+			latestURLs.push({ url: request.url, title: request.url });
+		}
+		send_message(latestURLs);
+	} else if (request.message === "copy_page") {
+		latestURLs = getVisiblePageLinks();
+		send_message(latestURLs);
 	}
 });
 
@@ -515,6 +523,35 @@ function detech(x, y, open) {
 	}
 
 	return true;
+}
+
+function getVisiblePageLinks() {
+	var result = [];
+	var seen = new Set();
+	var page_links = document.links;
+	var re_js = /^javascript:/i;
+
+	for (var i = 0; i < page_links.length; i++) {
+		var link = page_links[i];
+
+		if (re_js.test(link.href)) continue;
+		if (!link.getAttribute("href") || link.getAttribute("href") === "#") continue;
+
+		var comp = window.getComputedStyle(link, null);
+		if (comp.visibility === "hidden" || comp.display === "none") continue;
+
+		var rect = link.getBoundingClientRect();
+		if (rect.width === 0 && rect.height === 0) continue;
+		if (rect.bottom < 0 || rect.top > window.innerHeight ||
+		    rect.right  < 0 || rect.left > window.innerWidth) continue;
+
+		if (!seen.has(link.href)) {
+			seen.add(link.href);
+			result.push({ url: link.href, title: link.innerText.trim() || link.href });
+		}
+	}
+
+	return result;
 }
 
 function send_message(linkArray) {
