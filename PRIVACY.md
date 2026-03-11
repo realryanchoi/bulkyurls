@@ -1,6 +1,6 @@
 # Privacy Policy — BulkyURLs
 
-**Last updated: 2026-02-25**
+**Last updated: 2026-03-11**
 
 ## Data Collection
 
@@ -26,4 +26,4 @@ The only data stored by this extension is your configuration (key bindings, colo
 
 ## Contact
 
-Questions? Open an issue at https://github.com/cyberreality/bulkyurls
+Questions? Open an issue at https://github.com/realryanchoi/bulkyurls
