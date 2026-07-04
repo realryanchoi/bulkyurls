@@ -490,6 +490,69 @@ input[type="range"] {
   width: 50px;
 }
 
+/* ------- Link selection settings ------- */
+
+.select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 3px 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.select-row select {
+  min-width: 150px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+}
+
+.select-row select:focus {
+  border-color: var(--color-focus);
+  outline: 0;
+}
+
+.select-row input[type="color"] {
+  width: 44px;
+  height: 24px;
+  padding: 1px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  cursor: pointer;
+}
+
+.warning-note {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  margin: var(--space-xs) 0;
+}
+
+#lsBlocklist {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  padding: var(--space-sm) var(--space-md);
+  margin-top: var(--space-xs);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+#lsBlocklist:focus {
+  border-color: var(--color-focus);
+}
+
 .limit-row {
   display: flex;
   align-items: center;
