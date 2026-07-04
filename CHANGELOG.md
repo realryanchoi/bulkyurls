@@ -7,6 +7,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-04
+
 ### Changed
 - **Options page removed** — the drag-select settings moved into a new **Link Selection** card on the popup/side panel Settings tab: activation trigger (mouse button + key), open as tabs vs. new window, selection box color, smart select, and the site blocklist. Stored settings are reused as-is, so existing configurations carry over
 - The multi-action editor and the niche per-action options (link word filter, per-link delay, auto-close time, duplicate blocking, reverse order, open-at-end, unfocus window) no longer have a UI; previously saved values continue to apply to the drag-select action
