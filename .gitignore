@@ -20,5 +20,5 @@ node_modules/
 .claude
 
 # Internal
-RESEARCH.md
+research/
 PUBLISH.md

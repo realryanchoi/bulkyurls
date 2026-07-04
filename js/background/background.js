@@ -94,6 +94,111 @@ function openTab(urls, delay, windowId, tabIndex, closeDelay) {
   });
 }
 
+// ------- Bulk opening for the popup / side panel -------
+
+function sleep(seconds) {
+  return new Promise(function(resolve) { setTimeout(resolve, seconds * 1000); });
+}
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
+}
+
+function createTab(props) {
+  return new Promise(function(resolve) { chrome.tabs.create(props, resolve); });
+}
+
+function createWindow(props) {
+  return new Promise(function(resolve) { chrome.windows.create(props, resolve); });
+}
+
+// Resolves when the tab reaches status "complete" (or after a 30s safety timeout,
+// so a hung page never stalls the rest of the batch).
+function waitForTabLoad(tabId) {
+  return new Promise(function(resolve) {
+    var timer = setTimeout(done, 30000);
+    function done() {
+      clearTimeout(timer);
+      chrome.tabs.onUpdated.removeListener(listener);
+      resolve();
+    }
+    function listener(updatedTabId, changeInfo) {
+      if (updatedTabId === tabId && changeInfo.status === "complete") done();
+    }
+    chrome.tabs.onUpdated.addListener(listener);
+    // The tab may already be done loading by the time the listener attaches
+    chrome.tabs.get(tabId, function(tab) {
+      if (!chrome.runtime.lastError && tab && tab.status === "complete") done();
+    });
+  });
+}
+
+function scheduleClose(tabId, seconds) {
+  setTimeout(function() {
+    chrome.tabs.remove(tabId, function() { void chrome.runtime.lastError; });
+  }, seconds * 1000);
+}
+
+// Opens urls in batches according to the popup's opener settings.
+// mode: "tabs" (current window) or "win" (one new window, unless windowPerBatch).
+async function openBulk(urls, mode, o) {
+  urls = urls.slice();
+  if (urls.length === 0) return;
+  if (o.randomOrder) shuffle(urls);
+  if (o.reverseOrder) urls.reverse();
+  if (o.urlLimit > 0) urls = urls.slice(0, o.urlLimit);
+
+  var batchSize = Math.max(1, parseInt(o.batchSize, 10) || 1);
+  var delay = Math.max(0, parseFloat(o.delay) || 0);
+  var closeSecs = (o.autoClose && o.autoCloseSecs > 0) ? o.autoCloseSecs : 0;
+
+  var targetWindowId = null;
+  if (mode === "win" && !o.windowPerBatch) {
+    var first = urls.shift();
+    var win = await createWindow({ url: first });
+    targetWindowId = win.id;
+    if (closeSecs) scheduleClose(win.tabs[0].id, closeSecs);
+    if (o.waitForLoad) await waitForTabLoad(win.tabs[0].id);
+    if (urls.length === 0) return;
+  }
+
+  var batches = [];
+  for (var i = 0; i < urls.length; i += batchSize) {
+    batches.push(urls.slice(i, i + batchSize));
+  }
+
+  for (var b = 0; b < batches.length; b++) {
+    var batch = batches[b];
+    var batchWindowId = targetWindowId;
+
+    if (o.windowPerBatch) {
+      var newWin = await createWindow({ url: batch[0] });
+      batchWindowId = newWin.id;
+      if (closeSecs) scheduleClose(newWin.tabs[0].id, closeSecs);
+      if (o.waitForLoad) await waitForTabLoad(newWin.tabs[0].id);
+      batch = batch.slice(1);
+    }
+
+    for (var t = 0; t < batch.length; t++) {
+      var props = { url: batch[t], active: false };
+      if (batchWindowId != null) props.windowId = batchWindowId;
+      var tab = await createTab(props);
+      if (closeSecs) scheduleClose(tab.id, closeSecs);
+      if (o.waitForLoad) await waitForTabLoad(tab.id);
+    }
+
+    if (delay > 0 && b < batches.length - 1) {
+      await sleep(delay);
+    }
+  }
+}
+
 function uniqueURLs(arr) {
   var a = [];
   var l = arr.length;
@@ -159,21 +264,11 @@ function handleRequests(request, sender, sendResponse) {
 
       break;
 
-    // Popup "Open in New Tabs / New Window" — runs here so delayed opening
+    // Popup "Open in Tabs / New Window" — runs here so batched/delayed opening
     // continues after the popup closes.
     case "open_urls":
-      var pending = request.urls.map(function(u) { return { url: u }; });
-      if (pending.length === 0) break;
-      var popupDelay = request.delay || 0;
-      if (request.mode === "win") {
-        chrome.windows.create({ url: pending.shift().url }, function(win) {
-          if (pending.length > 0) {
-            openTab(pending, popupDelay, win.id, null, 0);
-          }
-        });
-      } else {
-        openTab(pending, popupDelay, null, null, 0);
-      }
+      openBulk(request.urls, request.mode, request.options || {})
+        .catch(function(e) { console.error("BulkyURLs: bulk open failed", e); });
       break;
 
     case "init":
