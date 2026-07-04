@@ -16,6 +16,9 @@ node_modules/
 *.crx
 *.pem
 
+# Claude
+.claude
+
 # Internal
 RESEARCH.md
-COMMITS.md
+PUBLISH.md
