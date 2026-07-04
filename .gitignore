@@ -15,3 +15,7 @@ node_modules/
 *.zip
 *.crx
 *.pem
+
+# Internal
+RESEARCH.md
+COMMITS.md

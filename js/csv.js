@@ -160,14 +160,4 @@ function importFromCSVText(csvText) {
   return urls.join('\n');
 }
 
-// ------- URL extraction (mirrors popup.js) -------
-
-function extractURLs(text) {
-  var urls = '';
-  var m;
-  var re = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»""'']))/ig;
-  while ((m = re.exec(text)) !== null) {
-    urls += m[0] + '\n';
-  }
-  return urls;
-}
+// extractURLs() comes from js/lib/urls.js, loaded before this script in csv.html

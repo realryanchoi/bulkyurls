@@ -159,6 +159,23 @@ function handleRequests(request, sender, sendResponse) {
 
       break;
 
+    // Popup "Open in New Tabs / New Window" — runs here so delayed opening
+    // continues after the popup closes.
+    case "open_urls":
+      var pending = request.urls.map(function(u) { return { url: u }; });
+      if (pending.length === 0) break;
+      var popupDelay = request.delay || 0;
+      if (request.mode === "win") {
+        chrome.windows.create({ url: pending.shift().url }, function(win) {
+          if (pending.length > 0) {
+            openTab(pending, popupDelay, win.id, null, 0);
+          }
+        });
+      } else {
+        openTab(pending, popupDelay, null, null, 0);
+      }
+      break;
+
     case "init":
       settingsManager.load().then(sendResponse);
       return true; // keep channel open for async response

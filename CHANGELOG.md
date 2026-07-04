@@ -5,6 +5,24 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-07-04
+
+### Added
+- **Saved Lists** — save the popup textarea under a custom name and reload it any time (stored locally in `chrome.storage.local`)
+- **Open in New Window** button — open all URLs in a fresh window instead of the current one
+- **Delay control** — configurable pause (seconds) between each tab opening; persisted across sessions
+- **Remove Duplicates** button — dedupe textarea lines while preserving order
+- Live URL counter above the popup textarea
+- `js/lib/urls.js` — shared URL utilities (`extractURLs`, `textToLines`, `dedupeLines`, `normalizeURL`) used by both popup and CSV dialog
+
+### Fixed
+- **Extension no longer alters the appearance of web pages** ([#4](https://github.com/realryanchoi/bulkyurls/issues/4)) — `css/content-styles.css` was injected into every page with bare element selectors (`LABEL`, `INPUT`, `IMG`, `FIELDSET`, …) that restyled host-page elements such as GitHub's fork/watch buttons. The file has been removed; the drag-select overlay was already styled entirely inline.
+
+### Changed
+- Popup "Open" actions are delegated to the background service worker, so delayed batches keep opening even after the popup closes
+- Removed unused jQuery 3.7.1 (~87 KB) — nothing referenced it since the options page moved to vanilla JS
+- Deduplicated the `extractURLs()` regex previously copy-pasted between `popup.js` and `csv.js`
+
 ## [0.2.0] - 2025-02-22
 
 ### Added

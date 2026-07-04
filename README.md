@@ -10,17 +10,30 @@ BulkyURLs is a Chrome extension (Manifest V3) for managing large numbers of URLs
 Hold **Shift** + left-click-drag over any area of a page. A dotted selection box appears, and every link it touches is highlighted in red. The extension badge on the toolbar shows the live count of selected links. When you release the mouse, the selection is captured and the badge updates to the final count.
 
 ### Popup Tools
-Open the popup (click the BulkyURLs toolbar icon) after making a selection — the selected URLs appear in the textarea automatically.
+Open the popup (click the BulkyURLs toolbar icon) after making a selection — the selected URLs appear in the textarea automatically. A live counter above the textarea shows how many URLs are currently detected.
 
-| Button | What it does |
+| Control | What it does |
 |---|---|
-| **Selection Tool URLs** | Re-fetches the current drag selection into the textarea |
 | **URLs from Text** | Strips non-URL text from the textarea, leaving only valid URLs |
 | **URLs from Tabs** | Fills the textarea with the URLs of every open tab |
-| **Open URLs in New Tabs** | Opens every URL currently in the textarea as a background tab |
+| **URLs from Selection** | Re-fetches the current drag selection into the textarea |
+| **Remove Duplicates** | Removes duplicate lines from the textarea, keeping first-seen order |
+| **Open in New Tabs** | Opens every URL in the textarea as background tabs in the current window |
+| **Open in New Window** | Opens every URL in the textarea in a brand-new window |
+| **Delay** | Seconds to wait between each tab opening (prevents browser overload on large lists; persisted across sessions) |
 | **Clear** | Empties the textarea |
 | **Export CSV** | Downloads the current textarea URLs as a `bulkyurls-export.csv` file |
 | **Import CSV** | Opens a file picker; parses any `.csv` file and loads the URLs it contains into the textarea |
+
+Opening is delegated to the background service worker, so a delayed batch keeps opening even after the popup closes.
+
+### Saved Lists
+Save the current textarea contents under a custom name and reload it any time — handy for recurring link sets (daily reading lists, QA test URLs, etc.). Lists are stored locally via `chrome.storage.local`; nothing leaves your machine.
+
+- Type a name and click **Save** to store the current URLs.
+- Pick a list from the dropdown to load it into the textarea.
+- Click **Delete** to remove the selected list.
+- To update an existing list, select it in the dropdown and click **Save** with the name box empty.
 
 ### CSV Format
 
@@ -72,7 +85,7 @@ Right-click the toolbar icon → **Options** (or open via `chrome://extensions`)
 3. The links highlight red; the toolbar badge shows the count.
 4. Release the mouse — the selection is captured.
 5. Click the BulkyURLs icon — the selected URLs appear in the popup textarea.
-6. Use **Open URLs in New Tabs** to open them all, or copy the text to use elsewhere.
+6. Use **Open in New Tabs** (or **Open in New Window**) to open them all, or copy the text to use elsewhere.
 
 ---
 
@@ -85,16 +98,15 @@ bulkyurls/
 ├── options.html               # Options page
 ├── csv.html                   # CSV import/export dialog
 ├── css/
-│   ├── content-styles.css     # Content script styles (injected into pages)
 │   ├── options.css            # Options page styles
-│   └── popup.css              # Popup styles
+│   └── popup.css              # Popup + CSV dialog styles
 ├── js/
 │   ├── background/
 │   │   └── background.js      # Service worker: settings, messaging, tab management
 │   ├── content/
-│   │   └── content-script.js  # Drag-select box, link detection, URL capture
+│   │   └── content-script.js  # Drag-select box, link detection, URL capture (styles applied inline)
 │   ├── lib/
-│   │   └── jquery.min.js      # jQuery 3.7.1 (local copy, required by options page)
+│   │   └── urls.js            # Shared URL utilities (extract, dedupe, normalize)
 │   ├── csv.js                 # CSV import/export logic (File System Access API)
 │   ├── options.js             # Options page logic
 │   └── popup.js               # Popup UI logic
@@ -106,12 +118,9 @@ bulkyurls/
 
 ## Known Limitations
 
-- The drag-select box relies on `WebKitCSSMatrix` for CSS transform calculations — this is Chrome-specific and non-standard. Should migrate to the standard `DOMMatrix` API.
-- jQuery 3.7.1 is loaded for the options page only; replacing it with vanilla JS would eliminate ~87 KB of overhead.
-- The `extractURLs()` regex is duplicated between `popup.js` and `csv.js`. Should be extracted to a shared utility module.
-- `Array.prototype.unique` is added globally in `background.js` — modifying native prototypes can conflict with other code. Should be replaced with a standalone utility function.
-- The manifest `version` field and `CURRENT_VERSION` in `background.js` are maintained separately and can drift out of sync. Should be unified to a single source of truth.
-- Mouse/key values in `options.js` use loose `==` comparisons on values that may be strings or integers, depending on how jQuery reads form fields. Should use `===` with explicit type coercion.
+- The `extractURLs()` regex only recognizes top-level domains of 2–4 characters for schemeless URLs (e.g. `example.online/` is missed unless prefixed with `http://`).
+- Drag-select cannot capture links rendered inside cross-origin iframes.
+- Saved lists live in `chrome.storage.local`, which has a ~10 MB quota — extremely large lists (hundreds of thousands of URLs) may fail to save.
 
 ---
 
