@@ -55,7 +55,7 @@ jobs:
   publish-chrome-web-store:
     needs: release
     runs-on: ubuntu-latest
-    environment: production
+    environment: release
     steps:
       - uses: actions/checkout@v4
 
