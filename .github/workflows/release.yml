@@ -49,7 +49,7 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "bulkyurls-${GITHUB_REF_NAME}.zip" \
-            --title "BulkyURLs $GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
             --notes-file release-notes.md
 
   publish-chrome-web-store:
