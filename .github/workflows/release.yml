@@ -1,0 +1,90 @@
+name: Release
+
+# Cutting a release: bump manifest.json version, update CHANGELOG.md,
+# commit, then push a matching tag (e.g. v0.4.0). See PUBLISH.md.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches manifest version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          MANIFEST_VERSION="$(jq -r .version manifest.json)"
+          if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match manifest version $MANIFEST_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Build extension zip
+        run: |
+          zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
+            manifest.json popup.html options.html csv.html css js img LICENSE
+          unzip -l "bulkyurls-${GITHUB_REF_NAME}.zip"
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "See CHANGELOG.md for details." > release-notes.md
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "bulkyurls-${GITHUB_REF_NAME}.zip" \
+            --title "BulkyURLs $GITHUB_REF_NAME" \
+            --notes-file release-notes.md
+
+  publish-chrome-web-store:
+    needs: release
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Chrome Web Store secrets
+        id: cws
+        env:
+          EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+        run: |
+          if [ -n "$EXTENSION_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::CHROME_EXTENSION_ID var (or CHROME_* secrets) not configured — skipping Chrome Web Store upload"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build extension zip
+        if: steps.cws.outputs.configured == 'true'
+        run: |
+          zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
+            manifest.json popup.html options.html csv.html css js img LICENSE
+
+      - name: Upload and publish to Chrome Web Store
+        if: steps.cws.outputs.configured == 'true'
+        env:
+          EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+        run: |
+          npx --yes chrome-webstore-upload-cli@3 upload \
+            --source "bulkyurls-${GITHUB_REF_NAME}.zip" \
+            --auto-publish

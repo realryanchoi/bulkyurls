@@ -130,6 +130,14 @@ See [CHANGELOG.md](CHANGELOG.md) for a full version history.
 
 ---
 
+## Releasing
+
+Pushing a `v*` tag (matching the `manifest.json` version) triggers the [release workflow](.github/workflows/release.yml), which builds the extension zip and creates a GitHub Release with notes from the changelog.
+
+To cut a release: bump `manifest.json`'s `version`, add a dated entry to `CHANGELOG.md`, commit, then push a matching `vX.Y.Z` tag.
+
+---
+
 ## License
 
 This project is licensed under the [Mozilla Public License 2.0](LICENSE).

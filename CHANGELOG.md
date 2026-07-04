@@ -5,6 +5,12 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Repo / Tooling
+- Added `.github/workflows/release.yml` — pushing a `v*` tag matching `manifest.json`'s version builds the extension zip, creates a GitHub Release with notes pulled from this changelog, and uploads/publishes to the Chrome Web Store if environment variables and secrets are configured
+- No changes to the extension bundle itself; manifest version is unchanged
+
 ## [0.3.0] - 2026-07-04
 
 ### Added
