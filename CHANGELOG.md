@@ -7,9 +7,34 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-04
+
+### Added
+- **Side panel** — the full BulkyURLs UI now runs in Chrome's side panel (`sidePanel` API). Open it with the **Open Sidebar** button in the popup; it stays open while you browse
+- **Open in New Tab** button — run the UI in a full browser tab
+- **Tabbed popup** — the popup is reorganized into **URLs** and **Settings** tabs with a card-based layout
+- **Batch opening** — configurable *URLs per batch* (1–20) and *delay between batches* (0–100s) with sliders and steppers; opening runs in the background service worker so it continues after the popup closes
+- **Undo / Redo** for the URL textarea (programmatic changes and typing)
+- **Copy** button — copy the list to the clipboard
+- **Tools menu** — URLs from Tabs / from Selection, Remove Duplicates, and CSV import/export moved into a dropdown
+- **Settings tab** with new opening options:
+  - Convert non-URLs to search queries (non-URL lines open as Google searches)
+  - Open URLs in random order / reverse order
+  - Open each batch in a new window
+  - Wait for tab to load before opening the next URL
+  - Remove opened URLs from input
+  - Auto-close tabs after a configurable number of seconds
+  - URL limit (open only the first N URLs; 0 = no limit)
+  - Reset Defaults
+- **Saved Lists redesign** — lists render as rows with URL counts, one-click load, and inline delete; “+ New” reveals the save form
+- Live **“N valid”** count badge on the URL textarea
+
+### Changed
+- The pre-0.4 popup delay setting is migrated to the new opener settings on first run
+- All opener settings persist in `chrome.storage.local` under `opener_settings`
+
 ### Repo / Tooling
 - Added `.github/workflows/release.yml` — pushing a `v*` tag matching `manifest.json`'s version builds the extension zip, creates a GitHub Release with notes pulled from this changelog, and uploads/publishes to the Chrome Web Store if environment variables and secrets are configured
-- No changes to the extension bundle itself; manifest version is unchanged
 
 ## [0.3.0] - 2026-07-04
 

@@ -9,31 +9,60 @@ BulkyURLs is a Chrome extension (Manifest V3) for managing large numbers of URLs
 ### Drag-Select Links
 Hold **Shift** + left-click-drag over any area of a page. A dotted selection box appears, and every link it touches is highlighted in red. The extension badge on the toolbar shows the live count of selected links. When you release the mouse, the selection is captured and the badge updates to the final count.
 
-### Popup Tools
-Open the popup (click the BulkyURLs toolbar icon) after making a selection — the selected URLs appear in the textarea automatically. A live counter above the textarea shows how many URLs are currently detected.
+### Popup, Side Panel & Full Tab
+The same UI runs in three places:
+
+- **Popup** — click the BulkyURLs toolbar icon. After a drag selection, the selected URLs appear in the textarea automatically.
+- **Side panel** — click **Open Sidebar** in the popup. The panel docks beside the page and stays open while you browse.
+- **Full tab** — click **Open in New Tab** for a roomier view.
+
+The UI is split into two tabs: **URLs** (the list, batch settings, saved lists) and **Settings** (opening options).
+
+#### URLs tab
+
+A live **“N valid”** badge above the textarea shows how many URLs are currently detected.
 
 | Control | What it does |
 |---|---|
-| **URLs from Text** | Strips non-URL text from the textarea, leaving only valid URLs |
-| **URLs from Tabs** | Fills the textarea with the URLs of every open tab |
-| **URLs from Selection** | Re-fetches the current drag selection into the textarea |
-| **Remove Duplicates** | Removes duplicate lines from the textarea, keeping first-seen order |
-| **Open in New Tabs** | Opens every URL in the textarea as background tabs in the current window |
-| **Open in New Window** | Opens every URL in the textarea in a brand-new window |
-| **Delay** | Seconds to wait between each tab opening (prevents browser overload on large lists; persisted across sessions) |
+| **Undo / Redo** | Steps back/forward through textarea changes (typing and button actions) |
+| **Copy** | Copies the textarea contents to the clipboard |
+| **Extract URLs** | Strips non-URL text from the textarea, leaving only valid URLs |
 | **Clear** | Empties the textarea |
-| **Export CSV** | Downloads the current textarea URLs as a `bulkyurls-export.csv` file |
-| **Import CSV** | Opens a file picker; parses any `.csv` file and loads the URLs it contains into the textarea |
+| **Tools ▾ → URLs from Tabs** | Fills the textarea with the URLs of every open tab |
+| **Tools ▾ → URLs from Selection** | Re-fetches the current drag selection into the textarea |
+| **Tools ▾ → Remove Duplicates** | Removes duplicate lines from the textarea, keeping first-seen order |
+| **Tools ▾ → Import / Export CSV** | CSV round-trip (see CSV Format below) |
+| **Open in Tabs** | Opens the URLs as background tabs in the current window, batch by batch |
+| **New Window** | Opens the URLs in a brand-new window, batch by batch |
 
-Opening is delegated to the background service worker, so a delayed batch keeps opening even after the popup closes.
+**Batch Settings** control how opening happens:
+
+- **URLs per batch** (1–20) — how many tabs open at once.
+- **Delay (seconds)** (0–100) — pause between batches. Use a smaller batch size and a longer delay to avoid triggering browser security restrictions on large lists.
+
+Opening is delegated to the background service worker, so a batched/delayed run keeps opening even after the popup closes. Batch size and delay are persisted across sessions.
+
+#### Settings tab
+
+| Option | What it does |
+|---|---|
+| **Convert non-URLs to search queries** | Lines that aren't URLs open as Google searches instead of being dropped |
+| **Open URLs in random order** | Shuffles the list before opening |
+| **Open URLs in reverse order** | Opens the list bottom-to-top |
+| **Open each batch in a new window** | Every batch gets its own browser window |
+| **Wait for tab to load before opening next URL** | Each tab must finish loading before the next opens |
+| **Remove opened URLs from input** | Opened URLs are deleted from the textarea when you click Open |
+| **Auto-close tabs after N s** | Opened tabs close themselves after the chosen number of seconds |
+| **URL Limit** | Open only the first N URLs (0 = no limit) |
+| **Reset Defaults** | Restores all opener settings |
 
 ### Saved Lists
 Save the current textarea contents under a custom name and reload it any time — handy for recurring link sets (daily reading lists, QA test URLs, etc.). Lists are stored locally via `chrome.storage.local`; nothing leaves your machine.
 
-- Type a name and click **Save** to store the current URLs.
-- Pick a list from the dropdown to load it into the textarea.
-- Click **Delete** to remove the selected list.
-- To update an existing list, select it in the dropdown and click **Save** with the name box empty.
+- Click **+ New**, type a name, and click **Save** to store the current URLs.
+- Click a list's name to load it into the textarea; each row shows its URL count.
+- Click **×** on a row to delete that list.
+- To update an existing list, save again under the same name.
 
 ### CSV Format
 
@@ -63,7 +92,7 @@ Right-click the toolbar icon → **Options** (or open via `chrome://extensions`)
 
 ## Requirements
 
-- **Google Chrome** 102+ (Manifest V3, File System Access API)
+- **Google Chrome** 114+ (Manifest V3, File System Access API, Side Panel API)
 - Chromium-based browsers (Edge, Brave, etc.) should also work
 
 ---
@@ -85,7 +114,8 @@ Right-click the toolbar icon → **Options** (or open via `chrome://extensions`)
 3. The links highlight red; the toolbar badge shows the count.
 4. Release the mouse — the selection is captured.
 5. Click the BulkyURLs icon — the selected URLs appear in the popup textarea.
-6. Use **Open in New Tabs** (or **Open in New Window**) to open them all, or copy the text to use elsewhere.
+6. Use **Open in Tabs** (or **New Window**) to open them all, or **Copy** the list to use elsewhere.
+7. Prefer a persistent view? Click **Open Sidebar** to dock the same UI in Chrome's side panel.
 
 ---
 
@@ -95,6 +125,7 @@ Right-click the toolbar icon → **Options** (or open via `chrome://extensions`)
 bulkyurls/
 ├── manifest.json              # MV3 manifest
 ├── popup.html                 # Popup UI
+├── sidepanel.html             # Same UI for Chrome's side panel / full tab
 ├── options.html               # Options page
 ├── csv.html                   # CSV import/export dialog
 ├── css/

@@ -1,10 +1,176 @@
 document.addEventListener('DOMContentLoaded', function() {
   var userInput = document.getElementById('userInput');
   var urlCount = document.getElementById('urlCount');
-  var delayInput = document.getElementById('delayInput');
   var listName = document.getElementById('listName');
-  var savedLists = document.getElementById('savedLists');
   var listStatus = document.getElementById('listStatus');
+  var savedListsContainer = document.getElementById('savedListsContainer');
+  var batchSlider = document.getElementById('batchSize');
+  var batchNum = document.getElementById('batchSizeNum');
+  var delaySlider = document.getElementById('delaySlider');
+  var delayNum = document.getElementById('delayNum');
+  var batchBadge = document.getElementById('batchBadge');
+  var delayBadge = document.getElementById('delayBadge');
+  var toolsMenu = document.getElementById('toolsMenu');
+  var undoBtn = document.getElementById('undo');
+  var redoBtn = document.getElementById('redo');
+
+  var isSidePanel = document.body.classList.contains('sidepanel');
+
+  document.getElementById('appVersion').textContent = 'v' + chrome.runtime.getManifest().version;
+
+  // ------- Opener settings (persisted as one object) -------
+
+  var DEFAULT_SETTINGS = {
+    batchSize: 1,
+    delay: 0,
+    searchQueries: false,
+    randomOrder: false,
+    reverseOrder: false,
+    windowPerBatch: false,
+    waitForLoad: false,
+    removeOpened: false,
+    autoClose: false,
+    autoCloseSecs: 10,
+    urlLimit: 0
+  };
+
+  var settings = Object.assign({}, DEFAULT_SETTINGS);
+
+  var optionInputs = {
+    searchQueries: document.getElementById('optSearchQueries'),
+    randomOrder: document.getElementById('optRandomOrder'),
+    reverseOrder: document.getElementById('optReverseOrder'),
+    windowPerBatch: document.getElementById('optWindowPerBatch'),
+    waitForLoad: document.getElementById('optWaitForLoad'),
+    removeOpened: document.getElementById('optRemoveOpened'),
+    autoClose: document.getElementById('optAutoClose')
+  };
+  var autoCloseSecs = document.getElementById('optAutoCloseSecs');
+  var limitSlider = document.getElementById('optLimit');
+  var limitNum = document.getElementById('optLimitNum');
+  var limitHint = document.getElementById('limitHint');
+  var limitDesc = document.getElementById('limitDesc');
+
+  function saveSettings() {
+    chrome.storage.local.set({ opener_settings: settings });
+  }
+
+  function renderSettings() {
+    batchSlider.value = settings.batchSize;
+    batchNum.value = settings.batchSize;
+    delaySlider.value = settings.delay;
+    delayNum.value = settings.delay;
+    batchBadge.textContent = settings.batchSize + '/batch';
+    delayBadge.textContent = settings.delay + 's';
+    Object.keys(optionInputs).forEach(function(key) {
+      optionInputs[key].checked = !!settings[key];
+    });
+    autoCloseSecs.value = settings.autoCloseSecs;
+    limitSlider.value = Math.min(settings.urlLimit, parseInt(limitSlider.max, 10));
+    limitNum.value = settings.urlLimit;
+    limitHint.textContent = settings.urlLimit === 0 ? 'No limit' : settings.urlLimit + ' max';
+    limitDesc.textContent = settings.urlLimit === 0
+      ? 'Open all URLs in the list'
+      : 'Open only the first ' + settings.urlLimit + ' URLs';
+  }
+
+  Object.keys(optionInputs).forEach(function(key) {
+    optionInputs[key].addEventListener('change', function() {
+      settings[key] = optionInputs[key].checked;
+      saveSettings();
+    });
+  });
+
+  autoCloseSecs.addEventListener('change', function() {
+    var v = parseInt(autoCloseSecs.value, 10);
+    settings.autoCloseSecs = (isNaN(v) || v < 1) ? 1 : v;
+    renderSettings();
+    saveSettings();
+  });
+
+  function setBatchSize(v) {
+    v = parseInt(v, 10);
+    if (isNaN(v)) v = 1;
+    settings.batchSize = Math.min(20, Math.max(1, v));
+    renderSettings();
+    saveSettings();
+  }
+
+  function setDelay(v) {
+    v = parseFloat(v);
+    if (isNaN(v) || v < 0) v = 0;
+    settings.delay = Math.min(100, v);
+    renderSettings();
+    saveSettings();
+  }
+
+  function setLimit(v) {
+    v = parseInt(v, 10);
+    if (isNaN(v) || v < 0) v = 0;
+    settings.urlLimit = v;
+    renderSettings();
+    saveSettings();
+  }
+
+  batchSlider.addEventListener('input', function() { setBatchSize(batchSlider.value); });
+  batchNum.addEventListener('change', function() { setBatchSize(batchNum.value); });
+  delaySlider.addEventListener('input', function() { setDelay(delaySlider.value); });
+  delayNum.addEventListener('change', function() { setDelay(delayNum.value); });
+  limitSlider.addEventListener('input', function() { setLimit(limitSlider.value); });
+  limitNum.addEventListener('change', function() { setLimit(limitNum.value); });
+
+  // Stepper − / + buttons next to the batch and delay sliders
+  document.querySelectorAll('.stepper-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var step = parseInt(btn.dataset.step, 10);
+      if (btn.dataset.for === 'batchSize') setBatchSize(settings.batchSize + step);
+      else setDelay(settings.delay + step);
+    });
+  });
+
+  document.getElementById('resetDefaults').addEventListener('click', function() {
+    settings = Object.assign({}, DEFAULT_SETTINGS);
+    renderSettings();
+    saveSettings();
+  });
+
+  // ------- Tab bar -------
+
+  function activateTab(name) {
+    document.querySelectorAll('.tab').forEach(function(t) {
+      t.classList.toggle('active', t.dataset.tab === name);
+    });
+    document.getElementById('panel-urls').classList.toggle('active', name === 'urls');
+    document.getElementById('panel-settings').classList.toggle('active', name === 'settings');
+  }
+
+  document.querySelectorAll('.tab').forEach(function(t) {
+    t.addEventListener('click', function() { activateTab(t.dataset.tab); });
+  });
+
+  document.getElementById('backToURLs').addEventListener('click', function() {
+    activateTab('urls');
+  });
+
+  // ------- Sidebar / new-tab launchers -------
+
+  var openSidebarBtn = document.getElementById('openSidebar');
+  if (isSidePanel) {
+    openSidebarBtn.hidden = true;
+  } else {
+    openSidebarBtn.addEventListener('click', function() {
+      chrome.windows.getCurrent(function(win) {
+        chrome.sidePanel.open({ windowId: win.id }, function() {
+          void chrome.runtime.lastError;
+          window.close();
+        });
+      });
+    });
+  }
+
+  document.getElementById('openInTab').addEventListener('click', function() {
+    chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
+  });
 
   // ------- Badge + count sync -------
 
@@ -14,7 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function updateBadge() {
     var count = countURLs(userInput.value);
-    urlCount.textContent = count === 0 ? 'No URLs' : count + ' URL' + (count === 1 ? '' : 's');
+    urlCount.textContent = count + ' valid';
+    urlCount.classList.toggle('valid', count > 0);
     if (count === 0) {
       chrome.action.setBadgeText({ text: '' });
     } else {
@@ -23,21 +190,71 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Every programmatic textarea write goes through here to keep badge in sync
+  // ------- Undo / redo history -------
+
+  var history = [userInput.value];
+  var historyIndex = 0;
+  var historyTimer = null;
+
+  function updateHistoryButtons() {
+    undoBtn.disabled = historyIndex === 0;
+    redoBtn.disabled = historyIndex === history.length - 1;
+  }
+
+  function pushHistory(value) {
+    if (history[historyIndex] === value) return;
+    history = history.slice(0, historyIndex + 1);
+    history.push(value);
+    if (history.length > 100) history.shift();
+    historyIndex = history.length - 1;
+    updateHistoryButtons();
+  }
+
+  undoBtn.addEventListener('click', function() {
+    if (historyIndex === 0) return;
+    historyIndex--;
+    userInput.value = history[historyIndex];
+    updateHistoryButtons();
+    updateBadge();
+  });
+
+  redoBtn.addEventListener('click', function() {
+    if (historyIndex === history.length - 1) return;
+    historyIndex++;
+    userInput.value = history[historyIndex];
+    updateHistoryButtons();
+    updateBadge();
+  });
+
+  // Every programmatic textarea write goes through here to keep badge + history in sync
   function setTextarea(value) {
     userInput.value = value;
+    pushHistory(value);
     updateBadge();
   }
 
-  // Sync badge on direct user edits (typing, paste, cut)
-  userInput.addEventListener('input', updateBadge);
+  // Sync badge on direct user edits (typing, paste, cut); snapshot history after a pause
+  userInput.addEventListener('input', function() {
+    updateBadge();
+    clearTimeout(historyTimer);
+    historyTimer = setTimeout(function() { pushHistory(userInput.value); }, 500);
+  });
+
+  updateHistoryButtons();
 
   // ------- Init -------
 
   // If a CSV import result is waiting in storage, consume it first.
   // Otherwise auto-populate from the page's current drag selection.
-  chrome.storage.local.get(['csv_import_result', 'popup_delay'], function(stored) {
-    if (stored.popup_delay) delayInput.value = stored.popup_delay;
+  chrome.storage.local.get(['csv_import_result', 'opener_settings', 'popup_delay'], function(stored) {
+    if (stored.opener_settings) {
+      settings = Object.assign({}, DEFAULT_SETTINGS, stored.opener_settings);
+    } else if (stored.popup_delay) {
+      // migrate the pre-0.4 delay setting
+      var d = parseFloat(stored.popup_delay);
+      if (!isNaN(d) && d > 0) settings.delay = d;
+    }
+    renderSettings();
     if (stored.csv_import_result) {
       setTextarea(stored.csv_import_result);
       chrome.storage.local.remove('csv_import_result');
@@ -63,47 +280,98 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  delayInput.addEventListener('change', function() {
-    chrome.storage.local.set({ popup_delay: delayInput.value });
-  });
-
   // ------- Opening -------
 
-  function currentDelay() {
-    var d = parseFloat(delayInput.value);
-    return (isNaN(d) || d < 0) ? 0 : d;
+  // Turn the textarea into the list of URLs that would actually open.
+  // With "search queries" on, every non-empty line counts (non-URLs become searches).
+  function collectURLs() {
+    if (settings.searchQueries) {
+      return textToLines(userInput.value).map(function(line) {
+        var extracted = textToLines(extractURLs(line));
+        if (extracted.length > 0) return normalizeURL(extracted[0]);
+        return 'https://www.google.com/search?q=' + encodeURIComponent(line);
+      });
+    }
+    return textToLines(extractURLs(userInput.value)).map(normalizeURL);
   }
 
-  // Delegate to the background service worker so delayed opening
+  // Delegate to the background service worker so batched/delayed opening
   // continues even after the popup closes.
   function openURLs(mode) {
-    var urls = textToLines(extractURLs(userInput.value)).map(normalizeURL);
+    var urls = collectURLs();
     if (urls.length === 0) return;
+    var limited = settings.urlLimit > 0 ? urls.slice(0, settings.urlLimit) : urls;
     chrome.runtime.sendMessage({
       message: 'open_urls',
       urls: urls,
       mode: mode,
-      delay: currentDelay()
+      options: settings
     });
+    if (settings.removeOpened) {
+      var opened = {};
+      limited.forEach(function(u) { opened[u] = true; });
+      var remaining = textToLines(userInput.value).filter(function(line) {
+        var extracted = textToLines(extractURLs(line));
+        var asURL = extracted.length > 0 ? normalizeURL(extracted[0])
+          : (settings.searchQueries ? 'https://www.google.com/search?q=' + encodeURIComponent(line) : null);
+        return !(asURL && opened[asURL]);
+      });
+      setTextarea(remaining.join('\n'));
+    }
   }
 
   // ------- Saved lists -------
 
-  function refreshSavedLists(selectName) {
+  function refreshSavedLists(highlightName) {
     chrome.storage.local.get(['saved_lists'], function(stored) {
       var lists = stored.saved_lists || {};
-      savedLists.innerHTML = '';
-      var placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Load a saved list…';
-      savedLists.appendChild(placeholder);
-      Object.keys(lists).sort().forEach(function(name) {
-        var opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        savedLists.appendChild(opt);
+      var names = Object.keys(lists).sort();
+      savedListsContainer.innerHTML = '';
+      if (names.length === 0) {
+        var note = document.createElement('p');
+        note.className = 'empty-note';
+        note.textContent = 'No saved lists yet';
+        savedListsContainer.appendChild(note);
+        return;
+      }
+      names.forEach(function(name) {
+        var row = document.createElement('div');
+        row.className = 'saved-list-row';
+
+        var load = document.createElement('button');
+        load.className = 'saved-list-name';
+        load.textContent = name;
+        load.title = 'Load "' + name + '"';
+        load.addEventListener('click', function() {
+          setTextarea(lists[name]);
+          setListStatus('Loaded "' + name + '"');
+        });
+
+        var count = document.createElement('span');
+        count.className = 'saved-list-count';
+        count.textContent = countURLs(lists[name]) + ' URLs';
+
+        var del = document.createElement('button');
+        del.className = 'saved-list-delete';
+        del.textContent = '×';
+        del.title = 'Delete "' + name + '"';
+        del.addEventListener('click', function() {
+          chrome.storage.local.get(['saved_lists'], function(s) {
+            var l = s.saved_lists || {};
+            delete l[name];
+            chrome.storage.local.set({ saved_lists: l }, function() {
+              refreshSavedLists();
+              setListStatus('Deleted "' + name + '"');
+            });
+          });
+        });
+
+        row.appendChild(load);
+        row.appendChild(count);
+        row.appendChild(del);
+        savedListsContainer.appendChild(row);
       });
-      if (selectName) savedLists.value = selectName;
+      if (highlightName) setListStatus('Saved "' + highlightName + '"');
     });
   }
 
@@ -112,8 +380,14 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() { listStatus.textContent = ''; }, 2000);
   }
 
+  document.getElementById('newListToggle').addEventListener('click', function() {
+    var row = document.getElementById('newListRow');
+    row.hidden = !row.hidden;
+    if (!row.hidden) listName.focus();
+  });
+
   document.getElementById('saveList').addEventListener('click', function() {
-    var name = listName.value.trim() || savedLists.value;
+    var name = listName.value.trim();
     if (!name) {
       setListStatus('Enter a list name first');
       return;
@@ -127,32 +401,23 @@ document.addEventListener('DOMContentLoaded', function() {
       lists[name] = userInput.value;
       chrome.storage.local.set({ saved_lists: lists }, function() {
         listName.value = '';
+        document.getElementById('newListRow').hidden = true;
         refreshSavedLists(name);
-        setListStatus('Saved "' + name + '"');
       });
     });
   });
 
-  document.getElementById('deleteList').addEventListener('click', function() {
-    var name = savedLists.value;
-    if (!name) return;
-    chrome.storage.local.get(['saved_lists'], function(stored) {
-      var lists = stored.saved_lists || {};
-      delete lists[name];
-      chrome.storage.local.set({ saved_lists: lists }, function() {
-        refreshSavedLists();
-        setListStatus('Deleted "' + name + '"');
-      });
-    });
+  // ------- Tools dropdown -------
+
+  document.getElementById('toolsToggle').addEventListener('click', function(e) {
+    e.stopPropagation();
+    toolsMenu.hidden = !toolsMenu.hidden;
   });
 
-  savedLists.addEventListener('change', function() {
-    var name = savedLists.value;
-    if (!name) return;
-    chrome.storage.local.get(['saved_lists'], function(stored) {
-      var lists = stored.saved_lists || {};
-      if (lists[name] !== undefined) setTextarea(lists[name]);
-    });
+  document.addEventListener('click', function(e) {
+    if (!toolsMenu.hidden && !toolsMenu.contains(e.target)) {
+      toolsMenu.hidden = true;
+    }
   });
 
   // ------- Button handlers -------
@@ -164,6 +429,13 @@ document.addEventListener('DOMContentLoaded', function() {
         break;
       case "dedupeURLs":
         setTextarea(dedupeLines(textToLines(userInput.value)).join('\n'));
+        break;
+      case "copyURLs":
+        if (userInput.value) {
+          navigator.clipboard.writeText(userInput.value).then(function() {
+            setListStatus('Copied to clipboard');
+          });
+        }
         break;
       case "openURLsInTabs":
         openURLs('tabs');
@@ -188,11 +460,13 @@ document.addEventListener('DOMContentLoaded', function() {
         openImportWindow();
         break;
     }
-    userClick.preventDefault();
+    if (userClick.target.classList && userClick.target.classList.contains('tools-item')) {
+      toolsMenu.hidden = true;
+    }
   });
 
-  // "Selection Tool URLs" — manually refresh from the current drag selection
-  document.getElementById('openURLsFromSelector').onclick = function() {
+  // "URLs from Selection" — manually refresh from the current drag selection
+  document.getElementById('openURLsFromSelector').addEventListener('click', function() {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       if (!tabs || !tabs[0]) return;
       chrome.tabs.sendMessage(tabs[0].id, { type: "getURLs" }, function(response) {
@@ -201,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (text) setTextarea(text);
       });
     });
-  };
+  });
 
   // ------- Helpers scoped to DOMContentLoaded -------
 
