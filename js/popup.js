@@ -134,6 +134,93 @@ document.addEventListener('DOMContentLoaded', function() {
     saveSettings();
   });
 
+  // ------- Link selection (drag-select) settings -------
+  // Edits the default drag-select action and the site blocklist, stored by the
+  // background SettingsManager and consumed by the content script.
+
+  var lsMouse = document.getElementById('lsMouse');
+  var lsKey = document.getElementById('lsKey');
+  var lsAction = document.getElementById('lsAction');
+  var lsColor = document.getElementById('lsColor');
+  var lsSmart = document.getElementById('lsSmart');
+  var lsBlocklist = document.getElementById('lsBlocklist');
+  var lsKeyWarning = document.getElementById('lsKeyWarning');
+
+  var OS_WIN = 0, OS_LINUX = 1, OS_MAC = 2;
+  var os = navigator.appVersion.indexOf('Win') !== -1 ? OS_WIN
+    : (navigator.appVersion.indexOf('Mac') !== -1 ? OS_MAC : OS_LINUX);
+
+  var linkParams = null;
+  var linkActionId = null;
+
+  // The allowed modifier keys depend on OS and mouse button: alt is reserved on
+  // Linux, and right button always needs a key outside Windows (context menu).
+  function fillKeyOptions(mouseButton, selected) {
+    var keys = { 16: 'shift', 17: 'ctrl' };
+    if (os !== OS_LINUX) keys[18] = 'alt';
+    if (parseInt(mouseButton, 10) !== 2 || os === OS_WIN) keys[0] = 'none';
+    for (var i = 0; i < 26; i++) keys[65 + i] = String.fromCharCode(97 + i);
+
+    lsKey.innerHTML = '';
+    Object.keys(keys).sort(function(a, b) { return a - b; }).forEach(function(code) {
+      var opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = keys[code];
+      lsKey.appendChild(opt);
+    });
+    lsKey.value = keys[selected] !== undefined ? selected : 16;
+  }
+
+  function renderLinkSettings() {
+    var a = linkParams.actions[linkActionId];
+    lsMouse.value = a.mouse;
+    fillKeyOptions(a.mouse, a.key);
+    lsAction.value = a.action;
+    lsColor.value = a.color;
+    lsSmart.checked = Number(a.options.smart) === 0; // stored value: 0 = on, 1 = off
+    lsBlocklist.value = (linkParams.blocked || []).join('\n');
+    lsKeyWarning.hidden = lsKey.value !== '0';
+  }
+
+  function saveLinkSettings() {
+    if (!linkParams) return;
+    var a = linkParams.actions[linkActionId];
+    a.mouse = parseInt(lsMouse.value, 10);
+    a.key = parseInt(lsKey.value, 10);
+    a.action = lsAction.value;
+    a.color = lsColor.value;
+    a.options.smart = lsSmart.checked ? 0 : 1;
+    linkParams.blocked = lsBlocklist.value.replace(/^\s+|\s+$/g, '').split('\n');
+    lsKeyWarning.hidden = lsKey.value !== '0';
+    chrome.runtime.sendMessage({ message: 'update', settings: linkParams });
+  }
+
+  lsMouse.addEventListener('change', function() {
+    fillKeyOptions(lsMouse.value, parseInt(lsKey.value, 10));
+    saveLinkSettings();
+  });
+  [lsKey, lsAction, lsColor, lsSmart].forEach(function(el) {
+    el.addEventListener('change', saveLinkSettings);
+  });
+  lsBlocklist.addEventListener('input', function() {
+    if (linkParams) saveLinkSettings();
+  });
+
+  chrome.runtime.sendMessage({ message: 'init' }, function(response) {
+    if (chrome.runtime.lastError || !response || !response.actions) return;
+    linkParams = response;
+    linkActionId = Object.keys(response.actions)[0];
+    if (!linkActionId) {
+      // no actions configured (all deleted pre-0.5) — recreate the default
+      linkActionId = '101';
+      linkParams.actions[linkActionId] = {
+        mouse: 0, key: 16, action: 'tabs', color: '#FFA500',
+        options: { smart: 0, ignore: [0], delay: 0, close: 0, block: true, reverse: false, end: false }
+      };
+    }
+    renderLinkSettings();
+  });
+
   // ------- Tab bar -------
 
   function activateTab(name) {

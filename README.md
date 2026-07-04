@@ -56,6 +56,8 @@ Opening is delegated to the background service worker, so a batched/delayed run 
 | **URL Limit** | Open only the first N URLs (0 = no limit) |
 | **Reset Defaults** | Restores all opener settings |
 
+The Settings tab also holds the **Link Selection** card (see below).
+
 ### Saved Lists
 Save the current textarea contents under a custom name and reload it any time — handy for recurring link sets (daily reading lists, QA test URLs, etc.). Lists are stored locally via `chrome.storage.local`; nothing leaves your machine.
 
@@ -80,13 +82,13 @@ Right-click on any page to access:
 - **Open selected links with BulkyURLs** — opens links from text selection
 - **Copy page links to BulkyURLs** — collects all links on the page
 
-### Options Page
-Right-click the toolbar icon → **Options** (or open via `chrome://extensions`). From there you can:
-- Add, edit, or delete activation actions (mouse button + key combination)
+### Link Selection Settings
+The **Link Selection** card on the popup's Settings tab configures the drag-select feature:
+- Change the activation trigger (mouse button + key combination)
+- Choose whether selected links open as new tabs or in a new window
 - Change the selection box color
-- Set a delay between tab openings
-- Auto-close tabs after a configurable timeout
-- Block BulkyURLs on specific sites (blocklist)
+- Toggle smart select (only pick out the important links in the box)
+- Block BulkyURLs on specific sites (blocklist, one URL per line)
 
 ---
 
@@ -126,10 +128,8 @@ bulkyurls/
 ├── manifest.json              # MV3 manifest
 ├── popup.html                 # Popup UI
 ├── sidepanel.html             # Same UI for Chrome's side panel / full tab
-├── options.html               # Options page
 ├── csv.html                   # CSV import/export dialog
 ├── css/
-│   ├── options.css            # Options page styles
 │   └── popup.css              # Popup + CSV dialog styles
 ├── js/
 │   ├── background/
@@ -139,7 +139,6 @@ bulkyurls/
 │   ├── lib/
 │   │   └── urls.js            # Shared URL utilities (extract, dedupe, normalize)
 │   ├── csv.js                 # CSV import/export logic (File System Access API)
-│   ├── options.js             # Options page logic
 │   └── popup.js               # Popup UI logic
 └── img/
     └── bulkyurls-icon-*.png   # Extension icons (16, 32, 48, 128)

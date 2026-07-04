@@ -28,7 +28,7 @@ jobs:
       - name: Build extension zip
         run: |
           zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
-            manifest.json popup.html options.html csv.html css js img LICENSE
+            manifest.json popup.html sidepanel.html csv.html css js img LICENSE
           unzip -l "bulkyurls-${GITHUB_REF_NAME}.zip"
 
       - name: Extract release notes from CHANGELOG.md
@@ -75,7 +75,7 @@ jobs:
         if: steps.cws.outputs.configured == 'true'
         run: |
           zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
-            manifest.json popup.html options.html csv.html css js img LICENSE
+            manifest.json popup.html sidepanel.html csv.html css js img LICENSE
 
       - name: Upload and publish to Chrome Web Store
         if: steps.cws.outputs.configured == 'true'

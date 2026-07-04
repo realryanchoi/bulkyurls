@@ -162,9 +162,54 @@ facebook.com"></textarea>
         <p class="slider-hint" id="limitDesc">Open all URLs in the list</p>
       </div>
 
-      <div class="settings-footer">
-        <button class="button primary" id="backToURLs">&larr; Back to URLs</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Link Selection</span>
       </div>
+
+      <div class="sub-card">
+        <p class="sub-card-title">Activation</p>
+        <p class="slider-hint">Hold these while dragging a box over links on any page</p>
+        <div class="select-row">
+          <label for="lsMouse">Mouse button</label>
+          <select id="lsMouse">
+            <option value="0">Left</option>
+            <option value="1">Middle</option>
+            <option value="2">Right</option>
+          </select>
+        </div>
+        <div class="select-row">
+          <label for="lsKey">+ key</label>
+          <select id="lsKey"></select>
+        </div>
+        <p class="warning-note" id="lsKeyWarning" hidden>Not using a key can cause unexpected behavior on some websites</p>
+        <div class="select-row">
+          <label for="lsAction">Selected links are</label>
+          <select id="lsAction">
+            <option value="tabs">Opened as new tabs</option>
+            <option value="win">Opened in a new window</option>
+          </select>
+        </div>
+        <div class="select-row">
+          <label for="lsColor">Selection box color</label>
+          <input type="color" id="lsColor" value="#ffa500">
+        </div>
+        <label class="check-row" title="Try to select only the important links inside the box">
+          <input type="checkbox" id="lsSmart"> Smart select (important links only)
+        </label>
+      </div>
+
+      <div class="sub-card">
+        <p class="sub-card-title">Blocklist</p>
+        <p class="slider-hint">Disable link selection on matching sites (one URL per line)</p>
+        <textarea id="lsBlocklist" rows="4" placeholder="example.com"></textarea>
+      </div>
+    </div>
+
+    <div class="settings-footer">
+      <button class="button primary" id="backToURLs">&larr; Back to URLs</button>
     </div>
 
   </section>
