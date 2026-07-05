@@ -5,14 +5,6 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-## [0.5.0] - 2026-07-04
-
-### Changed
-- **Options page removed** — the drag-select settings moved into a new **Link Selection** card on the popup/side panel Settings tab: activation trigger (mouse button + key), open as tabs vs. new window, selection box color, smart select, and the site blocklist. Stored settings are reused as-is, so existing configurations carry over
-- The multi-action editor and the niche per-action options (link word filter, per-link delay, auto-close time, duplicate blocking, reverse order, open-at-end, unfocus window) no longer have a UI; previously saved values continue to apply to the drag-select action
-
 ### Fixed
 - `release.yml` now includes `sidepanel.html` in the extension zip (it was missing, which broke the side panel in packaged builds)
 
@@ -41,6 +33,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - The pre-0.4 popup delay setting is migrated to the new opener settings on first run
 - All opener settings persist in `chrome.storage.local` under `opener_settings`
+- **Options page removed** — the drag-select settings moved into a new **Link Selection** card on the popup/side panel Settings tab: activation trigger (mouse button + key), open as tabs vs. new window, selection box color, smart select, and the site blocklist. Stored settings are reused as-is, so existing configurations carry over
+- The multi-action editor and the niche per-action options (link word filter, per-link delay, auto-close time, duplicate blocking, reverse order, open-at-end, unfocus window) no longer have a UI; previously saved values continue to apply to the drag-select action
 
 ### Repo / Tooling
 - Added `.github/workflows/release.yml` — pushing a `v*` tag matching `manifest.json`'s version builds the extension zip, creates a GitHub Release with notes pulled from this changelog, and uploads/publishes to the Chrome Web Store if environment variables and secrets are configured
