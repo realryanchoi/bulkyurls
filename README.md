@@ -9,8 +9,8 @@ BulkyURLs is a Chrome extension (Manifest V3) for managing large numbers of URLs
 ### Drag-Select Links
 Hold **Shift** + left-click-drag over any area of a page. A dotted selection box appears, and every link it touches is highlighted in red. The extension badge on the toolbar shows the live count of selected links. When you release the mouse, the selection is captured and the badge updates to the final count.
 
-### Side Panel & Full Tab
-Click the BulkyURLs toolbar icon to dock the panel beside the page — it stays open while you browse, and after a drag selection the selected URLs appear in the textarea automatically. Click **Open in tab** for a roomier full-tab view of the same UI (the button hides itself once you're already in a tab).
+### Side Panel
+Click the BulkyURLs toolbar icon to dock the panel beside the page — it stays open while you browse, and after a drag selection the selected URLs appear in the textarea automatically.
 
 The UI is split into three tabs: **List** (the URL ledger, batch controls, saved lists), **Tabs** (copy links out of open tabs) and **Settings**.
 
@@ -150,7 +150,6 @@ Type is Inter with the system UI stack behind it; monospace is reserved for data
 4. Release the mouse — the selection is captured.
 5. Click the BulkyURLs icon — the side panel opens with the selected URLs already in the textarea.
 6. Use **Open in Tabs** (or **New Window**) to open them all, or **Copy** the list to use elsewhere.
-7. Prefer a bigger view? Click **Open in tab** to open the same UI in a full tab.
 
 ---
 
@@ -159,10 +158,9 @@ Type is Inter with the system UI stack behind it; monospace is reserved for data
 ```
 bulkyurls/
 ├── manifest.json              # MV3 manifest
-├── sidepanel.html             # Main UI — Chrome's side panel, also opens as a full tab
-├── csv.html                   # CSV import/export dialog
+├── sidepanel.html             # Main UI — Chrome's side panel
 ├── css/
-│   └── popup.css              # Main UI + CSV dialog styles
+│   └── popup.css              # Main UI + CSV modal styles
 ├── js/
 │   ├── background/
 │   │   └── background.js      # Service worker: settings, messaging, tab management, opens the side panel on icon click
@@ -170,8 +168,7 @@ bulkyurls/
 │   │   └── content-script.js  # Drag-select box, link detection, URL capture (styles applied inline)
 │   ├── lib/
 │   │   └── urls.js            # Shared URL utilities (extract, dedupe, normalize)
-│   ├── csv.js                 # CSV import/export logic (File System Access API)
-│   └── popup.js               # Main UI logic
+│   └── popup.js               # Main UI logic, incl. CSV import/export (File System Access API)
 └── img/
     └── bulkyurls-icon-*.png   # Extension icons (16, 32, 48, 128)
 ```

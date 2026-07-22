@@ -452,21 +452,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // ------- Full-tab launcher -------
-
-  var openInTabBtn = document.getElementById('openInTab');
-
-  // getCurrent resolves to a tab only when this page *is* a tab, so the
-  // launcher hides itself once you're already there.
-  chrome.tabs.getCurrent(function(tab) {
-    void chrome.runtime.lastError;
-    if (tab) openInTabBtn.hidden = true;
-  });
-
-  openInTabBtn.addEventListener('click', function() {
-    chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
-  });
-
   // ------- List readout: gutter, stats, domain rail, action labels -------
 
   function countURLs(text) {
@@ -695,9 +680,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ------- Init -------
 
-  // If a CSV import result is waiting in storage, consume it first.
-  // Otherwise auto-populate from the page's current drag selection.
-  chrome.storage.local.get(['csv_import_result', 'opener_settings', 'popup_delay'], function(stored) {
+  // Auto-populate from the page's current drag selection.
+  chrome.storage.local.get(['opener_settings', 'popup_delay'], function(stored) {
     if (stored.opener_settings) {
       settings = Object.assign({}, DEFAULT_SETTINGS, stored.opener_settings);
     } else if (stored.popup_delay) {
@@ -706,30 +690,17 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!isNaN(d) && d > 0) settings.delay = d;
     }
     renderSettings();
-    if (stored.csv_import_result) {
-      setTextarea(stored.csv_import_result);
-      chrome.storage.local.remove('csv_import_result');
-    } else {
-      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-        if (!tabs || !tabs[0]) return;
-        chrome.tabs.sendMessage(tabs[0].id, { type: "getURLs" }, function(response) {
-          if (chrome.runtime.lastError) return;
-          var text = urlsToText(response);
-          if (text) setTextarea(text);
-        });
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (!tabs || !tabs[0]) return;
+      chrome.tabs.sendMessage(tabs[0].id, { type: "getURLs" }, function(response) {
+        if (chrome.runtime.lastError) return;
+        var text = urlsToText(response);
+        if (text) setTextarea(text);
       });
-    }
+    });
   });
 
   refreshSavedLists();
-
-  // Pick up an import result that arrives while the popup is already open
-  chrome.storage.onChanged.addListener(function(changes, area) {
-    if (area === 'local' && changes.csv_import_result && changes.csv_import_result.newValue) {
-      setTextarea(changes.csv_import_result.newValue);
-      chrome.storage.local.remove('csv_import_result');
-    }
-  });
 
   // ------- Opening -------
 
@@ -899,12 +870,18 @@ document.addEventListener('DOMContentLoaded', function() {
         break;
       case "clear":
         setTextarea('');
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+          if (!tabs || !tabs[0]) return;
+          chrome.tabs.sendMessage(tabs[0].id, { message: "clear_urls" }, function() {
+            void chrome.runtime.lastError;
+          });
+        });
         break;
       case "exportCSV":
-        openExportWindow(userInput.value);
+        openCSVModal('export');
         break;
       case "importCSV":
-        openImportWindow();
+        openCSVModal('import');
         break;
     }
     if (userClick.target.classList && userClick.target.classList.contains('tools-item')) {
@@ -935,27 +912,151 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     return s;
   }
+
+  // ------- CSV import/export modal -------
+
+  var csvModalBackdrop = document.getElementById('csvModalBackdrop');
+  var csvExportSection = document.getElementById('csvExportSection');
+  var csvImportSection = document.getElementById('csvImportSection');
+  var csvModalTitle = document.getElementById('csvModalTitle');
+  var csvPreview = document.getElementById('csvPreview');
+  var csvStatus = document.getElementById('csvStatus');
+
+  function openCSVModal(mode) {
+    csvExportSection.hidden = mode !== 'export';
+    csvImportSection.hidden = mode !== 'import';
+    csvModalTitle.textContent = mode === 'export' ? 'Export CSV' : 'Import CSV';
+    if (mode === 'export') {
+      csvPreview.value = generateCSV(userInput.value);
+    } else {
+      csvStatus.className = '';
+      csvStatus.textContent = '';
+    }
+    csvModalBackdrop.hidden = false;
+  }
+
+  function closeCSVModal() {
+    csvModalBackdrop.hidden = true;
+  }
+
+  document.getElementById('csvModalClose').addEventListener('click', closeCSVModal);
+  document.getElementById('csvCancelBtn').addEventListener('click', closeCSVModal);
+  csvModalBackdrop.addEventListener('click', function(e) {
+    if (e.target === csvModalBackdrop) closeCSVModal();
+  });
+
+  document.getElementById('csvSaveBtn').addEventListener('click', async function() {
+    try {
+      var handle = await window.showSaveFilePicker({
+        suggestedName: 'bulkyurls-export.csv',
+        types: [{ description: 'CSV file', accept: { 'text/csv': ['.csv'] } }]
+      });
+      var writable = await handle.createWritable();
+      await writable.write(csvPreview.value);
+      await writable.close();
+      closeCSVModal();
+    } catch(e) {
+      if (e.name !== 'AbortError') console.error('BulkyURLs export error:', e);
+      // AbortError = user cancelled the dialog — stay open
+    }
+  });
+
+  document.getElementById('csvChooseBtn').addEventListener('click', async function() {
+    csvStatus.className = '';
+    csvStatus.textContent = '';
+    try {
+      var picked = await window.showOpenFilePicker({
+        types: [{
+          description: 'CSV / text file',
+          accept: { 'text/csv': ['.csv'], 'text/plain': ['.csv', '.txt'] }
+        }],
+        multiple: false
+      });
+      var file = await picked[0].getFile();
+      var text = await file.text();
+      var urls = importFromCSVText(text);
+      var count = urls ? urls.split('\n').filter(function(u) { return u.trim(); }).length : 0;
+
+      if (count === 0) {
+        csvStatus.className = 'error';
+        csvStatus.textContent = 'No URLs found in that file. Try another.';
+        return;
+      }
+
+      csvStatus.className = 'success';
+      csvStatus.textContent = count + ' URL' + (count === 1 ? '' : 's') + ' found';
+      setTextarea(urls);
+      setTimeout(closeCSVModal, 700);
+    } catch(e) {
+      if (e.name !== 'AbortError') {
+        csvStatus.className = 'error';
+        csvStatus.textContent = 'Error: ' + e.message;
+      }
+      // AbortError = user cancelled the dialog — stay open
+    }
+  });
 });
 
-// ------- CSV window launchers -------
+// ------- CSV generation -------
 
-function openExportWindow(rawText) {
-  // Store the raw textarea text; csv.js generates the CSV and handles the save dialog
-  chrome.storage.local.set({ csv_export_pending: rawText }, function() {
-    chrome.windows.create({
-      url: chrome.runtime.getURL('csv.html') + '?mode=export',
-      type: 'popup',
-      width: 520,
-      height: 400
-    });
+function generateCSV(rawText) {
+  var urls = extractURLs(rawText)
+    .split(/\r\n|\r|\n/)
+    .filter(function(u) { return u.trim() !== ''; });
+
+  if (urls.length === 0) return 'url\n';
+
+  var rows = urls.map(function(u) {
+    return '"' + u.replace(/"/g, '""') + '"';
   });
+  return 'url\n' + rows.join('\n');
 }
 
-function openImportWindow() {
-  chrome.windows.create({
-    url: chrome.runtime.getURL('csv.html') + '?mode=import',
-    type: 'popup',
-    width: 440,
-    height: 240
-  });
+// ------- CSV parsing -------
+
+// RFC 4180 single-line parser — handles quoted fields with embedded commas/quotes
+function parseCSVLine(line) {
+  var fields = [];
+  var field = '';
+  var inQuotes = false;
+
+  for (var i = 0; i < line.length; i++) {
+    var c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      fields.push(field);
+      field = '';
+    } else {
+      field += c;
+    }
+  }
+  fields.push(field);
+  return fields;
+}
+
+// Scan every field in every row for absolute URLs; deduplicate
+function importFromCSVText(csvText) {
+  var lines = csvText.split(/\r\n|\r|\n/);
+  var seen = {};
+  var urls = [];
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+    var fields = parseCSVLine(line);
+    for (var j = 0; j < fields.length; j++) {
+      var field = fields[j].trim();
+      if (/^https?:\/\//i.test(field) && !seen[field]) {
+        seen[field] = true;
+        urls.push(field);
+      }
+    }
+  }
+  return urls.join('\n');
 }
