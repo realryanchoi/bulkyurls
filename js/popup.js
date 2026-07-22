@@ -228,15 +228,137 @@ document.addEventListener('DOMContentLoaded', function() {
       t.classList.toggle('active', t.dataset.tab === name);
     });
     document.getElementById('panel-urls').classList.toggle('active', name === 'urls');
+    document.getElementById('panel-tabs').classList.toggle('active', name === 'tabs');
     document.getElementById('panel-settings').classList.toggle('active', name === 'settings');
   }
 
   document.querySelectorAll('.tab').forEach(function(t) {
-    t.addEventListener('click', function() { activateTab(t.dataset.tab); });
+    t.addEventListener('click', function() {
+      activateTab(t.dataset.tab);
+      if (t.dataset.tab === 'tabs') refreshTabsList();
+    });
   });
 
   document.getElementById('backToURLs').addEventListener('click', function() {
     activateTab('urls');
+  });
+
+  // ------- Tabs list (copy single / multiple / all tab links) -------
+
+  var tabsListContainer = document.getElementById('tabsListContainer');
+  var tabsSelectAll = document.getElementById('tabsSelectAll');
+  var tabsListStatus = document.getElementById('tabsListStatus');
+  var tabsCountBadge = document.getElementById('tabsCount');
+  var openTabsCache = [];
+
+  function isTabsPanelActive() {
+    return document.getElementById('panel-tabs').classList.contains('active');
+  }
+
+  function setTabsStatus(text) {
+    tabsListStatus.textContent = text;
+    setTimeout(function() { tabsListStatus.textContent = ''; }, 2000);
+  }
+
+  function copyTabLinks(urls, emptyMessage) {
+    if (urls.length === 0) {
+      setTabsStatus(emptyMessage);
+      return;
+    }
+    navigator.clipboard.writeText(urls.join('\n')).then(function() {
+      setTabsStatus('Copied ' + urls.length + ' link' + (urls.length === 1 ? '' : 's'));
+    });
+  }
+
+  function renderTabsList() {
+    tabsListContainer.innerHTML = '';
+    tabsCountBadge.textContent = openTabsCache.length + ' tab' + (openTabsCache.length === 1 ? '' : 's');
+    tabsSelectAll.checked = false;
+
+    if (openTabsCache.length === 0) {
+      var note = document.createElement('p');
+      note.className = 'empty-note';
+      note.textContent = 'No open tabs';
+      tabsListContainer.appendChild(note);
+      return;
+    }
+
+    openTabsCache.forEach(function(tab) {
+      var row = document.createElement('div');
+      row.className = 'tab-row';
+
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'tab-row-check';
+      cb.dataset.tabId = tab.id;
+
+      var icon = document.createElement('img');
+      icon.className = 'tab-row-icon';
+      icon.src = tab.favIconUrl || 'img/bulkyurls-icon-16x16.png';
+      icon.addEventListener('error', function() { icon.src = 'img/bulkyurls-icon-16x16.png'; });
+
+      var title = document.createElement('span');
+      title.className = 'tab-row-title';
+      title.textContent = tab.title || tab.url;
+      title.title = tab.url;
+
+      var copyOne = document.createElement('button');
+      copyOne.className = 'tab-row-copy';
+      copyOne.title = "Copy this tab's link";
+      copyOne.textContent = 'Copy';
+      copyOne.addEventListener('click', function() {
+        copyTabLinks([tab.url], 'Nothing to copy');
+      });
+
+      row.appendChild(cb);
+      row.appendChild(icon);
+      row.appendChild(title);
+      row.appendChild(copyOne);
+      tabsListContainer.appendChild(row);
+    });
+  }
+
+  function refreshTabsList() {
+    chrome.tabs.query({}, function(tabs) {
+      openTabsCache = tabs.filter(function(t) { return t.url; });
+      renderTabsList();
+    });
+  }
+
+  tabsSelectAll.addEventListener('change', function() {
+    tabsListContainer.querySelectorAll('.tab-row-check').forEach(function(cb) {
+      cb.checked = tabsSelectAll.checked;
+    });
+  });
+
+  document.getElementById('tabsRefresh').addEventListener('click', refreshTabsList);
+
+  document.getElementById('copySelectedTabs').addEventListener('click', function() {
+    var ids = Array.prototype.map.call(
+      tabsListContainer.querySelectorAll('.tab-row-check:checked'),
+      function(cb) { return parseInt(cb.dataset.tabId, 10); }
+    );
+    if (ids.length === 0) {
+      setTabsStatus('No tabs selected');
+      return;
+    }
+    var urls = openTabsCache
+      .filter(function(t) { return ids.indexOf(t.id) !== -1; })
+      .map(function(t) { return t.url; });
+    copyTabLinks(urls, 'No tabs selected');
+  });
+
+  document.getElementById('copyAllTabs').addEventListener('click', function() {
+    copyTabLinks(openTabsCache.map(function(t) { return t.url; }), 'No open tabs');
+  });
+
+  // Keep the list current while it's the visible panel
+  chrome.tabs.onCreated.addListener(function() { if (isTabsPanelActive()) refreshTabsList(); });
+  chrome.tabs.onRemoved.addListener(function() { if (isTabsPanelActive()) refreshTabsList(); });
+  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
+    if (isTabsPanelActive() && (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.favIconUrl !== undefined)) {
+      refreshTabsList();
+    }
   });
 
   // ------- Sidebar / new-tab launchers -------

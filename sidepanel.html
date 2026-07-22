@@ -20,6 +20,7 @@
 
   <nav class="tab-bar">
     <button class="tab active" data-tab="urls" id="tabURLs">URLs</button>
+    <button class="tab" data-tab="tabs" id="tabTabsList">Tabs</button>
     <button class="tab" data-tab="settings" id="tabSettings">Settings</button>
   </nav>
 
@@ -109,6 +110,30 @@ facebook.com"></textarea>
         <p class="empty-note" id="noListsNote">No saved lists yet</p>
       </div>
       <div id="listStatus" class="list-status"></div>
+    </div>
+
+  </section>
+
+  <!-- ============ Tabs tab ============ -->
+  <section class="tab-panel" id="panel-tabs">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Open Tabs</span>
+        <span id="tabsCount" class="count-badge">0 tabs</span>
+      </div>
+      <div class="tabs-controls-row">
+        <label class="select-all-label">
+          <input type="checkbox" id="tabsSelectAll"> Select all
+        </label>
+        <button class="chip" id="tabsRefresh" title="Refresh the tab list">Refresh</button>
+        <button class="chip" id="copySelectedTabs" title="Copy the links of the checked tabs">Copy Selected</button>
+        <button class="chip" id="copyAllTabs" title="Copy every open tab's link">Copy All</button>
+      </div>
+      <div id="tabsListContainer" class="tabs-list">
+        <p class="empty-note">No open tabs</p>
+      </div>
+      <div id="tabsListStatus" class="list-status"></div>
     </div>
 
   </section>
