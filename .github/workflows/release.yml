@@ -33,7 +33,7 @@ jobs:
       - name: Build extension zip
         run: |
           zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
-            manifest.json popup.html sidepanel.html csv.html css js img LICENSE
+            manifest.json sidepanel.html csv.html css js img LICENSE
           unzip -l "bulkyurls-${GITHUB_REF_NAME}.zip"
 
       - name: Upload zip artifact

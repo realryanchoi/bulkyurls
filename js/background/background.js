@@ -1,5 +1,12 @@
 // SettingsManager
 
+// The side panel is the primary surface — clicking the toolbar icon opens it
+// directly instead of a popup. Must be set unconditionally on every service
+// worker start (not just onInstalled), since Chrome resets this behavior.
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(function(error) {
+  console.error(error);
+});
+
 // Schema version for chrome.storage.local — increment when storage structure changes.
 // This is independent of the extension version in manifest.json.
 var CURRENT_VERSION = "5";
@@ -33,7 +40,7 @@ SettingsManager.prototype.init = async function() {
         "mouse": 0,  // left mouse button
         "key": 16,   // shift key
         "action": "tabs",
-        "color": "#FFA500",
+        "color": "#1F67A6",
         "options": {
           "smart": 0,
           "ignore": [0],
@@ -219,7 +226,7 @@ function handleRequests(request, sender, sendResponse) {
         chrome.action.setBadgeText({text: ''});
       } else {
         chrome.action.setBadgeText({text: numberOfLinks.toString()});
-        chrome.action.setBadgeBackgroundColor({color: 'green'});
+        chrome.action.setBadgeBackgroundColor({color: '#1F67A6'});
       }
       break;
 
@@ -306,7 +313,7 @@ chrome.storage.onChanged.addListener(function(changes, area) {
     chrome.action.setBadgeText({ text: '' });
   } else {
     chrome.action.setBadgeText({ text: count.toString() });
-    chrome.action.setBadgeBackgroundColor({ color: 'green' });
+    chrome.action.setBadgeBackgroundColor({ color: '#1F67A6' });
   }
 });
 

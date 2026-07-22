@@ -1,4 +1,4 @@
-// Shared URL utilities — loaded by popup.html and csv.html before their page scripts.
+// Shared URL utilities — loaded by sidepanel.html and csv.html before their page scripts.
 
 // Extract everything that looks like a URL from free text; one URL per line.
 function extractURLs(text) {

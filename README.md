@@ -9,54 +9,79 @@ BulkyURLs is a Chrome extension (Manifest V3) for managing large numbers of URLs
 ### Drag-Select Links
 Hold **Shift** + left-click-drag over any area of a page. A dotted selection box appears, and every link it touches is highlighted in red. The extension badge on the toolbar shows the live count of selected links. When you release the mouse, the selection is captured and the badge updates to the final count.
 
-### Popup, Side Panel & Full Tab
-The same UI runs in three places:
+### Side Panel & Full Tab
+Click the BulkyURLs toolbar icon to dock the panel beside the page — it stays open while you browse, and after a drag selection the selected URLs appear in the textarea automatically. Click **Open in tab** for a roomier full-tab view of the same UI (the button hides itself once you're already in a tab).
 
-- **Popup** — click the BulkyURLs toolbar icon. After a drag selection, the selected URLs appear in the textarea automatically.
-- **Side panel** — click **Open Sidebar** in the popup. The panel docks beside the page and stays open while you browse.
-- **Full tab** — click **Open in New Tab** for a roomier view.
+The UI is split into three tabs: **List** (the URL ledger, batch controls, saved lists), **Tabs** (copy links out of open tabs) and **Settings**.
 
-The UI is split into two tabs: **URLs** (the list, batch settings, saved lists) and **Settings** (opening options).
+Everything below the URL list is a **collapsible section**. Each one keeps a one-line summary in its header — *"5 at a time · 2s apart"*, *"3 lists"*, *"shift + left-drag"* — so a closed section still answers its own question, and which sections you leave open is remembered between visits.
 
-#### URLs tab
+#### List tab
 
-A live **“N valid”** badge above the textarea shows how many URLs are currently detected.
+URLs are treated as records rather than prose: the list is set in monospace, line-numbered, and never soft-wrapped, so line 47 stays line 47 while you audit a few hundred of them. Long URLs scroll horizontally instead of reflowing.
+
+A live readout under the list reports what you actually have:
+
+| Readout | What it means |
+|---|---|
+| **Lines** | Non-empty lines in the list |
+| **Valid** | Lines recognised as URLs |
+| **Dupes** | URLs that appear more than once |
+| **Domains** | Distinct sites in the list (`www.` stripped, so `www.example.com` and `example.com` count once) |
+
+Any line that isn't a URL has its **line number marked red** in the gutter, so junk is easy to find in a long paste. When a list spans more than one site, a thin **composition rail** under the text shows how it splits across domains, and the card header names the largest one with its share.
+
+The primary button states the real consequence — **“Open 39 tabs”**, not “Open in tabs” — and both open buttons disable themselves when there is nothing to open. The count respects the search-query setting and the URL cap.
 
 | Control | What it does |
 |---|---|
-| **Undo / Redo** | Steps back/forward through textarea changes (typing and button actions) |
-| **Copy** | Copies the textarea contents to the clipboard |
-| **Extract URLs** | Strips non-URL text from the textarea, leaving only valid URLs |
-| **Clear** | Empties the textarea |
-| **Tools ▾ → URLs from Tabs** | Fills the textarea with the URLs of every open tab |
-| **Tools ▾ → URLs from Selection** | Re-fetches the current drag selection into the textarea |
-| **Tools ▾ → Remove Duplicates** | Removes duplicate lines from the textarea, keeping first-seen order |
+| **Undo / Redo** | Steps back/forward through list changes (typing and button actions) |
+| **Copy** | Copies the whole list to the clipboard |
+| **Extract** | Drops everything that isn't a link, leaving only URLs |
+| **Clear** | Empties the list |
+| **Tools ▾ → Pull from open tabs** | Replaces the list with the URLs of every open tab |
+| **Tools ▾ → Pull from page selection** | Re-fetches the current drag selection into the list |
+| **Tools ▾ → Remove duplicates** | Removes duplicate lines, keeping first-seen order |
 | **Tools ▾ → Import / Export CSV** | CSV round-trip (see CSV Format below) |
-| **Open in Tabs** | Opens the URLs as background tabs in the current window, batch by batch |
-| **New Window** | Opens the URLs in a brand-new window, batch by batch |
+| **Open N tabs** | Opens the URLs as background tabs in the current window, batch by batch |
+| **New window** | Opens the URLs in a brand-new window, batch by batch |
 
-**Batch Settings** control how opening happens:
+**Batch** controls how opening happens:
 
 - **URLs per batch** (1–20) — how many tabs open at once.
-- **Delay (seconds)** (0–100) — pause between batches. Use a smaller batch size and a longer delay to avoid triggering browser security restrictions on large lists.
+- **Delay between batches** (0–100s) — pause between batches. Opening 50+ tabs at once can trip Chrome's rate limits and drop URLs; smaller batches with a delay open every link reliably.
 
-Opening is delegated to the background service worker, so a batched/delayed run keeps opening even after the popup closes. Batch size and delay are persisted across sessions.
+Opening is delegated to the background service worker, so a batched/delayed run keeps opening even after the panel closes. Batch size and delay are persisted across sessions.
+
+#### Tabs tab
+
+Lists every open tab with its title and hostname. Chrome does not expose its native tab-strip context menu or multi-tab selection to extensions, so this panel is how single/multiple/all copying works.
+
+| Control | What it does |
+|---|---|
+| **Copy** (per row) | Copies that one tab's link |
+| **Copy selected** | Copies the links of the checked tabs |
+| **Copy all** | Copies every open tab's link |
+| **Send selected to list** | Appends the checked tabs to the URL list, skipping any already there |
+| **Select all** / **Refresh** | Toggles every checkbox / re-reads the open tabs |
+
+The list refreshes itself while visible as tabs are opened, closed and navigated.
 
 #### Settings tab
 
 | Option | What it does |
 |---|---|
-| **Convert non-URLs to search queries** | Lines that aren't URLs open as Google searches instead of being dropped |
-| **Open URLs in random order** | Shuffles the list before opening |
-| **Open URLs in reverse order** | Opens the list bottom-to-top |
-| **Open each batch in a new window** | Every batch gets its own browser window |
-| **Wait for tab to load before opening next URL** | Each tab must finish loading before the next opens |
-| **Remove opened URLs from input** | Opened URLs are deleted from the textarea when you click Open |
-| **Auto-close tabs after N s** | Opened tabs close themselves after the chosen number of seconds |
-| **URL Limit** | Open only the first N URLs (0 = no limit) |
-| **Reset Defaults** | Restores all opener settings |
+| **Open non-URL lines as searches** | Lines that aren't URLs open as Google searches instead of being dropped |
+| **Shuffle the list** | Shuffles the list before opening |
+| **Open bottom-to-top** | Opens the list in reverse order |
+| **Give each batch its own window** | Every batch gets its own browser window |
+| **Wait for each tab to load** | Each tab must finish loading before the next opens |
+| **Remove opened URLs from the list** | Opened URLs are deleted from the list when you click Open |
+| **Close each tab after N s** | Opened tabs close themselves after the chosen number of seconds |
+| **Limit** | Open only the first N URLs (0 = no limit) |
+| **Reset defaults** | Restores all opener settings |
 
-The Settings tab also holds the **Link Selection** card (see below).
+The Settings tab also holds the **Drag-select** card (see below).
 
 ### Saved Lists
 Save the current textarea contents under a custom name and reload it any time — handy for recurring link sets (daily reading lists, QA test URLs, etc.). Lists are stored locally via `chrome.storage.local`; nothing leaves your machine.
@@ -82,13 +107,21 @@ Right-click on any page to access:
 - **Open selected links with BulkyURLs** — opens links from text selection
 - **Copy page links to BulkyURLs** — collects all links on the page
 
-### Link Selection Settings
-The **Link Selection** card on the popup's Settings tab configures the drag-select feature:
-- Change the activation trigger (mouse button + key combination)
+### Drag-select Settings
+The **Drag-select** card on the Settings tab configures the selection feature:
+- Change the activation trigger (mouse button + held key)
 - Choose whether selected links open as new tabs or in a new window
-- Change the selection box color
-- Toggle smart select (only pick out the important links in the box)
-- Block BulkyURLs on specific sites (blocklist, one URL per line)
+- Change the selection box colour
+- Toggle smart select (skip nav and boilerplate links inside the box)
+- Turn drag-select off on specific sites (one per line)
+
+### Design
+
+The panel follows the **SEO Soul Brand & Style Guide v2.0**, applied on the principle that a side panel is a guest inside the browser. It leaves the chrome to Chrome: no wordmark and no version number, because Chrome's own side-panel header already names the extension, and the panel starts straight at the navigation. Surfaces borrow the browser's neutrals — a `#F2F2F2` canvas with white cards in light mode, Chrome's own `#202124`/`#292A2D` in dark — so nothing competes with the toolbar above it.
+
+Soul Blue 600 (`#1F67A6`) is the only colour that isn't a neutral, and it carries exactly one meaning throughout — *active, selected, or the next thing to do*: the current tab, the focus halo, the primary button, one per view. Sky 400 (`#74C0E4`) is fill only, never text, and becomes the accent in dark mode where `#0B2941` on sky is the one pairing that clears contrast (7.4:1).
+
+Type is Inter with the system UI stack behind it; monospace is reserved for data — URLs, line numbers, counts. Separation is 1px hairlines rather than shadows, which are kept for floating elements like the Tools menu. Focus is a 1px Blue 600 border plus a 3px Blue 200 halo. The interface follows the system light/dark preference, respects `prefers-reduced-motion`, ships visible keyboard focus and ARIA tab semantics, and every text/background pairing across all three tabs clears WCAG AA (4.5:1) in both schemes.
 
 ---
 
@@ -115,9 +148,9 @@ The **Link Selection** card on the popup's Settings tab configures the drag-sele
 2. Hold **Shift** and left-click-drag to draw a selection box over links.
 3. The links highlight red; the toolbar badge shows the count.
 4. Release the mouse — the selection is captured.
-5. Click the BulkyURLs icon — the selected URLs appear in the popup textarea.
+5. Click the BulkyURLs icon — the side panel opens with the selected URLs already in the textarea.
 6. Use **Open in Tabs** (or **New Window**) to open them all, or **Copy** the list to use elsewhere.
-7. Prefer a persistent view? Click **Open Sidebar** to dock the same UI in Chrome's side panel.
+7. Prefer a bigger view? Click **Open in tab** to open the same UI in a full tab.
 
 ---
 
@@ -126,20 +159,19 @@ The **Link Selection** card on the popup's Settings tab configures the drag-sele
 ```
 bulkyurls/
 ├── manifest.json              # MV3 manifest
-├── popup.html                 # Popup UI
-├── sidepanel.html             # Same UI for Chrome's side panel / full tab
+├── sidepanel.html             # Main UI — Chrome's side panel, also opens as a full tab
 ├── csv.html                   # CSV import/export dialog
 ├── css/
-│   └── popup.css              # Popup + CSV dialog styles
+│   └── popup.css              # Main UI + CSV dialog styles
 ├── js/
 │   ├── background/
-│   │   └── background.js      # Service worker: settings, messaging, tab management
+│   │   └── background.js      # Service worker: settings, messaging, tab management, opens the side panel on icon click
 │   ├── content/
 │   │   └── content-script.js  # Drag-select box, link detection, URL capture (styles applied inline)
 │   ├── lib/
 │   │   └── urls.js            # Shared URL utilities (extract, dedupe, normalize)
 │   ├── csv.js                 # CSV import/export logic (File System Access API)
-│   └── popup.js               # Popup UI logic
+│   └── popup.js               # Main UI logic
 └── img/
     └── bulkyurls-icon-*.png   # Extension icons (16, 32, 48, 128)
 ```
