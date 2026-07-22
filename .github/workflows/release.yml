@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -31,6 +35,13 @@ jobs:
           zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
             manifest.json popup.html sidepanel.html csv.html css js img LICENSE
           unzip -l "bulkyurls-${GITHUB_REF_NAME}.zip"
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-zip
+          path: bulkyurls-${{ github.ref_name }}.zip
+          retention-days: 1
 
       - name: Extract release notes from CHANGELOG.md
         run: |
@@ -58,8 +69,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     steps:
-      - uses: actions/checkout@v4
-
       - name: Check Chrome Web Store secrets
         id: cws
         env:
@@ -72,19 +81,19 @@ jobs:
             echo "configured=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build extension zip
+      - name: Download zip artifact
         if: steps.cws.outputs.configured == 'true'
-        run: |
-          zip -r "bulkyurls-${GITHUB_REF_NAME}.zip" \
-            manifest.json popup.html sidepanel.html csv.html css js img LICENSE
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-zip
 
       - name: Upload and publish to Chrome Web Store
         if: steps.cws.outputs.configured == 'true'
         env:
           EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
         run: |
           npx --yes chrome-webstore-upload-cli@3 upload \
             --source "bulkyurls-${GITHUB_REF_NAME}.zip" \
