@@ -5,8 +5,30 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Fixed
+## [0.5.0] - 2026-07-22
+
+### Added
+- **Tabs panel** — a third tab listing every open tab with its title and hostname. Copy one tab's link from its row, copy a checked subset with **Copy selected**, or copy them all with **Copy all**; **Select all** and **Refresh** sit alongside. The list keeps itself current while visible as tabs are opened, closed and navigated. (Chrome does not expose its native tab-strip context menu or multi-tab selection to extensions, so an in-panel picker is the only way to offer single/multiple/all copying)
+- **Send selected to list** — append the checked tabs to the URL list, skipping any already present
+- **Live list readout** — *lines*, *valid*, *dupes* and *domains* under the URL list, updated as you type. Domain counting strips `www.`, so `www.example.com` and `example.com` count as one site
+- **Line numbers** on the URL list, with any line that isn't a URL marked red in the gutter — junk is easy to spot in a long paste
+- **Domain composition rail** — a thin bar under the list showing how it splits across sites, plus the largest domain and its share in the card header. Hidden for single-domain lists
+- System **light/dark** support, visible keyboard focus, and `prefers-reduced-motion` handling
+
+### Changed
+- **Redesigned UI** — a dark housing (header and nav) wrapping a light work surface, so the tool chrome reads as distinct from the URLs themselves. Amber is inherited from the on-page drag-select box and carries one meaning throughout — *active or selected* — with everything else on a neutral ink ramp. The popup, side panel and full-tab layouts are unchanged
+- **URLs are set as records, not prose** — the list is monospace, line-numbered and never soft-wrapped, so line identity holds while auditing a few hundred URLs. Long URLs scroll horizontally instead of reflowing
+- **The open button states its consequence** — it reads *"Open 39 tabs"* rather than *"Open in tabs"*, and both open buttons disable when there is nothing to open. The count respects the search-query setting and the URL cap
+- The drag-select count label on the page and the toolbar badge now use the new palette; fresh installs get the drag-select box in the same amber (existing configurations keep their stored colour)
+- Interface copy rewritten in active voice with consistent action names — the **Settings** tab's *Link Selection* card is now **Drag-select**, and *URL Limit* is now **Limit**
+
+### Repo / Tooling
 - `release.yml` now includes `sidepanel.html` in the extension zip (it was missing, which broke the side panel in packaged builds)
+- `release.yml` reads the `CHROME_CLIENT_ID` / `CHROME_CLIENT_SECRET` / `CHROME_REFRESH_TOKEN` secrets documented in `PUBLISH.md` — it previously read differently-named secrets, so following the doc silently broke store publishing
+- The extension zip is built once and passed between jobs as an artifact instead of being re-zipped, and overlapping runs on repeated tag pushes are guarded against
+
+### Note on versioning
+- A `v0.5.0` tag was created locally on 2026-07-04 and then walked back the next day, with `manifest.json` reverted to `0.4.0` and that release's notes folded into the 0.4.0 entry below. The tag was never pushed and no 0.5.0 build was ever published, so the version number is reused here. `0.4.0` remains the last released version.
 
 ## [0.4.0] - 2026-07-04
 
