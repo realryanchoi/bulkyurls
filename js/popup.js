@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
   var userInput = document.getElementById('userInput');
-  var urlCount = document.getElementById('urlCount');
+  var ledgerGutter = document.getElementById('ledgerGutter');
+  var domainRail = document.getElementById('domainRail');
+  var topDomain = document.getElementById('topDomain');
+  var statLines = document.getElementById('statLines');
+  var statValid = document.getElementById('statValid');
+  var statValidWrap = document.getElementById('statValidWrap');
+  var statDupes = document.getElementById('statDupes');
+  var statDupesWrap = document.getElementById('statDupesWrap');
+  var statDomains = document.getElementById('statDomains');
+  var openTabsBtn = document.getElementById('openURLsInTabs');
+  var openWindowBtn = document.getElementById('openURLsInWindow');
   var listName = document.getElementById('listName');
   var listStatus = document.getElementById('listStatus');
   var savedListsContainer = document.getElementById('savedListsContainer');
@@ -70,14 +80,17 @@ document.addEventListener('DOMContentLoaded', function() {
     limitNum.value = settings.urlLimit;
     limitHint.textContent = settings.urlLimit === 0 ? 'No limit' : settings.urlLimit + ' max';
     limitDesc.textContent = settings.urlLimit === 0
-      ? 'Open all URLs in the list'
+      ? 'Open every URL in the list'
       : 'Open only the first ' + settings.urlLimit + ' URLs';
+    // "Open N tabs" has to follow the cap and the search-query toggle
+    updateOpenButtons();
   }
 
   Object.keys(optionInputs).forEach(function(key) {
     optionInputs[key].addEventListener('change', function() {
       settings[key] = optionInputs[key].checked;
       saveSettings();
+      updateOpenButtons();
     });
   });
 
@@ -297,10 +310,21 @@ document.addEventListener('DOMContentLoaded', function() {
       icon.src = tab.favIconUrl || 'img/bulkyurls-icon-16x16.png';
       icon.addEventListener('error', function() { icon.src = 'img/bulkyurls-icon-16x16.png'; });
 
+      var text = document.createElement('span');
+      text.className = 'tab-row-text';
+
       var title = document.createElement('span');
       title.className = 'tab-row-title';
       title.textContent = tab.title || tab.url;
       title.title = tab.url;
+
+      // The site matters more than the page title when you are collecting links
+      var host = document.createElement('span');
+      host.className = 'tab-row-host';
+      host.textContent = hostOf(tab.url) || tab.url;
+
+      text.appendChild(title);
+      text.appendChild(host);
 
       var copyOne = document.createElement('button');
       copyOne.className = 'tab-row-copy';
@@ -312,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       row.appendChild(cb);
       row.appendChild(icon);
-      row.appendChild(title);
+      row.appendChild(text);
       row.appendChild(copyOne);
       tabsListContainer.appendChild(row);
     });
@@ -333,23 +357,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('tabsRefresh').addEventListener('click', refreshTabsList);
 
-  document.getElementById('copySelectedTabs').addEventListener('click', function() {
+  // URLs of the checked rows, in the order the tabs appear in the browser
+  function selectedTabURLs() {
     var ids = Array.prototype.map.call(
       tabsListContainer.querySelectorAll('.tab-row-check:checked'),
       function(cb) { return parseInt(cb.dataset.tabId, 10); }
     );
-    if (ids.length === 0) {
-      setTabsStatus('No tabs selected');
-      return;
-    }
-    var urls = openTabsCache
+    return openTabsCache
       .filter(function(t) { return ids.indexOf(t.id) !== -1; })
       .map(function(t) { return t.url; });
-    copyTabLinks(urls, 'No tabs selected');
+  }
+
+  document.getElementById('copySelectedTabs').addEventListener('click', function() {
+    copyTabLinks(selectedTabURLs(), 'No tabs selected');
   });
 
   document.getElementById('copyAllTabs').addEventListener('click', function() {
     copyTabLinks(openTabsCache.map(function(t) { return t.url; }), 'No open tabs');
+  });
+
+  // Send the checked tabs into the URL list, skipping ones already there —
+  // collecting tabs across several sessions is the normal way this gets used.
+  document.getElementById('sendTabsToList').addEventListener('click', function() {
+    var urls = selectedTabURLs();
+    if (urls.length === 0) {
+      setTabsStatus('No tabs selected');
+      return;
+    }
+    var existing = {};
+    textToLines(userInput.value).forEach(function(line) { existing[line] = true; });
+    var fresh = urls.filter(function(u) { return !existing[u]; });
+    if (fresh.length === 0) {
+      setTabsStatus('Already in the list');
+      return;
+    }
+    var current = userInput.value.replace(/\s+$/, '');
+    setTextarea(current ? current + '\n' + fresh.join('\n') : fresh.join('\n'));
+    activateTab('urls');
+    setListStatus('Added ' + fresh.length + ' URL' + (fresh.length === 1 ? '' : 's') + ' from tabs');
   });
 
   // Keep the list current while it's the visible panel
@@ -381,23 +426,171 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
   });
 
-  // ------- Badge + count sync -------
+  // ------- List readout: gutter, stats, domain rail, action labels -------
 
   function countURLs(text) {
     return textToLines(extractURLs(text)).length;
   }
 
-  function updateBadge() {
-    var count = countURLs(userInput.value);
-    urlCount.textContent = count + ' valid';
-    urlCount.classList.toggle('valid', count > 0);
-    if (count === 0) {
-      chrome.action.setBadgeText({ text: '' });
-    } else {
-      chrome.action.setBadgeText({ text: count.toString() });
-      chrome.action.setBadgeBackgroundColor({ color: 'green' });
+  // Marketers think in sites, not hosts — example.com and www.example.com are one.
+  function hostOf(url) {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch (e) {
+      return null;
     }
   }
+
+  // Single pass over the raw text producing everything the readout needs.
+  // marks[] is per *physical* line so the gutter stays aligned with the textarea.
+  function analyzeList(text) {
+    var raw = text.split(/\r\n|\r|\n/);
+    var marks = [];
+    var urls = [];
+    for (var i = 0; i < raw.length; i++) {
+      var line = raw[i].trim();
+      if (line === '') {
+        marks.push('blank');
+        continue;
+      }
+      var extracted = textToLines(extractURLs(line));
+      if (extracted.length > 0) {
+        marks.push('ok');
+        urls.push(normalizeURL(extracted[0]));
+      } else {
+        marks.push('bad');
+      }
+    }
+
+    var seen = {};
+    var dupes = 0;
+    var hostCounts = {};
+    urls.forEach(function(u) {
+      if (seen[u]) dupes++;
+      else seen[u] = true;
+      var h = hostOf(u);
+      if (h) hostCounts[h] = (hostCounts[h] || 0) + 1;
+    });
+
+    var filled = marks.filter(function(m) { return m !== 'blank'; }).length;
+
+    return {
+      lines: filled,
+      valid: urls.length,
+      dupes: dupes,
+      hostCounts: hostCounts,
+      domains: Object.keys(hostCounts).length,
+      marks: marks
+    };
+  }
+
+  var lastAnalysis = { lines: 0, valid: 0, dupes: 0, hostCounts: {}, domains: 0, marks: [] };
+
+  // Above this the per-line spans stop earning their cost; fall back to plain numbers.
+  var GUTTER_MARK_LIMIT = 3000;
+
+  function renderGutter(lineCount, marks) {
+    var parts = new Array(lineCount);
+    for (var i = 0; i < lineCount; i++) {
+      var bad = marks && marks[i] === 'bad';
+      parts[i] = bad ? '<span class="bad">' + (i + 1) + '</span>' : '<span>' + (i + 1) + '</span>';
+    }
+    ledgerGutter.innerHTML = parts.join('');
+    ledgerGutter.scrollTop = userInput.scrollTop;
+  }
+
+  function physicalLineCount(text) {
+    if (text === '') return 1;
+    return text.split(/\r\n|\r|\n/).length;
+  }
+
+  function renderDomainRail(hostCounts, total) {
+    var entries = Object.keys(hostCounts).map(function(h) { return [h, hostCounts[h]]; });
+    entries.sort(function(a, b) { return b[1] - a[1] || (a[0] < b[0] ? -1 : 1); });
+
+    if (total > 0 && entries.length > 0) {
+      var lead = entries[0][0];
+      if (lead.length > 26) lead = lead.slice(0, 25) + '…';
+      topDomain.textContent = lead + ' ' + Math.round(entries[0][1] / total * 100) + '%';
+    } else {
+      topDomain.textContent = '';
+    }
+
+    // A one-domain list has no composition worth drawing.
+    if (entries.length < 2) {
+      domainRail.hidden = true;
+      domainRail.innerHTML = '';
+      return;
+    }
+
+    var RAMP = ['var(--signal)', 'var(--ink-2)', 'var(--ink-3)', 'var(--ink-4)', 'var(--rule-2)'];
+    var top = entries.slice(0, RAMP.length);
+    var restEntries = entries.slice(RAMP.length);
+    var restCount = restEntries.reduce(function(sum, e) { return sum + e[1]; }, 0);
+
+    domainRail.innerHTML = '';
+    top.forEach(function(entry, i) {
+      var seg = document.createElement('span');
+      seg.style.width = (entry[1] / total * 100) + '%';
+      seg.style.backgroundColor = RAMP[i];
+      seg.title = entry[0] + ' — ' + entry[1] + ' of ' + total;
+      domainRail.appendChild(seg);
+    });
+    if (restCount > 0) {
+      var rest = document.createElement('span');
+      rest.style.width = (restCount / total * 100) + '%';
+      rest.style.backgroundColor = 'var(--rule)';
+      rest.title = restEntries.length + ' more domains — ' + restCount + ' of ' + total;
+      domainRail.appendChild(rest);
+    }
+    domainRail.hidden = false;
+  }
+
+  // How many URLs the Open buttons would actually launch right now.
+  function plannedOpenCount() {
+    var n = settings.searchQueries ? lastAnalysis.lines : lastAnalysis.valid;
+    if (settings.urlLimit > 0) n = Math.min(n, settings.urlLimit);
+    return n;
+  }
+
+  // The button names the real consequence — you should know you are about to open 241 tabs.
+  function updateOpenButtons() {
+    var n = plannedOpenCount();
+    openTabsBtn.textContent = n === 0 ? 'Open in tabs' : 'Open ' + n + (n === 1 ? ' tab' : ' tabs');
+    openTabsBtn.disabled = n === 0;
+    openWindowBtn.disabled = n === 0;
+  }
+
+  function updateReadout() {
+    var text = userInput.value;
+    lastAnalysis = analyzeList(text);
+
+    var lineCount = physicalLineCount(text);
+    renderGutter(lineCount, lineCount <= GUTTER_MARK_LIMIT ? lastAnalysis.marks : null);
+
+    statLines.textContent = lastAnalysis.lines;
+    statValid.textContent = lastAnalysis.valid;
+    statDupes.textContent = lastAnalysis.dupes;
+    statDomains.textContent = lastAnalysis.domains;
+
+    statValidWrap.className = 'stat ' + (lastAnalysis.valid > 0 ? 'is-pos' : 'is-zero');
+    statDupesWrap.className = 'stat ' + (lastAnalysis.dupes > 0 ? 'is-neg' : 'is-zero');
+
+    renderDomainRail(lastAnalysis.hostCounts, lastAnalysis.valid);
+    updateOpenButtons();
+
+    if (lastAnalysis.valid === 0) {
+      chrome.action.setBadgeText({ text: '' });
+    } else {
+      chrome.action.setBadgeText({ text: lastAnalysis.valid.toString() });
+      chrome.action.setBadgeBackgroundColor({ color: '#FF7A1A' });
+    }
+  }
+
+  // Keep the line numbers pinned to the text as it scrolls
+  userInput.addEventListener('scroll', function() {
+    ledgerGutter.scrollTop = userInput.scrollTop;
+  });
 
   // ------- Undo / redo history -------
 
@@ -424,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
     historyIndex--;
     userInput.value = history[historyIndex];
     updateHistoryButtons();
-    updateBadge();
+    updateReadout();
   });
 
   redoBtn.addEventListener('click', function() {
@@ -432,24 +625,31 @@ document.addEventListener('DOMContentLoaded', function() {
     historyIndex++;
     userInput.value = history[historyIndex];
     updateHistoryButtons();
-    updateBadge();
+    updateReadout();
   });
 
-  // Every programmatic textarea write goes through here to keep badge + history in sync
+  // Every programmatic textarea write goes through here to keep the readout + history in sync
   function setTextarea(value) {
     userInput.value = value;
     pushHistory(value);
-    updateBadge();
+    updateReadout();
   }
 
-  // Sync badge on direct user edits (typing, paste, cut); snapshot history after a pause
+  var readoutTimer = null;
+
+  // Numbering has to track typing with no perceptible lag, so it re-renders on every
+  // keystroke; re-reading every line for URLs can wait a beat behind.
   userInput.addEventListener('input', function() {
-    updateBadge();
+    renderGutter(physicalLineCount(userInput.value), lastAnalysis.marks);
+    clearTimeout(readoutTimer);
+    readoutTimer = setTimeout(updateReadout, 90);
     clearTimeout(historyTimer);
     historyTimer = setTimeout(function() { pushHistory(userInput.value); }, 500);
   });
 
   updateHistoryButtons();
+  // Draw the gutter and zeroed readout before any stored content arrives
+  updateReadout();
 
   // ------- Init -------
 

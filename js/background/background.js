@@ -33,7 +33,7 @@ SettingsManager.prototype.init = async function() {
         "mouse": 0,  // left mouse button
         "key": 16,   // shift key
         "action": "tabs",
-        "color": "#FFA500",
+        "color": "#FF7A1A",
         "options": {
           "smart": 0,
           "ignore": [0],
@@ -219,7 +219,7 @@ function handleRequests(request, sender, sendResponse) {
         chrome.action.setBadgeText({text: ''});
       } else {
         chrome.action.setBadgeText({text: numberOfLinks.toString()});
-        chrome.action.setBadgeBackgroundColor({color: 'green'});
+        chrome.action.setBadgeBackgroundColor({color: '#FF7A1A'});
       }
       break;
 
@@ -306,7 +306,7 @@ chrome.storage.onChanged.addListener(function(changes, area) {
     chrome.action.setBadgeText({ text: '' });
   } else {
     chrome.action.setBadgeText({ text: count.toString() });
-    chrome.action.setBadgeBackgroundColor({ color: 'green' });
+    chrome.action.setBadgeBackgroundColor({ color: '#FF7A1A' });
   }
 });
 

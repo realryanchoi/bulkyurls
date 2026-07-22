@@ -11,105 +11,129 @@
   <header class="app-header">
     <h1><img src="img/bulkyurls-icon-32x32.png" alt=""> BulkyURLs</h1>
     <span class="app-version" id="appVersion"></span>
+    <div class="launch-row">
+      <button class="button launch" id="openSidebar" title="Dock this panel beside the page">Sidebar</button>
+      <button class="button launch" id="openInTab" title="Open this panel in a full tab">New tab</button>
+    </div>
   </header>
 
-  <div class="launch-row">
-    <button class="button launch" id="openSidebar">Open Sidebar</button>
-    <button class="button launch" id="openInTab">Open in New Tab</button>
-  </div>
-
   <nav class="tab-bar">
-    <button class="tab active" data-tab="urls" id="tabURLs">URLs</button>
+    <button class="tab active" data-tab="urls" id="tabURLs">List</button>
     <button class="tab" data-tab="tabs" id="tabTabsList">Tabs</button>
     <button class="tab" data-tab="settings" id="tabSettings">Settings</button>
   </nav>
 
-  <!-- ============ URLs tab ============ -->
+  <!-- ============ List tab ============ -->
   <section class="tab-panel active" id="panel-urls">
 
-    <div class="card">
+    <div class="card card-flush">
       <div class="card-header">
-        <span class="card-title">Enter URLs</span>
-        <span id="urlCount" class="count-badge">0 valid</span>
+        <span class="card-title">URL list</span>
+        <span class="card-title" id="topDomain"></span>
       </div>
-      <textarea name="somethingInput" id="userInput" placeholder="Enter URLs (one per line) or paste any text containing links...
-Example:
-https://google.com
-https://github.com
-facebook.com"></textarea>
-      <div class="chip-row">
-        <button class="chip" id="undo" title="Undo last change">Undo</button>
-        <button class="chip" id="redo" title="Redo">Redo</button>
-        <button class="chip" id="copyURLs" title="Copy the list to the clipboard">Copy</button>
-        <button class="chip" id="extractURLsFromText" title="Strip non-URL text, leaving only links">Extract URLs</button>
-        <button class="chip danger" id="clear" title="Empty the list">Clear</button>
-        <div class="tools-wrap">
-          <button class="chip" id="toolsToggle" title="More tools">Tools &#9662;</button>
-          <div class="tools-menu" id="toolsMenu" hidden>
-            <button class="tools-item" id="extractURLsFromTabs">URLs from Tabs</button>
-            <button class="tools-item" id="openURLsFromSelector">URLs from Selection</button>
-            <button class="tools-item" id="dedupeURLs">Remove Duplicates</button>
-            <button class="tools-item" id="importCSV">Import CSV</button>
-            <button class="tools-item" id="exportCSV">Export CSV</button>
+      <div class="card-body">
+
+        <div class="ledger">
+          <div class="ledger-gutter" id="ledgerGutter" aria-hidden="true"></div>
+          <textarea id="userInput" name="somethingInput" spellcheck="false" autocomplete="off"
+            aria-label="URL list"
+            placeholder="Paste URLs here — one per line.
+
+Or hold Shift and drag a box across links on any page to pull them straight in."></textarea>
+        </div>
+
+        <div class="domain-rail" id="domainRail" hidden></div>
+
+        <div class="stat-strip">
+          <span class="stat">Lines <b id="statLines">0</b></span>
+          <span class="stat is-zero" id="statValidWrap">Valid <b id="statValid">0</b></span>
+          <span class="stat is-zero" id="statDupesWrap">Dupes <b id="statDupes">0</b></span>
+          <span class="stat">Domains <b id="statDomains">0</b></span>
+        </div>
+
+        <div class="chip-row">
+          <button class="chip" id="undo" title="Step back one change">Undo</button>
+          <button class="chip" id="redo" title="Step forward one change">Redo</button>
+          <button class="chip" id="copyURLs" title="Copy the whole list to the clipboard">Copy</button>
+          <button class="chip" id="extractURLsFromText" title="Drop everything that isn't a link">Extract</button>
+          <button class="chip danger" id="clear" title="Empty the list">Clear</button>
+          <div class="tools-wrap">
+            <button class="chip" id="toolsToggle" title="More tools">Tools &#9662;</button>
+            <div class="tools-menu" id="toolsMenu" hidden>
+              <button class="tools-item" id="extractURLsFromTabs">Pull from open tabs</button>
+              <button class="tools-item" id="openURLsFromSelector">Pull from page selection</button>
+              <div class="tools-sep"></div>
+              <button class="tools-item" id="dedupeURLs">Remove duplicates</button>
+              <div class="tools-sep"></div>
+              <button class="tools-item" id="importCSV">Import CSV</button>
+              <button class="tools-item" id="exportCSV">Export CSV</button>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="action-row">
-        <span class="summary-badges">
-          <span class="mini-badge" id="batchBadge" title="URLs per batch">1/batch</span>
-          <span class="mini-badge" id="delayBadge" title="Delay between batches">0s</span>
-        </span>
-        <button class="button primary open-btn" id="openURLsInTabs">Open in Tabs</button>
-        <button class="button primary open-btn" id="openURLsInWindow">New Window</button>
+
+        <div class="action-row">
+          <span class="summary-badges">
+            <span class="mini-badge" id="batchBadge" title="URLs opened per batch">1/batch</span>
+            <span class="mini-badge" id="delayBadge" title="Pause between batches">0s</span>
+          </span>
+          <button class="button" id="openURLsInWindow" title="Open the list in a brand-new window">New window</button>
+          <button class="button primary" id="openURLsInTabs" title="Open the list as background tabs">Open in tabs</button>
+        </div>
+
       </div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Batch Settings</span>
+        <span class="card-title">Batch</span>
       </div>
-      <div class="slider-group">
-        <div class="slider-label-row">
-          <span class="slider-label">URLs per batch</span>
-          <span class="stepper">
-            <button class="stepper-btn" data-step="-1" data-for="batchSize">&minus;</button>
-            <input type="number" id="batchSizeNum" min="1" max="20" value="1">
-            <button class="stepper-btn" data-step="1" data-for="batchSize">+</button>
-          </span>
+      <div class="card-body">
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <span class="slider-label">URLs per batch</span>
+            <span class="stepper">
+              <button class="stepper-btn" data-step="-1" data-for="batchSize" aria-label="Fewer per batch">&minus;</button>
+              <input type="number" id="batchSizeNum" min="1" max="20" value="1" aria-label="URLs per batch">
+              <button class="stepper-btn" data-step="1" data-for="batchSize" aria-label="More per batch">+</button>
+            </span>
+          </div>
+          <input type="range" id="batchSize" min="1" max="20" value="1" aria-label="URLs per batch slider">
+          <div class="slider-scale"><span>1</span><span>20</span></div>
         </div>
-        <input type="range" id="batchSize" min="1" max="20" value="1">
-        <div class="slider-scale"><span>1</span><span>20</span></div>
-        <p class="slider-hint">Number of URLs to open in each batch</p>
-      </div>
-      <div class="slider-group">
-        <div class="slider-label-row">
-          <span class="slider-label">Delay (seconds)</span>
-          <span class="stepper">
-            <button class="stepper-btn" data-step="-1" data-for="delaySlider">&minus;</button>
-            <input type="number" id="delayNum" min="0" max="100" step="0.5" value="0">
-            <button class="stepper-btn" data-step="1" data-for="delaySlider">+</button>
-          </span>
+
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <span class="slider-label">Delay between batches</span>
+            <span class="stepper">
+              <button class="stepper-btn" data-step="-1" data-for="delaySlider" aria-label="Shorter delay">&minus;</button>
+              <input type="number" id="delayNum" min="0" max="100" step="0.5" value="0" aria-label="Delay in seconds">
+              <button class="stepper-btn" data-step="1" data-for="delaySlider" aria-label="Longer delay">+</button>
+            </span>
+          </div>
+          <input type="range" id="delaySlider" min="0" max="100" value="0" aria-label="Delay slider">
+          <div class="slider-scale"><span>0s</span><span>100s</span></div>
         </div>
-        <input type="range" id="delaySlider" min="0" max="100" value="0">
-        <div class="slider-scale"><span>0s</span><span>100s</span></div>
-        <p class="slider-hint">Wait time between opening each batch</p>
+
+        <p class="note">Opening 50+ tabs at once can trip Chrome's rate limits and drop URLs. Smaller batches with a
+          delay between them open every link reliably.</p>
       </div>
-      <p class="pro-tip"><strong>Pro tip:</strong> Use a smaller batch size and longer delay to avoid triggering browser security restrictions.</p>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Saved Lists</span>
-        <button class="button small primary" id="newListToggle">+ New</button>
+        <span class="card-title">Saved lists</span>
+        <button class="button small" id="newListToggle">Save current list</button>
       </div>
-      <div class="new-list-row" id="newListRow" hidden>
-        <input type="text" id="listName" placeholder="List name">
-        <button class="button small" id="saveList" title="Save the current URLs under this name">Save</button>
+      <div class="card-body">
+        <div class="new-list-row" id="newListRow" hidden>
+          <input type="text" id="listName" placeholder="Name this list" aria-label="List name">
+          <button class="button small" id="saveList" title="Store the current URLs under this name">Save</button>
+        </div>
+        <div id="savedListsContainer" class="saved-lists">
+          <p class="empty-note" id="noListsNote">No saved lists yet</p>
+        </div>
+        <div id="listStatus" class="list-status"></div>
       </div>
-      <div id="savedListsContainer" class="saved-lists">
-        <p class="empty-note" id="noListsNote">No saved lists yet</p>
-      </div>
-      <div id="listStatus" class="list-status"></div>
     </div>
 
   </section>
@@ -117,23 +141,28 @@ facebook.com"></textarea>
   <!-- ============ Tabs tab ============ -->
   <section class="tab-panel" id="panel-tabs">
 
-    <div class="card">
+    <div class="card card-flush">
       <div class="card-header">
-        <span class="card-title">Open Tabs</span>
-        <span id="tabsCount" class="count-badge">0 tabs</span>
+        <span class="card-title">Open tabs</span>
+        <span class="card-title" id="tabsCount">0 tabs</span>
       </div>
-      <div class="tabs-controls-row">
-        <label class="select-all-label">
-          <input type="checkbox" id="tabsSelectAll"> Select all
-        </label>
-        <button class="chip" id="tabsRefresh" title="Refresh the tab list">Refresh</button>
-        <button class="chip" id="copySelectedTabs" title="Copy the links of the checked tabs">Copy Selected</button>
-        <button class="chip" id="copyAllTabs" title="Copy every open tab's link">Copy All</button>
+      <div class="card-body">
+        <div class="tabs-controls-row">
+          <label class="select-all-label">
+            <input type="checkbox" id="tabsSelectAll"> Select all
+          </label>
+          <button class="chip" id="tabsRefresh" title="Re-read the open tabs">Refresh</button>
+          <button class="chip" id="copySelectedTabs" title="Copy the links of the checked tabs">Copy selected</button>
+          <button class="chip" id="copyAllTabs" title="Copy every open tab's link">Copy all</button>
+        </div>
+        <div id="tabsListContainer" class="tabs-list">
+          <p class="empty-note">No open tabs</p>
+        </div>
+        <div class="chip-row">
+          <button class="chip" id="sendTabsToList" title="Put the checked tabs into the URL list">Send selected to list</button>
+          <div id="tabsListStatus" class="list-status" style="margin: 0 0 0 auto;"></div>
+        </div>
       </div>
-      <div id="tabsListContainer" class="tabs-list">
-        <p class="empty-note">No open tabs</p>
-      </div>
-      <div id="tabsListStatus" class="list-status"></div>
     </div>
 
   </section>
@@ -143,60 +172,61 @@ facebook.com"></textarea>
 
     <div class="card">
       <div class="card-header">
-        <span class="card-title">URL Opening Settings</span>
-        <button class="button small" id="resetDefaults">Reset Defaults</button>
+        <span class="card-title">Opening</span>
+        <button class="button small" id="resetDefaults">Reset defaults</button>
       </div>
 
       <div class="sub-card">
-        <p class="sub-card-title">URL Processing</p>
-        <label class="check-row" title="Lines that aren't URLs are opened as web searches instead of being dropped">
-          <input type="checkbox" id="optSearchQueries"> Convert non-URLs to search queries
+        <p class="sub-card-title">Before opening</p>
+        <label class="check-row" title="Lines that aren't links open as Google searches instead of being dropped">
+          <input type="checkbox" id="optSearchQueries"> Open non-URL lines as searches
         </label>
         <label class="check-row" title="Shuffle the list before opening">
-          <input type="checkbox" id="optRandomOrder"> Open URLs in random order
+          <input type="checkbox" id="optRandomOrder"> Shuffle the list
         </label>
         <label class="check-row" title="Open the list bottom-to-top">
-          <input type="checkbox" id="optReverseOrder"> Open URLs in reverse order
+          <input type="checkbox" id="optReverseOrder"> Open bottom-to-top
         </label>
       </div>
 
       <div class="sub-card">
-        <p class="sub-card-title">Opening Options</p>
+        <p class="sub-card-title">While opening</p>
         <label class="check-row" title="Each batch gets its own browser window">
-          <input type="checkbox" id="optWindowPerBatch"> Open each batch in a new window
+          <input type="checkbox" id="optWindowPerBatch"> Give each batch its own window
         </label>
         <label class="check-row" title="Wait until each tab finishes loading before opening the next">
-          <input type="checkbox" id="optWaitForLoad"> Wait for tab to load before opening next URL
+          <input type="checkbox" id="optWaitForLoad"> Wait for each tab to load
         </label>
-        <label class="check-row" title="Opened URLs are deleted from the textarea as they open">
-          <input type="checkbox" id="optRemoveOpened"> Remove opened URLs from input
+        <label class="check-row" title="Opened URLs are deleted from the list as they open">
+          <input type="checkbox" id="optRemoveOpened"> Remove opened URLs from the list
         </label>
         <label class="check-row" title="Tabs close themselves after the chosen number of seconds">
-          <input type="checkbox" id="optAutoClose"> Auto-close tabs after
-          <input type="number" id="optAutoCloseSecs" min="1" max="600" value="10" class="inline-num"> s
+          <input type="checkbox" id="optAutoClose"> Close each tab after
+          <input type="number" id="optAutoCloseSecs" min="1" max="600" value="10" class="inline-num"
+            aria-label="Seconds before auto-close"> s
         </label>
       </div>
 
       <div class="sub-card">
-        <p class="sub-card-title">URL Limit</p>
+        <p class="sub-card-title">Limit</p>
         <div class="limit-row">
-          <input type="range" id="optLimit" min="0" max="200" value="0">
-          <input type="number" id="optLimitNum" class="inline-num" min="0" max="999" value="0">
+          <input type="range" id="optLimit" min="0" max="200" value="0" aria-label="URL limit slider">
+          <input type="number" id="optLimitNum" class="inline-num" min="0" max="999" value="0" aria-label="URL limit">
           <span class="slider-hint" id="limitHint">No limit</span>
         </div>
-        <p class="slider-hint" id="limitDesc">Open all URLs in the list</p>
+        <p class="slider-hint" id="limitDesc">Open every URL in the list</p>
       </div>
 
     </div>
 
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Link Selection</span>
+        <span class="card-title">Drag-select</span>
       </div>
 
       <div class="sub-card">
-        <p class="sub-card-title">Activation</p>
-        <p class="slider-hint">Hold these while dragging a box over links on any page</p>
+        <p class="sub-card-title">Trigger</p>
+        <p class="slider-hint" style="margin-top:0">Hold these while dragging a box over links on any page.</p>
         <div class="select-row">
           <label for="lsMouse">Mouse button</label>
           <select id="lsMouse">
@@ -206,35 +236,36 @@ facebook.com"></textarea>
           </select>
         </div>
         <div class="select-row">
-          <label for="lsKey">+ key</label>
+          <label for="lsKey">Held key</label>
           <select id="lsKey"></select>
         </div>
-        <p class="warning-note" id="lsKeyWarning" hidden>Not using a key can cause unexpected behavior on some websites</p>
+        <p class="warning-note" id="lsKeyWarning" hidden>Without a held key, dragging can conflict with the page's own
+          click behaviour.</p>
         <div class="select-row">
-          <label for="lsAction">Selected links are</label>
+          <label for="lsAction">Selected links</label>
           <select id="lsAction">
-            <option value="tabs">Opened as new tabs</option>
-            <option value="win">Opened in a new window</option>
+            <option value="tabs">Open as new tabs</option>
+            <option value="win">Open in a new window</option>
           </select>
         </div>
         <div class="select-row">
-          <label for="lsColor">Selection box color</label>
-          <input type="color" id="lsColor" value="#ffa500">
+          <label for="lsColor">Box colour</label>
+          <input type="color" id="lsColor" value="#ff7a1a">
         </div>
-        <label class="check-row" title="Try to select only the important links inside the box">
-          <input type="checkbox" id="lsSmart"> Smart select (important links only)
+        <label class="check-row" title="Pick out only the meaningful links inside the box">
+          <input type="checkbox" id="lsSmart"> Smart select — skip nav and boilerplate links
         </label>
       </div>
 
       <div class="sub-card">
-        <p class="sub-card-title">Blocklist</p>
-        <p class="slider-hint">Disable link selection on matching sites (one URL per line)</p>
-        <textarea id="lsBlocklist" rows="4" placeholder="example.com"></textarea>
+        <p class="sub-card-title">Blocked sites</p>
+        <p class="slider-hint" style="margin-top:0">Turn drag-select off on these sites — one per line.</p>
+        <textarea id="lsBlocklist" rows="4" spellcheck="false" placeholder="example.com"></textarea>
       </div>
     </div>
 
     <div class="settings-footer">
-      <button class="button primary" id="backToURLs">&larr; Back to URLs</button>
+      <button class="button" id="backToURLs">&larr; Back to the list</button>
     </div>
 
   </section>

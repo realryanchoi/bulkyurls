@@ -16,47 +16,74 @@ The same UI runs in three places:
 - **Side panel** — click **Open Sidebar** in the popup. The panel docks beside the page and stays open while you browse.
 - **Full tab** — click **Open in New Tab** for a roomier view.
 
-The UI is split into two tabs: **URLs** (the list, batch settings, saved lists) and **Settings** (opening options).
+The UI is split into three tabs: **List** (the URL ledger, batch controls, saved lists), **Tabs** (copy links out of open tabs) and **Settings**.
 
-#### URLs tab
+#### List tab
 
-A live **“N valid”** badge above the textarea shows how many URLs are currently detected.
+URLs are treated as records rather than prose: the list is set in monospace, line-numbered, and never soft-wrapped, so line 47 stays line 47 while you audit a few hundred of them. Long URLs scroll horizontally instead of reflowing.
+
+A live readout under the list reports what you actually have:
+
+| Readout | What it means |
+|---|---|
+| **Lines** | Non-empty lines in the list |
+| **Valid** | Lines recognised as URLs |
+| **Dupes** | URLs that appear more than once |
+| **Domains** | Distinct sites in the list (`www.` stripped, so `www.example.com` and `example.com` count once) |
+
+Any line that isn't a URL has its **line number marked red** in the gutter, so junk is easy to find in a long paste. When a list spans more than one site, a thin **composition rail** under the text shows how it splits across domains, and the card header names the largest one with its share.
+
+The primary button states the real consequence — **“Open 39 tabs”**, not “Open in tabs” — and both open buttons disable themselves when there is nothing to open. The count respects the search-query setting and the URL cap.
 
 | Control | What it does |
 |---|---|
-| **Undo / Redo** | Steps back/forward through textarea changes (typing and button actions) |
-| **Copy** | Copies the textarea contents to the clipboard |
-| **Extract URLs** | Strips non-URL text from the textarea, leaving only valid URLs |
-| **Clear** | Empties the textarea |
-| **Tools ▾ → URLs from Tabs** | Fills the textarea with the URLs of every open tab |
-| **Tools ▾ → URLs from Selection** | Re-fetches the current drag selection into the textarea |
-| **Tools ▾ → Remove Duplicates** | Removes duplicate lines from the textarea, keeping first-seen order |
+| **Undo / Redo** | Steps back/forward through list changes (typing and button actions) |
+| **Copy** | Copies the whole list to the clipboard |
+| **Extract** | Drops everything that isn't a link, leaving only URLs |
+| **Clear** | Empties the list |
+| **Tools ▾ → Pull from open tabs** | Replaces the list with the URLs of every open tab |
+| **Tools ▾ → Pull from page selection** | Re-fetches the current drag selection into the list |
+| **Tools ▾ → Remove duplicates** | Removes duplicate lines, keeping first-seen order |
 | **Tools ▾ → Import / Export CSV** | CSV round-trip (see CSV Format below) |
-| **Open in Tabs** | Opens the URLs as background tabs in the current window, batch by batch |
-| **New Window** | Opens the URLs in a brand-new window, batch by batch |
+| **Open N tabs** | Opens the URLs as background tabs in the current window, batch by batch |
+| **New window** | Opens the URLs in a brand-new window, batch by batch |
 
-**Batch Settings** control how opening happens:
+**Batch** controls how opening happens:
 
 - **URLs per batch** (1–20) — how many tabs open at once.
-- **Delay (seconds)** (0–100) — pause between batches. Use a smaller batch size and a longer delay to avoid triggering browser security restrictions on large lists.
+- **Delay between batches** (0–100s) — pause between batches. Opening 50+ tabs at once can trip Chrome's rate limits and drop URLs; smaller batches with a delay open every link reliably.
 
 Opening is delegated to the background service worker, so a batched/delayed run keeps opening even after the popup closes. Batch size and delay are persisted across sessions.
+
+#### Tabs tab
+
+Lists every open tab with its title and hostname. Chrome does not expose its native tab-strip context menu or multi-tab selection to extensions, so this panel is how single/multiple/all copying works.
+
+| Control | What it does |
+|---|---|
+| **Copy** (per row) | Copies that one tab's link |
+| **Copy selected** | Copies the links of the checked tabs |
+| **Copy all** | Copies every open tab's link |
+| **Send selected to list** | Appends the checked tabs to the URL list, skipping any already there |
+| **Select all** / **Refresh** | Toggles every checkbox / re-reads the open tabs |
+
+The list refreshes itself while visible as tabs are opened, closed and navigated.
 
 #### Settings tab
 
 | Option | What it does |
 |---|---|
-| **Convert non-URLs to search queries** | Lines that aren't URLs open as Google searches instead of being dropped |
-| **Open URLs in random order** | Shuffles the list before opening |
-| **Open URLs in reverse order** | Opens the list bottom-to-top |
-| **Open each batch in a new window** | Every batch gets its own browser window |
-| **Wait for tab to load before opening next URL** | Each tab must finish loading before the next opens |
-| **Remove opened URLs from input** | Opened URLs are deleted from the textarea when you click Open |
-| **Auto-close tabs after N s** | Opened tabs close themselves after the chosen number of seconds |
-| **URL Limit** | Open only the first N URLs (0 = no limit) |
-| **Reset Defaults** | Restores all opener settings |
+| **Open non-URL lines as searches** | Lines that aren't URLs open as Google searches instead of being dropped |
+| **Shuffle the list** | Shuffles the list before opening |
+| **Open bottom-to-top** | Opens the list in reverse order |
+| **Give each batch its own window** | Every batch gets its own browser window |
+| **Wait for each tab to load** | Each tab must finish loading before the next opens |
+| **Remove opened URLs from the list** | Opened URLs are deleted from the list when you click Open |
+| **Close each tab after N s** | Opened tabs close themselves after the chosen number of seconds |
+| **Limit** | Open only the first N URLs (0 = no limit) |
+| **Reset defaults** | Restores all opener settings |
 
-The Settings tab also holds the **Link Selection** card (see below).
+The Settings tab also holds the **Drag-select** card (see below).
 
 ### Saved Lists
 Save the current textarea contents under a custom name and reload it any time — handy for recurring link sets (daily reading lists, QA test URLs, etc.). Lists are stored locally via `chrome.storage.local`; nothing leaves your machine.
@@ -82,13 +109,17 @@ Right-click on any page to access:
 - **Open selected links with BulkyURLs** — opens links from text selection
 - **Copy page links to BulkyURLs** — collects all links on the page
 
-### Link Selection Settings
-The **Link Selection** card on the popup's Settings tab configures the drag-select feature:
-- Change the activation trigger (mouse button + key combination)
+### Drag-select Settings
+The **Drag-select** card on the Settings tab configures the selection feature:
+- Change the activation trigger (mouse button + held key)
 - Choose whether selected links open as new tabs or in a new window
-- Change the selection box color
-- Toggle smart select (only pick out the important links in the box)
-- Block BulkyURLs on specific sites (blocklist, one URL per line)
+- Change the selection box colour
+- Toggle smart select (skip nav and boilerplate links inside the box)
+- Turn drag-select off on specific sites (one per line)
+
+### Design
+
+The panel is built as a dark housing (header and nav) wrapping a light work surface, so the tool chrome reads as distinct from the URLs themselves. Amber is inherited from the on-page drag-select box and carries exactly one meaning throughout the UI — *active or selected* — while everything else sits on a neutral ink ramp. The interface follows the system light/dark preference, respects `prefers-reduced-motion`, and ships visible keyboard focus.
 
 ---
 
