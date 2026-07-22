@@ -91,10 +91,24 @@ jobs:
         if: steps.cws.outputs.configured == 'true'
         env:
           EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
-          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
         run: |
+          set +e
           npx --yes chrome-webstore-upload-cli@3 upload \
             --source "bulkyurls-${GITHUB_REF_NAME}.zip" \
-            --auto-publish
+            --auto-publish 2>&1 | tee upload.log
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$status" -ne 0 ]; then
+            if grep -qi 'is required' upload.log; then
+              echo "::error::Upload failed before reaching the Chrome Web Store — an OAuth credential (CLIENT_ID/CLIENT_SECRET/REFRESH_TOKEN) is empty. Check the 'release' environment's secrets under Settings > Environments."
+            elif grep -qiE 'publish condition not met|permission.*justificat|ITEM_PENDING_REVIEW' upload.log; then
+              echo "::error::Chrome Web Store rejected the publish — likely a missing permission justification or the item is already pending review. Open the Developer Dashboard, fill in the Privacy tab's justification fields, and publish from there."
+            else
+              echo "::error::Chrome Web Store upload/publish failed for an unrecognized reason — see the log above for details."
+            fi
+            exit "$status"
+          fi
