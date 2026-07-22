@@ -5,6 +5,17 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-07-22
+
+### Fixed
+- **Clearing the list didn't clear the page's memory** ([#9](https://github.com/realryanchoi/bulkyurls/issues/9)) — the content script kept the last drag-selection in memory per tab, so reopening the panel after **Clear** silently repopulated the textarea from that stale selection. **Clear** now also tells the content script to drop it
+
+### Changed
+- **CSV import/export moved into the panel** ([#7](https://github.com/realryanchoi/bulkyurls/issues/7)) — **Tools ▾ → Import/Export CSV** now opens an in-panel modal instead of a separate `csv.html` popup window; `csv.html` and `js/csv.js` are gone
+
+### Removed
+- **"Open in tab" launcher** ([#8](https://github.com/realryanchoi/bulkyurls/issues/8)) — redundant with the side panel, which already persists across navigation; the button is gone from the nav bar
+
 ## [0.6.0] - 2026-07-22
 
 ### Added

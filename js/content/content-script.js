@@ -85,6 +85,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	} else if (request.message === "copy_page") {
 		latestURLs = getVisiblePageLinks();
 		send_message(latestURLs);
+	} else if (request.message === "clear_urls") {
+		latestURLs = [];
+		send_message(latestURLs);
 	}
 });
 

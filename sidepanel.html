@@ -16,7 +16,6 @@
       <button class="tab" data-tab="tabs" id="tabTabsList" role="tab" aria-selected="false" aria-controls="panel-tabs">Tabs</button>
       <button class="tab" data-tab="settings" id="tabSettings" role="tab" aria-selected="false" aria-controls="panel-settings">Settings</button>
     </div>
-    <button class="button ghost small" id="openInTab" title="Open this panel in a full tab">Open in tab</button>
   </nav>
 
   <!-- ============ List tab ============ -->
@@ -263,6 +262,33 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
     </div>
 
   </section>
+
+  <!-- ============ CSV import/export modal ============ -->
+  <div class="modal-backdrop" id="csvModalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="csvModalTitle">
+      <div class="modal-header">
+        <span class="modal-title" id="csvModalTitle">Export CSV</span>
+        <button class="modal-close" id="csvModalClose" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="modal-body" id="csvExportSection" hidden>
+        <p class="csv-desc">Preview of the file you're about to save — every URL in the list, one per row.</p>
+        <textarea id="csvPreview" spellcheck="false" readonly aria-label="CSV preview"></textarea>
+        <div class="actions">
+          <button class="button" id="csvCancelBtn">Cancel</button>
+          <button class="button primary" id="csvSaveBtn">Save to file</button>
+        </div>
+      </div>
+
+      <div class="modal-body" id="csvImportSection" hidden>
+        <p class="csv-desc">Pick a CSV and BulkyURLs pulls the URLs out of every column. Headers, extra columns and duplicates are dropped for you.</p>
+        <div class="actions">
+          <button class="button primary" id="csvChooseBtn">Choose file</button>
+        </div>
+        <p id="csvStatus"></p>
+      </div>
+    </div>
+  </div>
 
   <script src="js/lib/urls.js"></script>
   <script src="js/popup.js"></script>
