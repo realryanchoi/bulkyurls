@@ -5,6 +5,11 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-07-22
+
+### Fixed
+- **Drag-select and "Add link to BulkyURLs" did nothing while the panel was already open** — the content script only wrote new selections to its own memory and a storage key read by the toolbar badge; nothing told an already-open side panel about them, so they only showed up after closing and reopening it. The content script now also broadcasts the update, and the panel applies it when it's showing the tab the selection came from
+
 ## [0.7.0] - 2026-07-22
 
 ### Fixed

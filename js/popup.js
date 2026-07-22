@@ -702,6 +702,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
   refreshSavedLists();
 
+  // The side panel stays open while browsing, so a drag-select or right-click
+  // "Add link" on the page needs to reach an already-open panel — otherwise
+  // it silently lands in the content script's memory until the panel is
+  // reopened. The content script broadcasts on every selection change; only
+  // act on it when it's coming from the tab currently in view.
+  chrome.runtime.onMessage.addListener(function(request, sender) {
+    if (request.type !== 'urlsUpdated' || !sender.tab) return;
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (!tabs || !tabs[0] || tabs[0].id !== sender.tab.id) return;
+      var text = urlsToText({ urls: request.urls });
+      if (text) setTextarea(text);
+    });
+  });
+
   // ------- Opening -------
 
   // Turn the textarea into the list of URLs that would actually open.

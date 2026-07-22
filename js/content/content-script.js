@@ -573,6 +573,13 @@ function send_message(linkArray) {
 	} catch (e) {
 		// Orphaned content script — nothing to do
 	}
+	// Notify an already-open side panel/tab so a live selection shows up without
+	// having to close and reopen it. No-op if nothing is listening.
+	try {
+		chrome.runtime.sendMessage({ type: "urlsUpdated", urls: linkArray });
+	} catch (e) {
+		// Orphaned content script — nothing to do
+	}
 }
 
 
