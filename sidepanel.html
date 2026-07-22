@@ -7,29 +7,25 @@
   <link rel="stylesheet" href="css/popup.css">
 </head>
 
-<body class="sidepanel">
-  <header class="app-header">
-    <h1><img src="img/bulkyurls-icon-32x32.png" alt=""> BulkyURLs</h1>
-    <span class="app-version" id="appVersion"></span>
-    <div class="launch-row">
-      <button class="button launch" id="openSidebar" title="Dock this panel beside the page">Sidebar</button>
-      <button class="button launch" id="openInTab" title="Open this panel in a full tab">New tab</button>
+<body>
+  <!-- Chrome's own side-panel header already names the extension, so the panel
+       starts straight at the navigation. -->
+  <nav class="app-bar">
+    <div class="tab-bar" role="tablist" aria-label="BulkyURLs sections">
+      <button class="tab active" data-tab="urls" id="tabURLs" role="tab" aria-selected="true" aria-controls="panel-urls">List</button>
+      <button class="tab" data-tab="tabs" id="tabTabsList" role="tab" aria-selected="false" aria-controls="panel-tabs">Tabs</button>
+      <button class="tab" data-tab="settings" id="tabSettings" role="tab" aria-selected="false" aria-controls="panel-settings">Settings</button>
     </div>
-  </header>
-
-  <nav class="tab-bar">
-    <button class="tab active" data-tab="urls" id="tabURLs">List</button>
-    <button class="tab" data-tab="tabs" id="tabTabsList">Tabs</button>
-    <button class="tab" data-tab="settings" id="tabSettings">Settings</button>
+    <button class="button ghost small" id="openInTab" title="Open this panel in a full tab">Open in tab</button>
   </nav>
 
   <!-- ============ List tab ============ -->
-  <section class="tab-panel active" id="panel-urls">
+  <section class="tab-panel active" id="panel-urls" role="tabpanel" aria-labelledby="tabURLs">
 
     <div class="card card-flush">
       <div class="card-header">
         <span class="card-title">URL list</span>
-        <span class="card-title" id="topDomain"></span>
+        <span class="card-meta" id="topDomain"></span>
       </div>
       <div class="card-body">
 
@@ -72,10 +68,6 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
         </div>
 
         <div class="action-row">
-          <span class="summary-badges">
-            <span class="mini-badge" id="batchBadge" title="URLs opened per batch">1/batch</span>
-            <span class="mini-badge" id="delayBadge" title="Pause between batches">0s</span>
-          </span>
           <button class="button" id="openURLsInWindow" title="Open the list in a brand-new window">New window</button>
           <button class="button primary" id="openURLsInTabs" title="Open the list as background tabs">Open in tabs</button>
         </div>
@@ -83,10 +75,11 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
+    <details class="card collapsible" id="sectionBatch">
+      <summary class="card-header">
         <span class="card-title">Batch</span>
-      </div>
+        <span class="card-meta" id="batchSummary">1 at a time</span>
+      </summary>
       <div class="card-body">
         <div class="slider-group">
           <div class="slider-label-row">
@@ -117,15 +110,15 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
         <p class="note">Opening 50+ tabs at once can trip Chrome's rate limits and drop URLs. Smaller batches with a
           delay between them open every link reliably.</p>
       </div>
-    </div>
+    </details>
 
-    <div class="card">
-      <div class="card-header">
+    <details class="card collapsible" id="sectionSavedLists">
+      <summary class="card-header">
         <span class="card-title">Saved lists</span>
-        <button class="button small" id="newListToggle">Save current list</button>
-      </div>
+        <span class="card-meta" id="savedListsSummary">None saved</span>
+      </summary>
       <div class="card-body">
-        <div class="new-list-row" id="newListRow" hidden>
+        <div class="new-list-row">
           <input type="text" id="listName" placeholder="Name this list" aria-label="List name">
           <button class="button small" id="saveList" title="Store the current URLs under this name">Save</button>
         </div>
@@ -134,17 +127,17 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
         </div>
         <div id="listStatus" class="list-status"></div>
       </div>
-    </div>
+    </details>
 
   </section>
 
   <!-- ============ Tabs tab ============ -->
-  <section class="tab-panel" id="panel-tabs">
+  <section class="tab-panel" id="panel-tabs" role="tabpanel" aria-labelledby="tabTabsList">
 
     <div class="card card-flush">
       <div class="card-header">
         <span class="card-title">Open tabs</span>
-        <span class="card-title" id="tabsCount">0 tabs</span>
+        <span class="card-meta" id="tabsCount">0 tabs</span>
       </div>
       <div class="card-body">
         <div class="tabs-controls-row">
@@ -168,13 +161,13 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
   </section>
 
   <!-- ============ Settings tab ============ -->
-  <section class="tab-panel" id="panel-settings">
+  <section class="tab-panel" id="panel-settings" role="tabpanel" aria-labelledby="tabSettings">
 
-    <div class="card">
-      <div class="card-header">
+    <details class="card collapsible" id="sectionOpening" open>
+      <summary class="card-header">
         <span class="card-title">Opening</span>
-        <button class="button small" id="resetDefaults">Reset defaults</button>
-      </div>
+        <span class="card-meta" id="openingSummary"></span>
+      </summary>
 
       <div class="sub-card">
         <p class="sub-card-title">Before opening</p>
@@ -217,12 +210,13 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
         <p class="slider-hint" id="limitDesc">Open every URL in the list</p>
       </div>
 
-    </div>
+    </details>
 
-    <div class="card">
-      <div class="card-header">
+    <details class="card collapsible" id="sectionDragSelect">
+      <summary class="card-header">
         <span class="card-title">Drag-select</span>
-      </div>
+        <span class="card-meta" id="dragSelectSummary"></span>
+      </summary>
 
       <div class="sub-card">
         <p class="sub-card-title">Trigger</p>
@@ -250,7 +244,7 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
         </div>
         <div class="select-row">
           <label for="lsColor">Box colour</label>
-          <input type="color" id="lsColor" value="#ff7a1a">
+          <input type="color" id="lsColor" value="#1f67a6">
         </div>
         <label class="check-row" title="Pick out only the meaningful links inside the box">
           <input type="checkbox" id="lsSmart"> Smart select — skip nav and boilerplate links
@@ -262,10 +256,10 @@ Or hold Shift and drag a box across links on any page to pull them straight in."
         <p class="slider-hint" style="margin-top:0">Turn drag-select off on these sites — one per line.</p>
         <textarea id="lsBlocklist" rows="4" spellcheck="false" placeholder="example.com"></textarea>
       </div>
-    </div>
+    </details>
 
     <div class="settings-footer">
-      <button class="button" id="backToURLs">&larr; Back to the list</button>
+      <button class="button" id="resetDefaults" title="Restore the opening settings to their defaults">Reset defaults</button>
     </div>
 
   </section>

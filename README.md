@@ -9,14 +9,12 @@ BulkyURLs is a Chrome extension (Manifest V3) for managing large numbers of URLs
 ### Drag-Select Links
 Hold **Shift** + left-click-drag over any area of a page. A dotted selection box appears, and every link it touches is highlighted in red. The extension badge on the toolbar shows the live count of selected links. When you release the mouse, the selection is captured and the badge updates to the final count.
 
-### Popup, Side Panel & Full Tab
-The same UI runs in three places:
-
-- **Popup** — click the BulkyURLs toolbar icon. After a drag selection, the selected URLs appear in the textarea automatically.
-- **Side panel** — click **Open Sidebar** in the popup. The panel docks beside the page and stays open while you browse.
-- **Full tab** — click **Open in New Tab** for a roomier view.
+### Side Panel & Full Tab
+Click the BulkyURLs toolbar icon to dock the panel beside the page — it stays open while you browse, and after a drag selection the selected URLs appear in the textarea automatically. Click **Open in tab** for a roomier full-tab view of the same UI (the button hides itself once you're already in a tab).
 
 The UI is split into three tabs: **List** (the URL ledger, batch controls, saved lists), **Tabs** (copy links out of open tabs) and **Settings**.
+
+Everything below the URL list is a **collapsible section**. Each one keeps a one-line summary in its header — *"5 at a time · 2s apart"*, *"3 lists"*, *"shift + left-drag"* — so a closed section still answers its own question, and which sections you leave open is remembered between visits.
 
 #### List tab
 
@@ -53,7 +51,7 @@ The primary button states the real consequence — **“Open 39 tabs”**, not �
 - **URLs per batch** (1–20) — how many tabs open at once.
 - **Delay between batches** (0–100s) — pause between batches. Opening 50+ tabs at once can trip Chrome's rate limits and drop URLs; smaller batches with a delay open every link reliably.
 
-Opening is delegated to the background service worker, so a batched/delayed run keeps opening even after the popup closes. Batch size and delay are persisted across sessions.
+Opening is delegated to the background service worker, so a batched/delayed run keeps opening even after the panel closes. Batch size and delay are persisted across sessions.
 
 #### Tabs tab
 
@@ -119,7 +117,11 @@ The **Drag-select** card on the Settings tab configures the selection feature:
 
 ### Design
 
-The panel is built as a dark housing (header and nav) wrapping a light work surface, so the tool chrome reads as distinct from the URLs themselves. Amber is inherited from the on-page drag-select box and carries exactly one meaning throughout the UI — *active or selected* — while everything else sits on a neutral ink ramp. The interface follows the system light/dark preference, respects `prefers-reduced-motion`, and ships visible keyboard focus.
+The panel follows the **SEO Soul Brand & Style Guide v2.0**, applied on the principle that a side panel is a guest inside the browser. It leaves the chrome to Chrome: no wordmark and no version number, because Chrome's own side-panel header already names the extension, and the panel starts straight at the navigation. Surfaces borrow the browser's neutrals — a `#F2F2F2` canvas with white cards in light mode, Chrome's own `#202124`/`#292A2D` in dark — so nothing competes with the toolbar above it.
+
+Soul Blue 600 (`#1F67A6`) is the only colour that isn't a neutral, and it carries exactly one meaning throughout — *active, selected, or the next thing to do*: the current tab, the focus halo, the primary button, one per view. Sky 400 (`#74C0E4`) is fill only, never text, and becomes the accent in dark mode where `#0B2941` on sky is the one pairing that clears contrast (7.4:1).
+
+Type is Inter with the system UI stack behind it; monospace is reserved for data — URLs, line numbers, counts. Separation is 1px hairlines rather than shadows, which are kept for floating elements like the Tools menu. Focus is a 1px Blue 600 border plus a 3px Blue 200 halo. The interface follows the system light/dark preference, respects `prefers-reduced-motion`, ships visible keyboard focus and ARIA tab semantics, and every text/background pairing across all three tabs clears WCAG AA (4.5:1) in both schemes.
 
 ---
 
@@ -146,9 +148,9 @@ The panel is built as a dark housing (header and nav) wrapping a light work surf
 2. Hold **Shift** and left-click-drag to draw a selection box over links.
 3. The links highlight red; the toolbar badge shows the count.
 4. Release the mouse — the selection is captured.
-5. Click the BulkyURLs icon — the selected URLs appear in the popup textarea.
+5. Click the BulkyURLs icon — the side panel opens with the selected URLs already in the textarea.
 6. Use **Open in Tabs** (or **New Window**) to open them all, or **Copy** the list to use elsewhere.
-7. Prefer a persistent view? Click **Open Sidebar** to dock the same UI in Chrome's side panel.
+7. Prefer a bigger view? Click **Open in tab** to open the same UI in a full tab.
 
 ---
 
@@ -157,20 +159,19 @@ The panel is built as a dark housing (header and nav) wrapping a light work surf
 ```
 bulkyurls/
 ├── manifest.json              # MV3 manifest
-├── popup.html                 # Popup UI
-├── sidepanel.html             # Same UI for Chrome's side panel / full tab
+├── sidepanel.html             # Main UI — Chrome's side panel, also opens as a full tab
 ├── csv.html                   # CSV import/export dialog
 ├── css/
-│   └── popup.css              # Popup + CSV dialog styles
+│   └── popup.css              # Main UI + CSV dialog styles
 ├── js/
 │   ├── background/
-│   │   └── background.js      # Service worker: settings, messaging, tab management
+│   │   └── background.js      # Service worker: settings, messaging, tab management, opens the side panel on icon click
 │   ├── content/
 │   │   └── content-script.js  # Drag-select box, link detection, URL capture (styles applied inline)
 │   ├── lib/
 │   │   └── urls.js            # Shared URL utilities (extract, dedupe, normalize)
 │   ├── csv.js                 # CSV import/export logic (File System Access API)
-│   └── popup.js               # Popup UI logic
+│   └── popup.js               # Main UI logic
 └── img/
     └── bulkyurls-icon-*.png   # Extension icons (16, 32, 48, 128)
 ```

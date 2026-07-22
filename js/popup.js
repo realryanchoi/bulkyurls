@@ -18,15 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
   var batchNum = document.getElementById('batchSizeNum');
   var delaySlider = document.getElementById('delaySlider');
   var delayNum = document.getElementById('delayNum');
-  var batchBadge = document.getElementById('batchBadge');
-  var delayBadge = document.getElementById('delayBadge');
+  var batchSummary = document.getElementById('batchSummary');
+  var openingSummary = document.getElementById('openingSummary');
+  var dragSelectSummary = document.getElementById('dragSelectSummary');
+  var savedListsSummary = document.getElementById('savedListsSummary');
   var toolsMenu = document.getElementById('toolsMenu');
   var undoBtn = document.getElementById('undo');
   var redoBtn = document.getElementById('redo');
-
-  var isSidePanel = document.body.classList.contains('sidepanel');
-
-  document.getElementById('appVersion').textContent = 'v' + chrome.runtime.getManifest().version;
 
   // ------- Opener settings (persisted as one object) -------
 
@@ -65,13 +63,25 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.storage.local.set({ opener_settings: settings });
   }
 
+  // A collapsed section still has to answer its own question, so each one
+  // carries a one-line summary of its current state in the header.
+  function renderSectionSummaries() {
+    batchSummary.textContent = settings.batchSize === 1
+      ? (settings.delay ? '1 at a time · ' + settings.delay + 's apart' : '1 at a time')
+      : settings.batchSize + ' at a time' + (settings.delay ? ' · ' + settings.delay + 's apart' : '');
+
+    var parts = [];
+    var on = Object.keys(optionInputs).filter(function(k) { return !!settings[k]; }).length;
+    if (on) parts.push(on + ' on');
+    if (settings.urlLimit) parts.push('max ' + settings.urlLimit);
+    openingSummary.textContent = parts.length ? parts.join(' · ') : 'Defaults';
+  }
+
   function renderSettings() {
     batchSlider.value = settings.batchSize;
     batchNum.value = settings.batchSize;
     delaySlider.value = settings.delay;
     delayNum.value = settings.delay;
-    batchBadge.textContent = settings.batchSize + '/batch';
-    delayBadge.textContent = settings.delay + 's';
     Object.keys(optionInputs).forEach(function(key) {
       optionInputs[key].checked = !!settings[key];
     });
@@ -82,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
     limitDesc.textContent = settings.urlLimit === 0
       ? 'Open every URL in the list'
       : 'Open only the first ' + settings.urlLimit + ' URLs';
+    renderSectionSummaries();
     // "Open N tabs" has to follow the cap and the search-query toggle
     updateOpenButtons();
   }
@@ -90,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     optionInputs[key].addEventListener('change', function() {
       settings[key] = optionInputs[key].checked;
       saveSettings();
+      renderSectionSummaries();
       updateOpenButtons();
     });
   });
@@ -193,6 +205,18 @@ document.addEventListener('DOMContentLoaded', function() {
     lsSmart.checked = Number(a.options.smart) === 0; // stored value: 0 = on, 1 = off
     lsBlocklist.value = (linkParams.blocked || []).join('\n');
     lsKeyWarning.hidden = lsKey.value !== '0';
+    renderDragSelectSummary();
+  }
+
+  // The trigger is the one thing worth seeing without opening the section
+  function renderDragSelectSummary() {
+    var key = lsKey.options[lsKey.selectedIndex];
+    var mouse = lsMouse.options[lsMouse.selectedIndex];
+    if (!key || !mouse) return;
+    var mouseLabel = mouse.textContent.toLowerCase() + '-drag';
+    dragSelectSummary.textContent = key.value === '0'
+      ? mouseLabel
+      : key.textContent + ' + ' + mouseLabel;
   }
 
   function saveLinkSettings() {
@@ -205,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     a.options.smart = lsSmart.checked ? 0 : 1;
     linkParams.blocked = lsBlocklist.value.replace(/^\s+|\s+$/g, '').split('\n');
     lsKeyWarning.hidden = lsKey.value !== '0';
+    renderDragSelectSummary();
     chrome.runtime.sendMessage({ message: 'update', settings: linkParams });
   }
 
@@ -227,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // no actions configured (all deleted pre-0.5) — recreate the default
       linkActionId = '101';
       linkParams.actions[linkActionId] = {
-        mouse: 0, key: 16, action: 'tabs', color: '#FFA500',
+        mouse: 0, key: 16, action: 'tabs', color: '#1F67A6',
         options: { smart: 0, ignore: [0], delay: 0, close: 0, block: true, reverse: false, end: false }
       };
     }
@@ -238,7 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function activateTab(name) {
     document.querySelectorAll('.tab').forEach(function(t) {
-      t.classList.toggle('active', t.dataset.tab === name);
+      var on = t.dataset.tab === name;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
     });
     document.getElementById('panel-urls').classList.toggle('active', name === 'urls');
     document.getElementById('panel-tabs').classList.toggle('active', name === 'tabs');
@@ -252,8 +279,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  document.getElementById('backToURLs').addEventListener('click', function() {
-    activateTab('urls');
+  // ------- Collapsible sections -------
+  // Which sections a person leaves open is a per-user working preference,
+  // so it outlives the panel being closed.
+
+  var sections = document.querySelectorAll('details.collapsible');
+
+  chrome.storage.local.get(['ui_sections'], function(stored) {
+    var open = stored.ui_sections || {};
+    sections.forEach(function(d) {
+      if (open[d.id] !== undefined) d.open = open[d.id];
+    });
+  });
+
+  sections.forEach(function(d) {
+    d.addEventListener('toggle', function() {
+      chrome.storage.local.get(['ui_sections'], function(stored) {
+        var open = stored.ui_sections || {};
+        open[d.id] = d.open;
+        chrome.storage.local.set({ ui_sections: open });
+      });
+    });
   });
 
   // ------- Tabs list (copy single / multiple / all tab links) -------
@@ -406,23 +452,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // ------- Sidebar / new-tab launchers -------
+  // ------- Full-tab launcher -------
 
-  var openSidebarBtn = document.getElementById('openSidebar');
-  if (isSidePanel) {
-    openSidebarBtn.hidden = true;
-  } else {
-    openSidebarBtn.addEventListener('click', function() {
-      chrome.windows.getCurrent(function(win) {
-        chrome.sidePanel.open({ windowId: win.id }, function() {
-          void chrome.runtime.lastError;
-          window.close();
-        });
-      });
-    });
-  }
+  var openInTabBtn = document.getElementById('openInTab');
 
-  document.getElementById('openInTab').addEventListener('click', function() {
+  // getCurrent resolves to a tab only when this page *is* a tab, so the
+  // launcher hides itself once you're already there.
+  chrome.tabs.getCurrent(function(tab) {
+    void chrome.runtime.lastError;
+    if (tab) openInTabBtn.hidden = true;
+  });
+
+  openInTabBtn.addEventListener('click', function() {
     chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
   });
 
@@ -523,7 +564,8 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    var RAMP = ['var(--signal)', 'var(--ink-2)', 'var(--ink-3)', 'var(--ink-4)', 'var(--rule-2)'];
+    // Sky ramp — decorative fill, which is the one job sky is allowed.
+    var RAMP = ['var(--blue-600)', 'var(--blue-500)', 'var(--blue-400)', 'var(--blue-300)', 'var(--blue-200)'];
     var top = entries.slice(0, RAMP.length);
     var restEntries = entries.slice(RAMP.length);
     var restCount = restEntries.reduce(function(sum, e) { return sum + e[1]; }, 0);
@@ -583,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
       chrome.action.setBadgeText({ text: '' });
     } else {
       chrome.action.setBadgeText({ text: lastAnalysis.valid.toString() });
-      chrome.action.setBadgeBackgroundColor({ color: '#FF7A1A' });
+      chrome.action.setBadgeBackgroundColor({ color: '#1F67A6' });
     }
   }
 
@@ -736,6 +778,9 @@ document.addEventListener('DOMContentLoaded', function() {
       var lists = stored.saved_lists || {};
       var names = Object.keys(lists).sort();
       savedListsContainer.innerHTML = '';
+      savedListsSummary.textContent = names.length === 0
+        ? 'None saved'
+        : names.length + (names.length === 1 ? ' list' : ' lists');
       if (names.length === 0) {
         var note = document.createElement('p');
         note.className = 'empty-note';
@@ -789,12 +834,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() { listStatus.textContent = ''; }, 2000);
   }
 
-  document.getElementById('newListToggle').addEventListener('click', function() {
-    var row = document.getElementById('newListRow');
-    row.hidden = !row.hidden;
-    if (!row.hidden) listName.focus();
-  });
-
   document.getElementById('saveList').addEventListener('click', function() {
     var name = listName.value.trim();
     if (!name) {
@@ -810,7 +849,6 @@ document.addEventListener('DOMContentLoaded', function() {
       lists[name] = userInput.value;
       chrome.storage.local.set({ saved_lists: lists }, function() {
         listName.value = '';
-        document.getElementById('newListRow').hidden = true;
         refreshSavedLists(name);
       });
     });

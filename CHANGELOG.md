@@ -5,6 +5,27 @@ All notable changes to BulkyURLs will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-07-22
+
+### Added
+- **Collapsible sections.** Everything below the URL list — *Batch*, *Saved lists*, *Opening*, *Drag-select* — collapses to a single bar, which matters in a panel that is tall and narrow. Each header keeps a one-line summary of its own state (*"5 at a time · 2s apart"*, *"3 lists"*, *"2 on · max 50"*, *"shift + left-drag"*), so a closed section still answers its own question. Which sections you leave open is remembered across visits. With the secondary sections closed the List tab is ~40% shorter
+- The tab bar now carries proper ARIA tab semantics (`tablist` / `tab` / `tabpanel`, with `aria-selected` tracking the active tab)
+
+### Changed
+- **The panel stops competing with the browser.** The repeated wordmark, icon and version number are gone from the header — Chrome's own side-panel header already names the extension, so the panel now starts straight at the navigation and spends that space on content instead. The dark navy slab is gone with it
+- **Surfaces borrow Chrome's neutrals** so the panel reads as part of the browser rather than a foreign object inside it: the `#F2F2F2` canvas with white cards in light mode, and Chrome's own `#202124` / `#292A2D` greys in dark mode (previously a navy ground, which clashed with the toolbar above it). Soul Blue is still the only non-neutral colour, and still means one thing
+- Navigation and section headers moved from uppercase monospace to the body font in sentence case — closer to Chrome's own side panels. Monospace is now reserved for data: URLs, line numbers, counts
+- **Saving a list lost a click** — the name field is always visible instead of hiding behind a *Save current list* toggle
+- *Reset defaults* moved from the Opening card header into the Settings footer, and the redundant *Back to the list* button is gone (the tab bar is right there). The full-tab launcher is now labelled **Open in tab** and hides itself when you are already in a tab
+- The batch/delay mini-badges left the action row; that information now lives in the Batch section header, where it is visible whether the section is open or closed
+- **The toolbar icon now opens the side panel directly** — the popup is gone. The side panel was already the persistent, full-featured surface; making it the default removes an extra click for what testing showed is the primary way people use the extension. The **New tab** launcher still opens the same UI in a full tab; the redundant **Sidebar** button is gone since the icon does that job now
+- **Rebuilt the interface on the SEO Soul Brand & Style Guide v2.0.** The housing is now Blue 900 (`#0B2941`) over the `#F2F2F2` canvas, and Soul Blue 600 (`#1F67A6`) replaces amber as the single accent — same rule as before, one meaning: *active, selected, or the next thing to do*. Sky 400 (`#74C0E4`) is fill only and marks the active tab on the navy housing, the one place the guide's contrast table clears it for content
+- Type is Inter Tight for the wordmark and Inter for the rest, on the system UI fallback stack. Radii move to the guide's 3/4/6/8/12 scale, motion to its 100/150/250ms durations, and focus is now a 1px Blue 600 border with a 3px Blue 200 halo on every field, select and primary button
+- The domain composition rail is drawn on the Soul Blue ramp instead of the ink ramp
+- Every text/background pairing across all three tabs now clears WCAG AA (4.5:1) in both light and dark schemes — small labels that previously sat on tertiary grey moved up to secondary
+- Dark mode is the same palette rotated onto a Blue 900 ground, with Sky 400 as the accent
+- The on-page drag-select count label and the toolbar badge follow the new palette; fresh installs get the drag-select box in Soul Blue (existing configurations keep their stored colour)
+
 ## [0.5.0] - 2026-07-22
 
 ### Added

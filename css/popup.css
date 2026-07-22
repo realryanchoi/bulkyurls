@@ -1,11 +1,14 @@
 /* ============================================================
-   BulkyURLs — "Instrument"
+   BulkyURLs — SEO Soul Brand & Style Guide v2.0
 
-   Two-tone: a dark housing (header + nav) wrapping a light work
-   surface. The housing reads as tool chrome so the URL list reads
-   as the work. Amber is inherited from the on-page drag-select box
-   and is reserved for one meaning: active / selected. Everything
-   else is an ink ramp.
+   The panel is a guest inside Chrome's side panel, so it borrows
+   the browser's neutrals and leaves the chrome to Chrome: no
+   wordmark, no version, no dark slab competing with the toolbar.
+   Soul Blue is the only colour that isn't a neutral, and it means
+   one thing — active, selected, or the next thing to do.
+
+   Sections below the URL list are collapsible, because a side
+   panel is tall and narrow and most visits only need one of them.
 
    URLs are data, so every URL is set in mono, never soft-wrapped,
    and line-numbered — line identity matters when you are auditing
@@ -15,45 +18,57 @@
 :root {
   color-scheme: light;
 
-  /* Housing — the dark chrome the tool is built into */
-  --housing:       #15181D;
-  --housing-2:     #20242B;
-  --housing-rule:  #2E343D;
-  --housing-text:  #EDEFF2;
-  --housing-dim:   #8C95A1;
+  /* ---- Soul Blue ramp (anchored on the logo) ---- */
+  --blue-50:  #F1F7FC;
+  --blue-100: #DEEDF7;
+  --blue-200: #BBDEF1;  /* focus halo */
+  --blue-300: #97CFEA;
+  --blue-400: #74C0E4;  /* sky — fills only, never text on white */
+  --blue-500: #4A93C5;
+  --blue-600: #1F67A6;  /* primary CTA + links */
+  --blue-700: #185382;  /* hover */
+  --blue-800: #123E62;  /* active */
+  --blue-900: #0B2941;  /* dark surfaces */
 
-  /* Work surface */
-  --canvas:        #EFF1F4;
+  /* ---- Accent role (what the ramp means here) ---- */
+  --accent:       var(--blue-600);
+  --accent-hover: var(--blue-700);
+  --accent-active:var(--blue-800);
+  --accent-ink:   #FFFFFF;              /* text on an accent fill */
+  --accent-text:  var(--blue-600);      /* accent as text/icon */
+  --accent-wash:  var(--blue-100);
+  --accent-halo:  var(--blue-200);      /* 3px focus halo */
+
+  /* ---- Canvas, surface, text ---- */
+  --canvas:        #F2F2F2;
   --surface:       #FFFFFF;
-  --surface-2:     #F7F8FA;
-  --surface-3:     #EDEFF2;
+  --surface-2:     #F7F8F9;
+  --surface-3:     #E9EBED;             /* sunken */
+  --hover:         rgb(31 103 166 / 0.06);
 
-  /* Ink ramp */
-  --ink:           #14171C;
-  --ink-2:         #434A55;
-  --ink-3:         #69727F;
-  --ink-4:         #98A1AD;
+  --ink:           #1F2933;             /* never pure black */
+  --ink-2:         #5F6B76;
+  --ink-3:         #8A959E;
+  --ink-4:         #A6AFB7;
 
-  /* Rules */
-  --rule:          #E2E6EA;
-  --rule-2:        #CDD3DA;
+  /* ---- Rules: hairlines before shadows ---- */
+  --rule:          rgb(20 40 60 / 0.10);
+  --rule-2:        rgb(20 40 60 / 0.18);
 
-  /* Signal — the drag-select amber. Means "active/selected". */
-  --signal:        #FF7A1A;
-  --signal-ink:    #A8480A;
-  --signal-wash:   #FFF2E8;
-  --signal-rule:   #FFD3AF;
+  /* ---- Status, from the tag spectrum ---- */
+  --pos:           #4D634D;
+  --pos-wash:      #DDEDDD;
+  --neg:           #B82A1F;
+  --neg-wash:      #FBE4E4;
+  --warn:          #93651B;
+  --warn-wash:     #FBF3DB;
 
-  /* Semantics */
-  --pos:           #0F7B4F;
-  --pos-wash:      #E5F3EC;
-  --neg:           #C0342C;
-  --neg-wash:      #FBEAE9;
-
-  /* Type */
-  --ui: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* ---- Type ---- */
+  --font-display: "Inter Tight", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "Cascadia Mono", "SF Mono", "Segoe UI Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
+  /* Dense tool chrome sits a step under the marketing scale */
   --fs-micro: 10px;
   --fs-xs:    11px;
   --fs-sm:    12px;
@@ -61,54 +76,67 @@
   --fs-md:    15px;
   --fs-lg:    18px;
 
-  /* Space — 4px base */
+  /* ---- Space — 4px base ---- */
   --s1: 4px;
   --s2: 8px;
   --s3: 12px;
   --s4: 16px;
-  --s5: 24px;
+  --s5: 20px;
+  --s6: 24px;
 
-  --r-sm: 3px;
-  --r-md: 5px;
+  /* ---- Radius ---- */
+  --r-xs: 3px;
+  --r-sm: 4px;
+  --r-md: 6px;
   --r-lg: 8px;
+  --r-xl: 12px;
 
   --ledger-line: 20px;
 
-  --ease: 130ms cubic-bezier(.4, 0, .2, 1);
+  /* ---- Motion: fast, almost invisible ---- */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 100ms;
+  --duration-base: 150ms;
+  --duration-slow: 250ms;
+  --ease: var(--duration-base) var(--ease-out);
 }
 
+/* Dark mode borrows Chrome's own dark neutrals rather than tinting the
+   greys blue — a navy panel reads as a foreign object next to the
+   browser's toolbar. Sky 400 becomes the accent, the one sky pairing
+   the guide's contrast table clears for content. */
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
 
-    --housing:      #0D0F13;
-    --housing-2:    #16191F;
-    --housing-rule: #262B33;
-    --housing-text: #E8EBEF;
-    --housing-dim:  #7E8792;
+    --accent:       var(--blue-400);
+    --accent-hover: var(--blue-300);
+    --accent-active:var(--blue-200);
+    --accent-ink:   var(--blue-900);
+    --accent-text:  var(--blue-400);
+    --accent-wash:  rgb(116 192 228 / 0.14);
+    --accent-halo:  rgb(116 192 228 / 0.32);
 
-    --canvas:       #14171C;
-    --surface:      #1B1F25;
-    --surface-2:    #21262E;
-    --surface-3:    #272D36;
+    --canvas:       #202124;
+    --surface:      #292A2D;
+    --surface-2:    #303134;
+    --surface-3:    #3C4043;
+    --hover:        rgb(116 192 228 / 0.10);
 
-    --ink:          #E8EBEF;
-    --ink-2:        #B4BCC6;
-    --ink-3:        #8992A0;
-    --ink-4:        #666F7C;
+    --ink:          #E8EAED;
+    --ink-2:        #BDC1C6;
+    --ink-3:        #9AA0A6;
+    --ink-4:        #80868B;
 
-    --rule:         #2B313A;
-    --rule-2:       #3A424D;
+    --rule:         rgb(255 255 255 / 0.12);
+    --rule-2:       rgb(255 255 255 / 0.22);
 
-    --signal:       #FF8A33;
-    --signal-ink:   #FFA75E;
-    --signal-wash:  #2A1D12;
-    --signal-rule:  #4D341C;
-
-    --pos:          #4ECB8C;
-    --pos-wash:     #14271E;
-    --neg:          #F2837B;
-    --neg-wash:     #2B1817;
+    --pos:          #81C995;
+    --pos-wash:     rgb(129 201 149 / 0.14);
+    --neg:          #F28B82;
+    --neg-wash:     rgb(242 139 130 / 0.14);
+    --warn:         #FDD663;
+    --warn-wash:    rgb(253 214 99 / 0.14);
   }
 }
 
@@ -123,108 +151,63 @@
 }
 
 body {
-  width: 448px;
   margin: 0;
   padding: 0;
+  min-width: 320px;
   background-color: var(--canvas);
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-base);
+  line-height: 1.5;
   color: var(--ink);
+  font-feature-settings: "cv02", "cv11";
   -webkit-font-smoothing: antialiased;
 }
 
-/* Side panel / full tab: fill available width instead of the popup's fixed one */
-body.sidepanel {
-  width: auto;
-  min-width: 320px;
-  max-width: 620px;
-  margin: 0 auto;
+/* Full-tab view: a column, not a wall */
+@media (min-width: 720px) {
+  body {
+    max-width: 680px;
+    margin: 0 auto;
+  }
 }
 
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-xs);
 }
 
-/* ============ Housing: header + nav ============ */
+/* ============ App bar: navigation only ============ */
 
-.app-header {
+/* Chrome's side-panel header already carries the extension name and icon,
+   so repeating them here just spends vertical space. */
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: var(--s2);
-  background-color: var(--housing);
-  padding: var(--s3) var(--s4) var(--s2);
-}
-
-.app-header h1 {
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  margin: 0;
-  font-size: var(--fs-md);
-  font-weight: 620;
-  letter-spacing: -0.015em;
-  color: var(--housing-text);
-}
-
-.app-header h1 img {
-  width: 18px;
-  height: 18px;
-}
-
-.app-version {
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.04em;
-  color: var(--housing-dim);
-  margin-right: auto;
-}
-
-/* Launchers sit in the housing as quiet ghost buttons */
-.launch-row {
-  display: flex;
-  gap: var(--s1);
-}
-
-.button.launch {
-  background: transparent;
-  border: 1px solid var(--housing-rule);
-  border-radius: var(--r-md);
-  color: var(--housing-dim);
-  font-family: var(--ui);
-  font-size: var(--fs-xs);
-  height: 24px;
-  padding: 0 var(--s2);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color var(--ease), border-color var(--ease), background-color var(--ease);
-}
-
-.button.launch:hover {
-  color: var(--housing-text);
-  border-color: var(--housing-dim);
-  background-color: var(--housing-2);
+  gap: var(--s3);
+  padding: 0 var(--s3);
+  background-color: var(--canvas);
+  border-bottom: 1px solid var(--rule);
 }
 
 .tab-bar {
   display: flex;
   gap: var(--s4);
-  background-color: var(--housing);
-  padding: 0 var(--s4);
-  border-bottom: 1px solid var(--housing-rule);
+  margin-right: auto;
 }
 
 .tab {
   position: relative;
   background: none;
   border: none;
-  padding: var(--s2) 0 10px;
-  font-family: var(--mono);
-  font-size: var(--fs-xs);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--housing-dim);
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--ink-2);
   cursor: pointer;
   transition: color var(--ease);
 }
@@ -236,20 +219,21 @@ body.sidepanel {
   right: 0;
   bottom: -1px;
   height: 2px;
+  border-radius: 1px 1px 0 0;
   background-color: transparent;
   transition: background-color var(--ease);
 }
 
 .tab:hover {
-  color: var(--housing-text);
+  color: var(--ink);
 }
 
 .tab.active {
-  color: var(--housing-text);
+  color: var(--accent-text);
 }
 
 .tab.active::after {
-  background-color: var(--signal);
+  background-color: var(--accent);
 }
 
 .tab-panel {
@@ -276,7 +260,6 @@ body.sidepanel {
 
 .card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: var(--s2);
   padding: 10px var(--s3);
@@ -284,11 +267,20 @@ body.sidepanel {
 }
 
 .card-title {
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* State at a glance, so a collapsed section still answers its own question */
+.card-meta {
+  margin-left: auto;
+  min-width: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-body {
@@ -310,12 +302,55 @@ body.sidepanel {
 }
 
 .sub-card-title {
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-3);
   margin: 0 0 var(--s2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* ============ Collapsible sections ============ */
+
+.card.collapsible > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.card.collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.card.collapsible > summary:hover {
+  background-color: var(--hover);
+}
+
+.card.collapsible > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* A closed section is a single bar — no rule left hanging under nothing */
+.card.collapsible:not([open]) > summary {
+  border-bottom-color: transparent;
+  border-radius: var(--r-lg);
+}
+
+.card.collapsible > summary::after {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-left: var(--s1);
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--ease);
+}
+
+.card.collapsible[open] > summary::after {
+  transform: translateY(1px) rotate(-135deg);
 }
 
 /* ============ The ledger: line-numbered URL list ============ */
@@ -327,6 +362,7 @@ body.sidepanel {
   position: relative;
   background-color: var(--surface);
   overflow: hidden;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .ledger-gutter {
@@ -339,7 +375,7 @@ body.sidepanel {
   padding: 10px 0;
   border-right: 1px solid var(--rule);
   background-color: var(--surface-2);
-  color: var(--ink-4);
+  color: var(--ink-2);
   font-family: var(--mono);
   font-size: var(--fs-xs);
   line-height: var(--ledger-line);
@@ -383,11 +419,12 @@ body.sidepanel {
 }
 
 #userInput::placeholder {
-  color: var(--ink-4);
+  color: var(--ink-2);
 }
 
+/* Focus you can't miss — the halo, adapted for a flush-edge field */
 .ledger:focus-within {
-  box-shadow: inset 0 0 0 1px var(--signal-rule);
+  box-shadow: inset 0 0 0 2px var(--accent-halo);
 }
 
 /* Domain composition — how the list splits across sites */
@@ -403,7 +440,7 @@ body.sidepanel {
   min-width: 2px;
 }
 
-/* Instrument readout under the list */
+/* Readout under the list */
 .stat-strip {
   display: flex;
   flex-wrap: wrap;
@@ -418,24 +455,21 @@ body.sidepanel {
   display: flex;
   align-items: baseline;
   gap: 5px;
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-4);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
 }
 
 .stat b {
-  font-size: var(--fs-base);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
   font-weight: 600;
-  letter-spacing: 0;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
 .stat.is-pos b { color: var(--pos); }
 .stat.is-neg b { color: var(--neg); }
-.stat.is-zero b { color: var(--ink-4); }
+.stat.is-zero b { color: var(--ink-2); }
 
 /* ============ Chip toolbar ============ */
 
@@ -452,8 +486,9 @@ body.sidepanel {
   background-color: var(--surface);
   border: 1px solid var(--rule-2);
   border-radius: var(--r-md);
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-xs);
+  font-weight: 500;
   color: var(--ink-2);
   height: 24px;
   padding: 0 var(--s2);
@@ -463,9 +498,9 @@ body.sidepanel {
 }
 
 .chip:hover:not(:disabled) {
-  color: var(--ink);
-  border-color: var(--ink-4);
-  background-color: var(--surface-2);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  background-color: var(--hover);
 }
 
 .chip:disabled {
@@ -491,6 +526,7 @@ body.sidepanel {
   margin-left: auto;
 }
 
+/* A floating element — one of the few places a shadow is earned */
 .tools-menu {
   position: absolute;
   right: 0;
@@ -500,8 +536,8 @@ body.sidepanel {
   padding: var(--s1);
   background-color: var(--surface);
   border: 1px solid var(--rule-2);
-  border-radius: var(--r-md);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.14), 0 1px 2px rgb(0 0 0 / 0.08);
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 24px rgb(11 41 65 / 0.14), 0 1px 2px rgb(11 41 65 / 0.08);
 }
 
 .tools-item {
@@ -512,7 +548,7 @@ body.sidepanel {
   border: none;
   border-radius: var(--r-sm);
   text-align: left;
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-sm);
   color: var(--ink-2);
   cursor: pointer;
@@ -520,8 +556,8 @@ body.sidepanel {
 }
 
 .tools-item:hover {
-  background-color: var(--signal-wash);
-  color: var(--ink);
+  background-color: var(--accent-wash);
+  color: var(--accent-text);
 }
 
 .tools-sep {
@@ -535,29 +571,16 @@ body.sidepanel {
 .action-row {
   display: flex;
   align-items: center;
-  gap: var(--s1);
+  gap: var(--s2);
   padding: var(--s3);
   border-top: 1px solid var(--rule);
   background-color: var(--surface-2);
   border-radius: 0 0 var(--r-lg) var(--r-lg);
 }
 
-.summary-badges {
-  display: flex;
-  gap: var(--s1);
-  margin-right: auto;
-}
-
-.mini-badge {
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.04em;
-  color: var(--ink-3);
-  background-color: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-sm);
-  padding: 3px 6px;
-  white-space: nowrap;
+.action-row .button {
+  flex: 1;
+  height: 34px;
 }
 
 /* ============ Buttons ============ */
@@ -571,8 +594,9 @@ body.sidepanel {
   background-color: var(--surface);
   border: 1px solid var(--rule-2);
   border-radius: var(--r-md);
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-sm);
+  font-weight: 500;
   color: var(--ink-2);
   cursor: pointer;
   white-space: nowrap;
@@ -581,29 +605,51 @@ body.sidepanel {
 }
 
 .button:hover {
-  color: var(--ink);
-  border-color: var(--ink-4);
-  background-color: var(--surface-2);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  background-color: var(--hover);
 }
 
+/* Exactly one of these per view — it is the next thing to do */
 .button.primary {
-  background-color: var(--signal);
-  border-color: var(--signal);
-  color: #1B0E03;
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 600;
 }
 
 .button.primary:hover {
-  background-color: #F26E0C;
-  border-color: #F26E0C;
-  color: #1B0E03;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--accent-ink);
+}
+
+.button.primary:active {
+  background-color: var(--accent-active);
+  border-color: var(--accent-active);
+}
+
+.button.primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-halo);
 }
 
 .button.primary:disabled {
   background-color: var(--surface-3);
   border-color: var(--rule-2);
-  color: var(--ink-4);
+  color: var(--ink-3);
   cursor: default;
+}
+
+/* Quiet enough to sit in the app bar without competing with the tabs */
+.button.ghost {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.button.ghost:hover {
+  border-color: transparent;
+  background-color: var(--hover);
 }
 
 .button.small {
@@ -627,12 +673,14 @@ body.sidepanel {
   justify-content: space-between;
   align-items: center;
   gap: var(--s2);
-  margin-bottom: 6px;
+  /* label-to-input gap */
+  margin-bottom: var(--s1);
 }
 
 .slider-label {
   font-size: var(--fs-sm);
-  color: var(--ink-2);
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .stepper {
@@ -647,7 +695,7 @@ body.sidepanel {
   background-color: var(--surface);
   border: 1px solid var(--rule-2);
   border-radius: var(--r-sm);
-  color: var(--ink-3);
+  color: var(--ink-2);
   font-size: var(--fs-sm);
   line-height: 1;
   cursor: pointer;
@@ -655,9 +703,9 @@ body.sidepanel {
 }
 
 .stepper-btn:hover {
-  color: var(--ink);
-  border-color: var(--ink-4);
-  background-color: var(--surface-2);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  background-color: var(--hover);
 }
 
 .stepper input[type="number"],
@@ -673,11 +721,13 @@ body.sidepanel {
   color: var(--ink);
   text-align: center;
   font-variant-numeric: tabular-nums;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .stepper input[type="number"]:focus,
 .inline-num:focus {
-  border-color: var(--signal);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-halo);
   outline: none;
 }
 
@@ -694,7 +744,7 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border: 1px solid var(--rule);
-  border-radius: 3px;
+  border-radius: var(--r-xs);
   background-color: var(--surface-3);
 }
 
@@ -707,7 +757,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: -6px;
   border: 2px solid var(--surface);
   border-radius: 50%;
-  background-color: var(--signal);
+  background-color: var(--accent);
   box-shadow: 0 0 0 1px var(--rule-2);
 }
 
@@ -716,7 +766,7 @@ input[type="range"]:focus-visible {
 }
 
 input[type="range"]:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px var(--signal-rule);
+  box-shadow: 0 0 0 3px var(--accent-halo);
 }
 
 .slider-scale {
@@ -724,25 +774,32 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   justify-content: space-between;
   font-family: var(--mono);
   font-size: var(--fs-micro);
-  color: var(--ink-4);
+  color: var(--ink-2);
 }
 
 .slider-hint {
   margin: 5px 0 0;
   font-size: var(--fs-xs);
-  color: var(--ink-3);
+  color: var(--ink-2);
   line-height: 1.45;
 }
 
+/* Info banner — Blue 50 ground, Blue 600 rule */
 .note {
   margin: 0;
   padding: var(--s2) 10px;
-  background-color: var(--signal-wash);
-  border-left: 2px solid var(--signal);
+  background-color: var(--blue-50);
+  border-left: 2px solid var(--accent);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   font-size: var(--fs-xs);
   color: var(--ink-2);
   line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .note {
+    background-color: var(--accent-wash);
+  }
 }
 
 /* ============ Checkboxes + selects ============ */
@@ -766,7 +823,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   margin: 0;
-  accent-color: var(--signal);
+  accent-color: var(--accent);
 }
 
 .check-row .inline-num {
@@ -790,13 +847,15 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   background-color: var(--surface);
   border: 1px solid var(--rule-2);
   border-radius: var(--r-sm);
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-xs);
   color: var(--ink);
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .select-row select:focus {
-  border-color: var(--signal);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-halo);
   outline: none;
 }
 
@@ -832,10 +891,12 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   outline: none;
   white-space: pre;
   overflow-x: auto;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
 #lsBlocklist:focus {
-  border-color: var(--signal);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-halo);
 }
 
 .limit-row {
@@ -873,17 +934,19 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   min-width: 0;
   height: 26px;
   padding: 0 var(--s2);
-  background-color: var(--surface-2);
+  background-color: var(--surface);
   border: 1px solid var(--rule-2);
   border-radius: var(--r-sm);
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-sm);
   color: var(--ink);
   outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .new-list-row input[type="text"]:focus {
-  border-color: var(--signal);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-halo);
 }
 
 .saved-lists {
@@ -904,7 +967,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 }
 
 .saved-list-row:hover {
-  background-color: var(--surface-2);
+  background-color: var(--hover);
 }
 
 .saved-list-name {
@@ -914,7 +977,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   background: none;
   border: none;
   text-align: left;
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-sm);
   color: var(--ink-2);
   cursor: pointer;
@@ -925,7 +988,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 }
 
 .saved-list-name:hover {
-  color: var(--signal-ink);
+  color: var(--accent-text);
 }
 
 .saved-list-count {
@@ -933,7 +996,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   font-family: var(--mono);
   font-size: var(--fs-micro);
   letter-spacing: 0.04em;
-  color: var(--ink-4);
+  color: var(--ink-2);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -945,7 +1008,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   background: none;
   border: none;
   border-radius: var(--r-sm);
-  color: var(--ink-4);
+  color: var(--ink-3);
   font-size: var(--fs-base);
   line-height: 1;
   cursor: pointer;
@@ -960,16 +1023,14 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 .empty-note {
   margin: var(--s3) 0;
   font-size: var(--fs-xs);
-  color: var(--ink-4);
+  color: var(--ink-2);
   text-align: center;
 }
 
 .list-status {
   min-height: 1.3em;
   margin-top: var(--s1);
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.04em;
+  font-size: var(--fs-xs);
   color: var(--pos);
 }
 
@@ -998,7 +1059,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   margin: 0;
-  accent-color: var(--signal);
+  accent-color: var(--accent);
 }
 
 .tabs-list {
@@ -1021,12 +1082,12 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 }
 
 .tab-row:hover {
-  background-color: var(--surface-2);
+  background-color: var(--hover);
 }
 
 .tab-row:has(.tab-row-check:checked) {
-  background-color: var(--signal-wash);
-  box-shadow: inset 2px 0 0 var(--signal);
+  background-color: var(--accent-wash);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .tab-row-check {
@@ -1034,7 +1095,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   margin: 0;
-  accent-color: var(--signal);
+  accent-color: var(--accent);
 }
 
 .tab-row-icon {
@@ -1066,7 +1127,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   white-space: nowrap;
   font-family: var(--mono);
   font-size: var(--fs-micro);
-  color: var(--ink-4);
+  color: var(--ink-2);
 }
 
 .tab-row-copy {
@@ -1076,23 +1137,24 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   background-color: var(--surface);
   border: 1px solid var(--rule-2);
   border-radius: var(--r-sm);
-  font-family: var(--ui);
+  font-family: var(--font-body);
   font-size: var(--fs-micro);
-  color: var(--ink-3);
+  color: var(--ink-2);
   cursor: pointer;
   transition: color var(--ease), border-color var(--ease), background-color var(--ease);
 }
 
 .tab-row-copy:hover {
-  color: var(--ink);
-  border-color: var(--ink-4);
-  background-color: var(--surface-2);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  background-color: var(--hover);
 }
 
 /* ============ CSV dialog (csv.html) ============ */
 
+/* This one opens in its own window with no browser-supplied title, so it
+   keeps a header — a light bar, not a slab. */
 .csv-body {
-  width: auto;
   min-width: 380px;
   padding: 0 0 var(--s4);
 }
@@ -1103,10 +1165,12 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   gap: var(--s2);
   margin: 0 0 var(--s4);
   padding: var(--s3) var(--s4);
-  background-color: var(--housing);
-  color: var(--housing-text);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  font-family: var(--font-display);
   font-size: var(--fs-md);
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: -0.015em;
 }
 
@@ -1123,11 +1187,9 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 
 .csv-heading {
   margin: 0 0 var(--s1);
-  font-family: var(--mono);
-  font-size: var(--fs-micro);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .csv-desc {
@@ -1152,18 +1214,19 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   outline: none;
   white-space: pre;
   overflow-x: auto;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
 #csv-preview:focus {
-  border-color: var(--signal);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-halo);
 }
 
 #status {
   min-height: 1.4em;
   margin: var(--s3) 0 0;
-  font-family: var(--mono);
   font-size: var(--fs-xs);
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 #status.error { color: var(--neg); }

@@ -181,13 +181,14 @@ function mousedown(event) {
 				count_label.style.padding = "3px 8px";
 				count_label.style.fontSize = "11px";
 				count_label.style.fontFamily = "ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace";
+				count_label.style.lineHeight = "1.3";
 				count_label.style.fontWeight = "600";
 				count_label.style.letterSpacing = "0.04em";
-				count_label.style.color = "#EDEFF2";
-				count_label.style.backgroundColor = "#15181D";
+				count_label.style.color = "#FFFFFF";
+				count_label.style.backgroundColor = "#0B2941";
 				count_label.style.border = "1px solid " + settings[setting].color;
 				count_label.style.borderRadius = "4px";
-				count_label.style.boxShadow = "0 2px 8px rgba(0,0,0,.28)";
+				count_label.style.boxShadow = "0 2px 8px rgba(11,41,65,.28)";
 				count_label.style.pointerEvents = "none";
 
 				document.body.appendChild(box);
